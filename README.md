@@ -11,3 +11,6 @@
 5. Start the development server:
 	python manage.py runserver
 6. Open your browser and navigate to http://127.0.0.1:8000/
+7. Quit the server CONTROL-C
+8. Deactivate the virtual environment
+	deactivate
