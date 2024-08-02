@@ -1,0 +1,31 @@
+# Virtual environment
+../myenv/
+
+# Python files
+*.py[cod]
+__pycache__/
+*.so
+
+# Django files
+db.sqlite3
+
+# Static files
+staticfiles/
+
+# Environment variables
+.env
+
+# macOS files
+.DS_Store
+
+# Windows files
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+.pytest_cache/
