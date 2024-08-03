@@ -1,5 +1,8 @@
 ## Setup
 
+Project notion page :
+https://www.notion.so/anthonytsang/Transandence-675ea23a0317475b811968d092041775?pvs=4
+
 1. Clone the repository:
 2. Create and activate a virtual environment:
    ```
