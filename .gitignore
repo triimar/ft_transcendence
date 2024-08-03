@@ -1,5 +1,6 @@
 # Virtual environment
-../myenv/
+myenv
+source
 
 # Python files
 *.py[cod]
