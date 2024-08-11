@@ -8,3 +8,6 @@ from django.http import HttpResponse
 
 def hello_world(request):
 	return render(request, 'game.html')
+
+def transcendence(request):
+    return render(request, 'index.html')
