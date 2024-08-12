@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trancendence!</title>
+</head>
+<style>
+	#main {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+</style>
+<body id="main">
+    <h1>This is Trancendence!</h1>
+	<canvas id="canvas" style="border: 5px solid" width="1200" height="600"></canvas>
+    <script src="{% static 'js/game.js' %}"></script>
+</body>
+</html>
