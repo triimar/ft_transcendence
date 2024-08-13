@@ -7,4 +7,4 @@ from django.http import HttpResponse
 #     return HttpResponse("Hello, world!")
 
 def hello_world(request):
-	return render(request, 'game.html')
+	return render(request, 'hello.html')
