@@ -4,19 +4,19 @@
 <head>
     <title>Transcendence!</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <script type="module" src="{% static 'js/index.js' %}"></script>
 </head>
 <body>
     <h1>This is Transcendence!</h1>
-    <script src="{% static 'js/index.js' %}"></script>
+	<main></main>
 </body>
-<main></main>
-<template id="error_page">
+<template id="page-error">
 	<h1>Page unknown</h1>
 </template>
-<template id="login_page">
+<template id="page-login">
 	<h1>Login page</h1>
 </template>
-<template id="main_page">
+<template id="page-main">
 	<h1>Main page</h1>
 </template>
 </html>
