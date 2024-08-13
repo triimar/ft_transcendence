@@ -11,14 +11,14 @@ function renderPage() {
 	if (hash == '')
 		hash = "main";
 	// TODO(Anthony): Authentication here. To ensure that user has been logged in
-	renderTemplate(mainElement, hash + "_page");
+	renderTemplate(mainElement, "page-" + hash);
 }
 
 function renderTemplate(container, templateId) {
 	let template = document.getElementById(templateId);
 	if (template == null) {
-		console.error("unknown template");
-		template = document.getElementById("error_page");
+		console.error("renderTemplate() attempts to access unknown template");
+		template = document.getElementById("page-error");
 	}
 	const clone = template.content.cloneNode(true);
 	container.innerHTML = "";
