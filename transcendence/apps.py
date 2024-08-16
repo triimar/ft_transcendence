@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class TransendenceConfig(AppConfig):
+class TranscendenceConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'transendence'
+    name = 'transcendence'
