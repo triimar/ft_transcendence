@@ -31,7 +31,7 @@ function renderTemplate(container, templateId) {
 }
 
 window.addEventListener("DOMContentLoaded", main);
-window.customElements.define("lobby-room", ComponentLobbyRoom);
-window.customElements.define("avatar", ComponentAvatar);
-window.customElements.define("navigation-bar", ComponentNavigationBar);
-window.customElements.define("logo", ComponentLogo);
+window.customElements.define("td-lobby-room", ComponentLobbyRoom);
+window.customElements.define("td-avatar", ComponentAvatar);
+window.customElements.define("td-navigation-bar", ComponentNavigationBar);
+window.customElements.define("td-logo", ComponentLogo);
