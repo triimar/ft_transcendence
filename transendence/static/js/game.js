@@ -6,6 +6,7 @@ const PADDLE_H = 150;
 const PADDLE_W = 50;
 
 let raf;
+let pause = false;
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -76,15 +77,7 @@ const paddleRight = {
 	}
 };
 
-async function draw() {
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	paddleLeft.draw();
-	paddleRight.draw();
-	ball.draw();
-	if (ball.isReset) {
-		await sleep(3000);
-		ball.isReset = false;
-	}
+function moving() {
 	if (ball.vx != 5 && ball.vx != -5 && !ball.isSpeedingUp) {
 		
 		ball.isSpeedingUp = true;
@@ -96,6 +89,7 @@ async function draw() {
 			ball.isSpeedingUp = false;
 		}, 1000);
 	}
+
 	ball.x += ball.vx;
 	ball.y += ball.vy;
   
@@ -128,6 +122,22 @@ async function draw() {
 	{
 		ball.vx = -ball.vx;
 	}
+}
+
+async function draw() {
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	paddleLeft.draw();
+	paddleRight.draw();
+	ball.draw();
+	if (ball.isReset) {
+		pause = true;
+		ball.isReset = false;
+		setTimeout(function() {
+			pause = false;
+		}, 3000);
+	}
+	if (!pause)
+		moving();
 	raf = window.requestAnimationFrame(draw);
 }
 
