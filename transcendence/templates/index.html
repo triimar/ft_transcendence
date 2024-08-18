@@ -7,7 +7,6 @@
     <script type="module" src="{% static 'js/index.js' %}"></script>
 </head>
 <body>
-    <h1>This is Transcendence!</h1>
 	<main></main>
 </body>
 <template id="page-error">
@@ -17,6 +16,36 @@
 	<h1>Login page</h1>
 </template>
 <template id="page-main">
-	<h1>Main page</h1>
+	<div id="content-container">
+		<navigation-bar></navigation-bar>
+		<lobby-room room-max="8" room-id="EFGHUY12KJ23">
+			<avatar avatar-name=":3:" avatar-background="rgb(255, 100, 3)"></avatar>
+			<avatar avatar-name=".0." avatar-background="rgb(10, 100, 3)"></avatar>
+		</lobby-room>
+		<lobby-room room-max="3" room-id="AB07U5HL3J23">
+			<avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></avatar>
+			<avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></avatar>
+			<avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></avatar>
+		</lobby-room>
+	</div>
+</template>
+<template id="component-lobby-room">
+	<slot></slot>
+	<p></p>
+</template>
+<template id="component-avatar">
+	<div>
+		<p></p>
+	</div>
+</template>
+<template id="component-navigation-bar">
+	<nav>
+		<logo></logo>
+		<avatar avatar-name="-S-" avatar-background="rgb(30,30,140)">
+		<slot name="navigation-bar-extra-button"></slot>
+	</nav>
+</template>
+<template id="component-logo">
+	<h1>:PONG</h1>
 </template>
 </html>
