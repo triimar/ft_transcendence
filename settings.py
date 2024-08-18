@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'transendence',
+    'transcendence',
 ]
 
 MIDDLEWARE = [
@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'transendence.urls'
+ROOT_URLCONF = 'transcendence.urls'
 
 TEMPLATES = [
     {
@@ -119,7 +119,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "transendence/static",
+    BASE_DIR / "transcendence/static",
 ]
 
 # Default primary key field type
