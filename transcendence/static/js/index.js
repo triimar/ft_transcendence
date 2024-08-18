@@ -1,7 +1,7 @@
-import ComponentLobbyRoom from "components/LobbyRoom.js";
-import ComponentAvatar from "components/Avatar.js";
-import ComponentNavigationBar from "components/NavigationBar.js";
-import ComponentLogo from "components/Logo.js";
+import ComponentLobbyRoom from "./components/LobbyRoom.js";
+import ComponentAvatar from "./components/Avatar.js";
+import ComponentNavigationBar from "./components/NavigationBar.js";
+import ComponentLogo from "./components/Logo.js";
 
 function main() {
 	window.addEventListener("hashchange", function() {
