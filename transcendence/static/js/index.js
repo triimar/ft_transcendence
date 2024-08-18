@@ -1,3 +1,8 @@
+import ComponentLobbyRoom from "components/LobbyRoom.js";
+import ComponentAvatar from "components/Avatar.js";
+import ComponentNavigationBar from "components/NavigationBar.js";
+import ComponentLogo from "components/Logo.js";
+
 function main() {
 	window.addEventListener("hashchange", function() {
 		renderPage();
@@ -26,3 +31,7 @@ function renderTemplate(container, templateId) {
 }
 
 window.addEventListener("DOMContentLoaded", main);
+window.customElements.define("lobby-room", ComponentLobbyRoom);
+window.customElements.define("avatar", ComponentAvatar);
+window.customElements.define("navigation-bar", ComponentNavigationBar);
+window.customElements.define("logo", ComponentLogo);
