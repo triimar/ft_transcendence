@@ -1,5 +1,5 @@
-export default ComponentLobbyRoom extends HTMLElements {
+export default ComponentLobbyRoom extends HTMLElement {
 	constructor() {
-
+		super();
 	}
 }
