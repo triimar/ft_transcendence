@@ -86,14 +86,30 @@
 	<div id="vertical"></div>
 </template>
 <template id="component-avatar">
-	<div>
-		<p></p>
-	</div>
+	<style>
+		:host {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: var(--td-avatar-width);
+			height: var(--td-avatar-height);
+			padding: 0.5em 1em;
+			box-sizing: border-box;
+		}
+
+		#avatar-name {
+			margin: 0;
+			font-size: 2em;
+			text-align: center;
+			color: white;
+		}
+	</style>
+	<p id="avatar-name"></p>
 </template>
 <template id="component-navigation-bar">
 	<nav>
 		<td-logo></td-logo>
-		<td-avatar avatar-name="-S-" avatar-background="rgb(30,30,140)">
+		<td-avatar avatar-name="-S-" avatar-background="rgb(30,30,140)"></td-avatar>
 		<slot name="navigation-bar-extra-button"></slot>
 	</nav>
 </template>
