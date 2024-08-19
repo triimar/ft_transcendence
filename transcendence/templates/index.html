@@ -18,11 +18,11 @@
 <template id="page-main">
 	<style>
 		#content-container {
+			width: 70vw;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			gap: 1vh;
-			width: 70vw;
 		}
 
 		#content-container > * {
@@ -55,17 +55,17 @@
 		}
 
 		#lobby-room-participants {
+			width: 60%;
 			display: flex;
 			flex-direction: row;
 			justify-content: start;
 			flex-wrap: wrap;
-			width: 60%;
 		}
 
 		#lobby-room-id {
-			font-size: 1.5em;
 			width: 40%;
 			margin: 0;
+			font-size: 1.5em;
 		}
 	</style>
 	<slot id="lobby-room-participants"></slot>
@@ -74,11 +74,11 @@
 <template id="component-lobby-room-join-button">
 	<style>
 		:host {
-			display: block;
-			position: relative;
 			width: var(--td-avatar-width);
 			height: var(--td-avatar-height);
+			position: relative;
 			padding: 0.5em 1em;
+			display: block;
 		}
 
 		#horizontal, #vertical {
@@ -105,20 +105,20 @@
 <template id="component-avatar">
 	<style>
 		:host {
-			display: flex;
-			justify-content: center;
-			align-items: center;
 			width: var(--td-avatar-width);
 			height: var(--td-avatar-height);
 			padding: 0.5em 1em;
 			box-sizing: border-box;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 
 		#avatar-name {
 			margin: 0;
+			color: white;
 			font-size: 2em;
 			text-align: center;
-			color: white;
 		}
 	</style>
 	<p id="avatar-name"></p>
