@@ -30,8 +30,60 @@
 	</div>
 </template>
 <template id="component-lobby-room">
-	<slot></slot>
-	<p></p>
+	<style>
+		:host {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		#lobby-room-participants {
+			display: flex;
+			flex-direction: row;
+			justify-content: start;
+			flex-wrap: wrap;
+			width: 60%;
+		}
+
+		#lobby-room-id {
+			font-size: 1.5em;
+			width: 40%;
+			margin: 0;
+		}
+	</style>
+	<slot id="lobby-room-participants"></slot>
+	<p id="lobby-room-id"></p>
+</template>
+<template id="component-lobby-room-join-button">
+	<style>
+		:host {
+			display: block;
+			position: relative;
+			width: var(--td-avatar-width);
+			height: var(--td-avatar-height);
+			padding: 0.5em 1em;
+		}
+
+		#horizontal, #vertical {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background: var(--td-ui-font-color);
+		}
+
+		#horizontal {
+			width: 80%;
+			height: var(--td-border-size);
+		}
+
+		#vertical {
+			width: var(--td-border-size);
+			height: 80%;
+		}
+	</style>
+	<div id="horizontal"></div>
+	<div id="vertical"></div>
 </template>
 <template id="component-avatar">
 	<div>
