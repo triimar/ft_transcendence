@@ -16,6 +16,23 @@
 	<h1>Login page</h1>
 </template>
 <template id="page-main">
+	<style>
+		#content-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 1vh;
+			width: 70vw;
+		}
+
+		#content-container > * {
+			width: 100%;
+		}
+
+		td-navigation-bar {
+			position: sticky;
+		}
+	</style>
 	<div id="content-container">
 		<td-navigation-bar></td-navigation-bar>
 		<td-lobby-room room-max="8" room-id="EFGHUY12KJ23" class="ui">
