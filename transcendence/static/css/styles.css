@@ -9,6 +9,8 @@
 /* - transform */
 /* - background */
 /* - color, font-size */
+/* - animation */
+/* - misc */
 /* - display */
 
 /* Note(Anthony): Define CSS variables here*/
@@ -31,6 +33,10 @@
 }
 
 body {
+	margin: 0;
+	width: 100vw;
+	height: 100vh;
+	overflow-x: hidden;
     background-color: #f0f0f0;
     color: #333;
     font-family: Arial, sans-serif;
