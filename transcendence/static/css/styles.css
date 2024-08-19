@@ -1,5 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Monomaniac+One&display=swap');
 
+/* Order of css properties: */
+/* - width, height */
+/* - position, top, bottom, left, right */
+/* - margin, padding */
+/* - border */
+/* - box-sizing */
+/* - transform */
+/* - background */
+/* - color, font-size */
+/* - display */
+
 /* Note(Anthony): Define CSS variables here*/
 :root {
 	--td-font-size: 32px;
