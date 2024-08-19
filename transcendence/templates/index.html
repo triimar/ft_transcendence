@@ -51,11 +51,11 @@
 		:host {
 			display: flex;
 			flex-direction: row;
+			justify-content: space-between;
 			align-items: center;
 		}
 
 		#lobby-room-participants {
-			width: 60%;
 			display: flex;
 			flex-direction: row;
 			justify-content: start;
@@ -63,8 +63,8 @@
 		}
 
 		#lobby-room-id {
-			width: 40%;
-			margin: 0;
+			margin: 0 1em;
+			text-align: center;
 			font-size: 1.5em;
 		}
 	</style>
@@ -78,6 +78,8 @@
 			height: var(--td-avatar-height);
 			position: relative;
 			padding: 0.5em 1em;
+			cursor: pointer;
+
 			display: block;
 		}
 
