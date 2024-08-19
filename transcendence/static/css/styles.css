@@ -9,3 +9,8 @@ h1 {
     text-align: center;
     margin-top: 50px;
 }
+
+.ui {
+	border: var(--td-border-size) solid var(--td-ui-font-color);
+	box-sizing: border-box;
+}
