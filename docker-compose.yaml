@@ -1,0 +1,57 @@
+version '3'
+
+servicies:
+  app:
+    depends_on:
+      - db_redis
+      - db_sql
+    container_name: app
+    image: app
+    build:
+      context: .
+    networks:
+      - transcendence
+    restart: always
+  
+  db_redis:
+    container_name: db_redis
+    image: redis
+    networks:
+      - transcendence
+    expose:
+      - 6379
+    volumes:
+      - db_redis:/var/lib/redis
+    restart: always
+
+  db_sql:
+    container_name: db_sql
+    image: postgres
+    networks:
+      - transcendence
+    expose:
+      - 5432
+    volumes:
+      - db_sql:/var/lib/postgresql
+    restart: always
+
+  volumes:
+    db_redis:
+      name: db_redis
+      driver: local
+      driver_opts:
+        o: "bind"
+        type: none
+        device: ./db_redis
+    db_sql:
+      name: db_sql
+      driver: local
+      driver_opts:
+        o: "bind"
+        type: none
+        device: ./db_sql
+
+  networks:
+    transcendence:
+      driver: bridge
+    
