@@ -36,7 +36,9 @@
 		}
 	</style>
 	<div id="content-container">
-		<td-navigation-bar></td-navigation-bar>
+		<td-navigation-bar>
+			<p class="ui ui-text">ADD ROOM</p>
+		</td-navigation-bar>
 		<td-lobby-room room-max="8" room-id="EFGHUY12KJ23" class="ui">
 			<td-avatar avatar-name=":3:" avatar-background="rgb(255, 100, 3)"></td-avatar>
 			<td-avatar avatar-name=".0." avatar-background="rgb(10, 100, 3)"></td-avatar>
@@ -169,8 +171,16 @@
 			background: var(--td-ui-background-color);
 			display: flex;
 			flex-direction: row;
-			justify-content: space-around;
+			justify-content: space-between;
 			align-items: center;
+		}
+
+		#buttons-container {
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-end;
+			align-items: center;
+			gap: 1em;
 		}
 
 		.ui {
@@ -181,10 +191,12 @@
 	</style>
 	<nav>
 		<td-logo></td-logo>
-		<div class="ui">
-			<td-avatar avatar-name="-S-" avatar-background="rgb(30,30,140)"></td-avatar>
+		<div id="buttons-container">
+			<slot></slot>
+			<div class="ui">
+				<td-avatar avatar-name="-S-" avatar-background="rgb(30,30,140)"></td-avatar>
+			</div>
 		</div>
-		<slot name="navigation-bar-extra-button"></slot>
 	</nav>
 </template>
 <template id="component-logo">
