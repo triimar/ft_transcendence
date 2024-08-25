@@ -23,7 +23,18 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+			switch (data.type)
+			{
+			case "message":
+				document.querySelector('#chat-log').value += (data.payload + '\n');
+				break;
+			case "messages":
+				let log = document.querySelector('#chat-log');
+				for (message of data.payload) {
+					log.value += (message + '\n');
+				}
+				break;
+			}
         };
 
         chatSocket.onclose = function(e) {
