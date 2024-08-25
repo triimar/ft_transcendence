@@ -2,6 +2,8 @@ import ComponentLobbyRoom, { ComponentLobbyRoomJoinButton } from "./components/L
 import ComponentAvatar from "./components/Avatar.js";
 import ComponentNavigationBar from "./components/NavigationBar.js";
 import ComponentLogo from "./components/Logo.js";
+import ComponentGameBoard from "./components/GameBoard.js";
+import ComponentAIGameBoard from "./components/AIGameBoard.js";
 
 function main() {
 	window.addEventListener("hashchange", function() {
@@ -39,3 +41,5 @@ window.customElements.define("td-lobby-room-join-button", ComponentLobbyRoomJoin
 window.customElements.define("td-avatar", ComponentAvatar);
 window.customElements.define("td-navigation-bar", ComponentNavigationBar);
 window.customElements.define("td-logo", ComponentLogo);
+window.customElements.define("td-game-board", ComponentGameBoard);
+window.customElements.define("td-ai-game-board", ComponentAIGameBoard);
