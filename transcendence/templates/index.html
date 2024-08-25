@@ -26,8 +26,13 @@
 	<td-navigation-bar>
 		<p class="ui ui-text">EXIT GAME</p>
 	</td-navigation-bar>
-	<canvas id="canvas" style="border: 5px solid" width="1200" height="600"></canvas>
-    <script src="{% static 'js/ai.js' %}"></script>
+	<td-game-board></td-game-board>
+</template>
+<template id="page-ai-game">
+	<td-navigation-bar>
+		<p class="ui ui-text">EXIT GAME</p>
+	</td-navigation-bar>
+	<td-ai-game-board></td-ai-game-board>
 </template>
 <template id="page-room">
 	<td-navigation-bar>
@@ -207,5 +212,15 @@
 </template>
 <template id="component-logo">
 	<h1>:PONG</h1>
+</template>
+<template id="component-game-board">
+	<style>
+		.ui {
+			border: var(--td-border-size) solid var(--td-ui-font-color);
+			box-sizing: border-box;
+			width: fit-content;
+		}
+	</style>
+	<canvas style="width: 100%;"  width="1200" height="600" class="ui"></canvas>
 </template>
 </html>
