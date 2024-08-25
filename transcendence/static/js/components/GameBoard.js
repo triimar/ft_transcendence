@@ -162,7 +162,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			raf = window.requestAnimationFrame(draw);
 		}
 
-		document.addEventListener("keydown", (e) => {
+		this.keydownEventListener = ((e) => {
 			switch (e.key) {
 				case "ArrowDown":
 					paddleRight.y += paddleRight.vy;
@@ -192,7 +192,9 @@ export default class ComponentGameBoard extends HTMLElement {
 				default:
 					return;
 			}
-		}, true);
+		}).bind(this);
+
+		document.addEventListener("keydown", this.keydownEventListener, true);
 
 		/*canvas.addEventListener("mouseover", (e) => {
 		  raf = window.requestAnimationFrame(draw);
@@ -209,5 +211,9 @@ export default class ComponentGameBoard extends HTMLElement {
 		let lastTime = Date.now();
 
 		raf = window.requestAnimationFrame(draw);
+	}
+
+	disconnectedCallback() {
+		document.removeEventListener("keydown", this.keydownEventListener, true);
 	}
 }
