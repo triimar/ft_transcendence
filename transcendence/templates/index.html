@@ -23,21 +23,17 @@
 	<h1>Login page</h1>
 </template>
 <template id="page-game">
-	<div class="content-container">
-		<td-navigation-bar>
-			<p class="ui ui-text">EXIT GAME</p>
-		</td-navigation-bar>
-		<canvas id="canvas" style="border: 5px solid" width="1200" height="600"></canvas>
-	</div>
+	<td-navigation-bar>
+		<p class="ui ui-text">EXIT GAME</p>
+	</td-navigation-bar>
+	<canvas id="canvas" style="border: 5px solid" width="1200" height="600"></canvas>
     <script src="{% static 'js/ai.js' %}"></script>
 </template>
 <template id="page-room">
-	<div class="content-container">
-		<td-navigation-bar>
-			<p class="ui ui-text">EXIT ROOM</p>
-		</td-navigation-bar>
-		<h1>Room page</h1>
-	</div>
+	<td-navigation-bar>
+		<p class="ui ui-text">EXIT ROOM</p>
+	</td-navigation-bar>
+	<h1>Room page</h1>
 </template>
 <template id="page-main">
 	<style>
@@ -47,55 +43,53 @@
 			z-index: 1;
 		}
 	</style>
-	<div class="content-container">
-		<td-navigation-bar>
-			<p class="ui ui-text">ADD ROOM</p>
-		</td-navigation-bar>
-		<td-lobby-room room-max="8" room-id="EFGHUY12KJ23" class="ui">
-			<td-avatar avatar-name=":3:" avatar-background="rgb(255, 100, 3)"></td-avatar>
-			<td-avatar avatar-name=".0." avatar-background="rgb(10, 100, 3)"></td-avatar>
-		</td-lobby-room>
-		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
-			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
-			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
-			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
-		</td-lobby-room>
-		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
-			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
-			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
-			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
-		</td-lobby-room>
-		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
-			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
-			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
-			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
-		</td-lobby-room>
-		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
-			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
-			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
-			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
-		</td-lobby-room>
-		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
-			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
-			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
-			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
-		</td-lobby-room>
-		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
-			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
-			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
-			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
-		</td-lobby-room>
-		<td-lobby-room room-max="5" room-id="AB07U5HL3J23" class="ui">
-			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
-			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
-			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
-		</td-lobby-room>
-		<td-lobby-room room-max="6" room-id="AB07U5HL3J23" class="ui">
-			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
-			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
-			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
-		</td-lobby-room>
-	</div>
+	<td-navigation-bar>
+		<p class="ui ui-text">ADD ROOM</p>
+	</td-navigation-bar>
+	<td-lobby-room room-max="8" room-id="EFGHUY12KJ23" class="ui">
+		<td-avatar avatar-name=":3:" avatar-background="rgb(255, 100, 3)"></td-avatar>
+		<td-avatar avatar-name=".0." avatar-background="rgb(10, 100, 3)"></td-avatar>
+	</td-lobby-room>
+	<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+		<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+		<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+	</td-lobby-room>
+	<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+		<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+		<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+	</td-lobby-room>
+	<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+		<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+		<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+	</td-lobby-room>
+	<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+		<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+		<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+	</td-lobby-room>
+	<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+		<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+		<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+	</td-lobby-room>
+	<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+		<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+		<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+	</td-lobby-room>
+	<td-lobby-room room-max="5" room-id="AB07U5HL3J23" class="ui">
+		<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+		<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+	</td-lobby-room>
+	<td-lobby-room room-max="6" room-id="AB07U5HL3J23" class="ui">
+		<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+		<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+	</td-lobby-room>
 </template>
 <template id="component-lobby-room">
 	<style>

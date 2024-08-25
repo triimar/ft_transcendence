@@ -11,7 +11,7 @@ function main() {
 }
 
 function renderPage() {
-	const mainElement = document.getElementsByTagName("main")[0];
+	const mainElement = document.getElementsByClassName("content-container")[0];
 	let hash = location.hash.slice(1);
 	if (hash == '')
 		hash = "main";
@@ -26,8 +26,11 @@ function renderTemplate(container, templateId) {
 		template = document.getElementById("page-error");
 	}
 	const clone = template.content.cloneNode(true);
-	container.innerHTML = "";
-	container.appendChild(clone);
+	// Note(HeiYiu): remove all DOM Elements in container
+	while (container.firstElementChild) {
+		container.removeChild(container.firstElementChild);
+	}
+	container.prepend(clone);
 }
 
 window.addEventListener("DOMContentLoaded", main);
