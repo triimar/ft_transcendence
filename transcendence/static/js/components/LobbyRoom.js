@@ -8,11 +8,15 @@ export default class ComponentLobbyRoom extends HTMLElement {
 	}
 
 	attributeChangedCallback(name, oldValue, newValue) {
-		console.log(name);
 		switch (name)
 		{
 		case "room-max":
-				let participants = this.querySelectorAll("td-avatar");
+			let participants = this.querySelectorAll("td-avatar");
+			let join_buttons = this.querySelectorAll("td-lobby-room-join-button");
+			for (let join_button of join_buttons)
+			{
+				this.removeChild(join_button);
+			}
 			let participants_max = parseInt(newValue);
 			if (participants_max > participants.length) {
 				for (let i = participants_max - participants.length; i > 0; i--)
