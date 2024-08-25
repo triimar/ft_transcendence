@@ -59,3 +59,19 @@ main {
 	border: var(--td-border-size) solid var(--td-ui-font-color);
 	box-sizing: border-box;
 }
+
+.ui-text {
+	padding: 0.5em 0.5em;
+}
+
+.content-container {
+	width: 70vw;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1vh;
+}
+
+.content-container > * {
+	width: 100%;
+}
