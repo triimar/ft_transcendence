@@ -1,0 +1,193 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transcendence!</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <script type="module" src="{% static 'js/index.js' %}"></script>
+</head>
+<body>
+	<main></main>
+</body>
+<template id="page-error">
+	<h1>Page unknown</h1>
+</template>
+<template id="page-login">
+	<h1>Login page</h1>
+</template>
+<template id="page-main">
+	<style>
+		#content-container {
+			width: 70vw;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 1vh;
+		}
+
+		#content-container > * {
+			width: 100%;
+		}
+
+		td-navigation-bar {
+			position: sticky;
+			top: 0;
+			z-index: 1;
+		}
+	</style>
+	<div id="content-container">
+		<td-navigation-bar></td-navigation-bar>
+		<td-lobby-room room-max="8" room-id="EFGHUY12KJ23" class="ui">
+			<td-avatar avatar-name=":3:" avatar-background="rgb(255, 100, 3)"></td-avatar>
+			<td-avatar avatar-name=".0." avatar-background="rgb(10, 100, 3)"></td-avatar>
+		</td-lobby-room>
+		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		</td-lobby-room>
+		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		</td-lobby-room>
+		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		</td-lobby-room>
+		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		</td-lobby-room>
+		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		</td-lobby-room>
+		<td-lobby-room room-max="3" room-id="AB07U5HL3J23" class="ui">
+			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		</td-lobby-room>
+		<td-lobby-room room-max="5" room-id="AB07U5HL3J23" class="ui">
+			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		</td-lobby-room>
+		<td-lobby-room room-max="6" room-id="AB07U5HL3J23" class="ui">
+			<td-avatar avatar-name=">R<" avatar-background="rgb(255, 0, 2)"></td-avatar>
+			<td-avatar avatar-name="=7=" avatar-background="rgb(10, 140, 3)"></td-avatar>
+			<td-avatar avatar-name=">!<" avatar-background="rgb(10, 140, 3)"></td-avatar>
+		</td-lobby-room>
+	</div>
+</template>
+<template id="component-lobby-room">
+	<style>
+		:host {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		#lobby-room-participants {
+			display: flex;
+			flex-direction: row;
+			justify-content: start;
+			flex-wrap: wrap;
+		}
+
+		#lobby-room-id {
+			margin: 0 1em;
+			text-align: center;
+			font-size: 1.5em;
+		}
+	</style>
+	<slot id="lobby-room-participants"></slot>
+	<p id="lobby-room-id"></p>
+</template>
+<template id="component-lobby-room-join-button">
+	<style>
+		:host {
+			width: var(--td-avatar-width);
+			height: var(--td-avatar-height);
+			position: relative;
+			padding: 0.5em 1em;
+			cursor: pointer;
+
+			display: block;
+		}
+
+		#horizontal, #vertical {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background: var(--td-ui-font-color);
+		}
+
+		#horizontal {
+			width: 80%;
+			height: var(--td-border-size);
+		}
+
+		#vertical {
+			width: var(--td-border-size);
+			height: 80%;
+		}
+	</style>
+	<div id="horizontal"></div>
+	<div id="vertical"></div>
+</template>
+<template id="component-avatar">
+	<style>
+		:host {
+			width: var(--td-avatar-width);
+			height: var(--td-avatar-height);
+			padding: 0.5em 1em;
+			box-sizing: border-box;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		#avatar-name {
+			margin: 0;
+			color: white;
+			font-size: 2em;
+			text-align: center;
+		}
+	</style>
+	<p id="avatar-name"></p>
+</template>
+<template id="component-navigation-bar">
+	<style>
+		nav {
+			width: 100%;
+			background: var(--td-ui-background-color);
+			display: flex;
+			flex-direction: row;
+			justify-content: space-around;
+			align-items: center;
+		}
+
+		.ui {
+			border: var(--td-border-size) solid var(--td-ui-font-color);
+			box-sizing: border-box;
+			width: fit-content;
+		}
+	</style>
+	<nav>
+		<td-logo></td-logo>
+		<div class="ui">
+			<td-avatar avatar-name="-S-" avatar-background="rgb(30,30,140)"></td-avatar>
+		</div>
+		<slot name="navigation-bar-extra-button"></slot>
+	</nav>
+</template>
+<template id="component-logo">
+	<h1>:PONG</h1>
+</template>
+</html>

@@ -5,6 +5,16 @@ const BALL_SPEED_Y = 2;
 const PADDLE_H = 150;
 const PADDLE_W = 50;
 const PADDLE_SPEED = 6;
+const AI_SPEED = 10;
+
+// PID constants
+const Kp = 2.0;  // Proportional constant
+const Ki = 1.9;  // Integral constant
+const Kd = 0.1; // Derivative constant
+
+// PID variables
+let integral = 0;
+let previousError = 0;
 
 let raf;
 let pause = false;
@@ -62,13 +72,13 @@ const paddleLeft = {
 	}
 };
 
-const paddleRight = {
+const ai = {
 	x: canvas.width - PADDLE_W,
 	y: canvas.height/2 - PADDLE_H/2,
-	vy: PADDLE_SPEED,
+	vy: AI_SPEED,
 	height: PADDLE_H,
 	width: PADDLE_W,
-	color: "green",
+	color: "pink",
 	draw()
 	{
 		ctx.fillStyle = this.color;
@@ -79,10 +89,29 @@ const paddleRight = {
 		this.y = canvas.height/2 - PADDLE_H/2;
 		this.height = PADDLE_H;
 		this.width = 50;
+		integral = 0;
+		previousError = 0;
 	}
 };
 
-function moving() {
+function update_paddle_ai() {
+	const now = Date.now();
+    const dt = (now - lastTime) / 1000; // Convert ms to seconds
+    lastTime = now;
+
+	const rt = 0.1; //reaction time to see ahead of the ball
+	const predictedBallY = ball.y + ball.vy * 0.1;
+	const error = predictedBallY - (ai.y + ai.height/2);
+	integral += error * dt;
+	const deriv = (error - previousError) / dt;
+	console.log(predictedBallY + ", " + ball.y);
+
+	const newPos = ((error * Kp) + (integral * Ki) + (deriv * Kd)) * ai.vy;
+	ai.y += newPos / canvas.height;
+	previousError = error;
+}
+
+function moving_ai() {
 	if (ball.vx != 5 && ball.vx != -5 && !ball.isSpeedingUp)
 	{
 		ball.isSpeedingUp = true;
@@ -108,37 +137,38 @@ function moving() {
 	{
 		ball.reset(-1);
 		paddleLeft.reset();
-		paddleRight.reset();
+		ai.reset();
 	}
 	if (ball.x + ball.vx < ball.radius)
 	{
 		ball.reset(1);
 		paddleLeft.reset();
-		paddleRight.reset();
+		ai.reset();
 	}
 	if (ball.x + ball.vx < ball.radius + paddleLeft.width &&
 		ball.y + ball.vy < paddleLeft.y + paddleLeft.height &&
 		ball.y + ball.vy > paddleLeft.y && ball.vx < 0)
 	{
 		ball.vx = -ball.vx;
-		//paddleCorners = paddleLeft.height/3;
-		//if (ball.y < paddleLeft.y + paddleCorners || ball.y > paddleLeft.y + paddleLeft.height - paddleCorners)
-		//{
-			
-		//}
 	}
-	if (ball.x + ball.vx > paddleRight.x - ball.radius &&
-		ball.y + ball.vy < paddleRight.y + paddleRight.height &&
-		ball.y + ball.vy > paddleRight.y && ball.vx > 0)
+	if (ball.x + ball.vx > ai.x - ball.radius &&
+		ball.y + ball.vy < ai.y + ai.height &&
+		ball.y + ball.vy > ai.y && ball.vx > 0)
 	{
 		ball.vx = -ball.vx;
 	}
+
+	update_paddle_ai();
+	if (ai.y < 0)
+		ai.y = 0;
+	if (ai.y > canvas.height - ai.height)
+		ai.y = canvas.height - ai.height;
 }
 
 async function draw() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	paddleLeft.draw();
-	paddleRight.draw();
+	ai.draw();
 	ball.draw();
 	if (ball.isReset)
 	{
@@ -149,27 +179,19 @@ async function draw() {
 		}, 3000);
 	}
 	if (!pause)
-		moving();
+		moving_ai();
 	raf = window.requestAnimationFrame(draw);
 }
 
 document.addEventListener("keydown", (e) => {
 	switch (e.key) {
 		case "ArrowDown":
-			paddleRight.y += paddleRight.vy;
-			if (paddleRight.y > canvas.height - paddleRight.height)
-				paddleRight.y = canvas.height - paddleRight.height;
-		break;
-		case "ArrowUp":
-			paddleRight.y -= paddleRight.vy;
-			if (paddleRight.y < 0)
-				paddleRight.y = 0;
-			break;
 		case "s":
 			paddleLeft.y += paddleLeft.vy;
 			if (paddleLeft.y > canvas.height - paddleLeft.height)
-				paddleLeft.y = canvas.height - paddleLeft.height;
+			paddleLeft.y = canvas.height - paddleLeft.height;
 		break;
+		case "ArrowUp":
 		case "w":
 			paddleLeft.y -= paddleLeft.vy;
 			if (paddleLeft.y < 0)
@@ -196,7 +218,6 @@ canvas.addEventListener("mouseout", (e) => {
 
 ball.draw();
 paddleLeft.draw();
-paddleRight.draw();
 let lastTime = Date.now();
 
 raf = window.requestAnimationFrame(draw);
