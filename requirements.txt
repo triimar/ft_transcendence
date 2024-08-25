@@ -18,7 +18,7 @@ pyasn1_modules==0.4.0
 pycparser==2.22
 pyOpenSSL==24.2.1
 redis==5.0.8
-redis-server==6.0.9
+psycopg2-binary
 service-identity==24.1.0
 setuptools==73.0.1
 sqlparse==0.5.1

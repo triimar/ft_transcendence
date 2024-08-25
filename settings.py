@@ -27,6 +27,28 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Database settings to connect (PostgresSQL)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'transcendence',
+        'USER': 'postgres',
+        'PASSWORD': 'password',
+        'HOST': 'db_sql',
+        'PORT': 5432,
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://db_redis:6379/1',  # Replace 'redis' with your Redis host and adjust port if necessary
+    }
+}
+
+# Optionally for session caching
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
 
 # Application definition
 
@@ -72,18 +94,6 @@ TEMPLATES = [
 ]
 
 # WSGI_APPLICATION = 'first.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -136,7 +146,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("db_redis", 6379)],
         },
     },
 }

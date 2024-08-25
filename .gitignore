@@ -30,3 +30,7 @@ htmlcov/
 .coverage
 .tox/
 .pytest_cache/
+
+# db folders
+db_redis
+db_sql

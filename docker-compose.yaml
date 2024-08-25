@@ -1,0 +1,63 @@
+networks:
+  transcendence:
+
+volumes:
+  db_redis:
+    name: db_redis
+    driver: local
+    driver_opts:
+      o: "bind"
+      type: none
+      device: ./db_redis
+  db_sql:
+    name: db_sql
+    driver: local
+    driver_opts:
+      o: "bind"
+      type: none
+      device: ./db_sql
+
+services:
+  db_redis:
+    container_name: db_redis
+    image: redis:6
+    networks:
+      - transcendence
+    expose:
+      - 6379
+    volumes:
+      - db_redis:/var/lib/redis
+    restart: always
+
+  db_sql:
+    container_name: db_sql
+    image: postgres:14
+    networks:
+      - transcendence
+    expose:
+      - 5432
+    volumes:
+      - db_sql:/var/lib/postgresql/data
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: transcendence
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password    
+
+  app:
+    depends_on:
+      - db_redis
+      - db_sql
+    container_name: app
+    image: app
+    build:
+      context: .
+    networks:
+      - transcendence
+    ports:
+      - "8000:8000"
+    restart: always
+  
+
+    
