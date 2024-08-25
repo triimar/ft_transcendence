@@ -50,9 +50,11 @@ h1 {
 
 main {
 	width: 100vw;
+	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	gap: 1em;
 }
 
 .ui {
@@ -69,7 +71,7 @@ main {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 1vh;
+	gap: 0.5em;
 }
 
 .content-container > * {
