@@ -12,7 +12,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		const BALL_SPEED_X = 5;
 		const BALL_SPEED_Y = 2;
 		const PADDLE_H = 150;
-		const PADDLE_W = 50;
+		const PADDLE_W = 150;
 		const PADDLE_SPEED = 6;
 
 		let raf;
@@ -23,32 +23,29 @@ export default class ComponentGameBoard extends HTMLElement {
 		}
 
 		const ball = {
-		  x: canvas.width / 2,
-		  y: canvas.height / 2,
-		  vx: BALL_SPEED_X,
-		  vy: BALL_SPEED_Y,
-		  radius: 25,
-		  isReset: true,
-		  isSpeedingUp: true,
-		  color: "blue",
-		  draw()
-		  {
-			ctx.beginPath();
-			ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
-			ctx.closePath();
-			ctx.fillStyle = this.color;
-			ctx.fill();
-		  },
-		  reset(side)
-		  {
-			this.x = canvas.width / 2;
-			this.y = canvas.height / 2;
-			this.vx = BALL_SPEED_X * side;
-			this.vy = BALL_SPEED_Y;
-			this.isReset = true;
-			this.isSpeedingUp = false;
-			this.vx = 1 * side;
-		  }
+			x: canvas.width / 2,
+			y: canvas.height / 2,
+			vx: BALL_SPEED_X,
+			vy: BALL_SPEED_Y,
+			size: 50,
+			isReset: true,
+			isSpeedingUp: true,
+			color: "blue",
+			draw()
+			{
+				ctx.fillStyle = this.color;
+				ctx.fillRect(this.x, this.y, this.size, this.size);
+			},
+			reset(side)
+			{
+				this.x = canvas.width / 2;
+				this.y = canvas.height / 2;
+				this.vx = BALL_SPEED_X * side;
+				this.vy = BALL_SPEED_Y;
+				this.isReset = true;
+				this.isSpeedingUp = false;
+				this.vx = 1 * side;
+			}
 		};
 
 		const paddleLeft = {
@@ -87,7 +84,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			{
 				this.y = canvas.height/2 - PADDLE_H/2;
 				this.height = PADDLE_H;
-				this.width = 50;
+				this.width = PADDLE_W;
 			}
 		};
 
@@ -106,41 +103,67 @@ export default class ComponentGameBoard extends HTMLElement {
 
 			ball.x += ball.vx;
 			ball.y += ball.vy;
-		  
+		  	//Bounce off the ceiling/floor
 			if (
-				ball.y + ball.vy > canvas.height - ball.radius ||
-				ball.y + ball.vy < ball.radius)
+				ball.y + ball.vy > canvas.height - ball.size ||
+				ball.y + ball.vy <= 0)
 			{
 				ball.vy = -ball.vy;
 			}
-			if (ball.x + ball.vx > canvas.width - ball.radius)
+			//Right wall collision
+			if (ball.x + ball.vx > canvas.width - ball.size)
 			{
 				ball.reset(-1);
 				paddleLeft.reset();
 				paddleRight.reset();
 			}
-			if (ball.x + ball.vx < ball.radius)
+			//Left wall collision
+			if (ball.x + ball.vx < 0)
 			{
 				ball.reset(1);
 				paddleLeft.reset();
 				paddleRight.reset();
 			}
-			if (ball.x + ball.vx < ball.radius + paddleLeft.width &&
+			if (ball.x + ball.vx < paddleLeft.width &&
 				ball.y + ball.vy < paddleLeft.y + paddleLeft.height &&
-				ball.y + ball.vy > paddleLeft.y && ball.vx < 0)
+				ball.y + ball.vy + ball.size > paddleLeft.y && ball.vx < 0)
 			{
-				ball.vx = -ball.vx;
-				//paddleCorners = paddleLeft.height/3;
-				//if (ball.y < paddleLeft.y + paddleCorners || ball.y > paddleLeft.y + paddleLeft.height - paddleCorners)
-				//{
-					
-				//}
+				//Horizontal collision
+				if (ball.x + ball.vx + ball.size > paddleLeft.width)
+				{
+					ball.vx = -ball.vx;
+				}
+				else if (ball.y + ball.vy < paddleLeft.y) //Upper side collision
+				{
+					ball.vx = -ball.vx;
+					ball.vy = -ball.vy;
+				}
+				else if (ball.y + ball.vy + ball.size > paddleLeft.y) //Lower side collision
+				{
+					ball.vx = -ball.vx;
+					ball.vy = -ball.vy;
+				}
 			}
-			if (ball.x + ball.vx > paddleRight.x - ball.radius &&
+			//Right paddle collisions
+			if (ball.x + ball.vx + ball.size > paddleRight.x &&
 				ball.y + ball.vy < paddleRight.y + paddleRight.height &&
-				ball.y + ball.vy > paddleRight.y && ball.vx > 0)
+				ball.y + ball.vy + ball.size > paddleRight.y && ball.vx > 0)
 			{
-				ball.vx = -ball.vx;
+				//Horizontal collision
+				if (ball.x + ball.vx < paddleRight.x)
+				{
+					ball.vx = -ball.vx;
+				}
+				else if (ball.y + ball.vy < paddleRight.y) //Upper side collision
+				{
+					ball.vx = -ball.vx;
+					ball.vy = -ball.vy;
+				}
+				else if (ball.y + ball.vy + ball.size > paddleRight.y) //Lower side collision
+				{
+					ball.vx = -ball.vx;
+					ball.vy = -ball.vy;
+				}
 			}
 		}
 
