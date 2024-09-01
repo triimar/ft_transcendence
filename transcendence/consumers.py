@@ -2,6 +2,7 @@
 import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
+connected_clients = {}
 
 # messages = []
 
@@ -40,18 +41,50 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 class LobbyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        # self.room_group_name = "chat_%s" % self.room_name
-
-        # # Join room group
-        # await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        await self.accept()
         await self.channel_layer.group_add("lobby", self.channel_name)
+        
+        await self.accept()
+        
+        connected_clients[self.channel_name] = self.scope["user"].username if self.scope["user"].is_authenticated else "Anonymous"
 
-        # await self.send(text_data=json.dumps({"type": "messages", "payload": messages}))
+        # Send the current list of connected clients in the lobby to the new client
+        # await self.send(text_data=json.dumps({
+        #     "type": "lobby_clients",
+        #     "clients": list(connected_clients.values())
+        # }))
+        await self.broadcast_lobby_update()
+
     async def disconnect(self, close_code):
         # Leave room group
         await self.channel_layer.group_discard("lobby", self.channel_name)
+        if self.channel_name in connected_clients:
+            del connected_clients[self.channel_name]
+        await self.broadcast_lobby_update()
+    
+    # Optional: Broadcast updates to the lobby when clients join/leave (not mandatory)
+    async def broadcast_lobby_update(self):
+        # Send the updated list of clients to everyone in the lobby
+        await self.channel_layer.group_send(
+            "lobby",
+            {
+                "type": "lobby_clients_update",
+                "clients": list(connected_clients.values())
+            }
+        )
+
+    async def lobby_clients_update(self, event):
+        # Send the updated list of clients to WebSocket
+        await self.send(text_data=json.dumps({
+            "type": "lobby_clients",
+            "clients": event["clients"]
+        }))
+    
+    #     # Receive message from room group
+#     async def chat_message(self, event):
+#         message = event["message"]
+
+#         # Send message to WebSocket
+#         await self.send(text_data=json.dumps({"type": "message", "payload": message}))
 
     # Receive message from WebSocket
     # async def receive(self, text_data):
