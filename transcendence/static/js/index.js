@@ -5,20 +5,53 @@ import ComponentLogo from "./components/Logo.js";
 import ComponentGameBoard from "./components/GameBoard.js";
 import ComponentAIGameBoard from "./components/AIGameBoard.js";
 
+import PageError from "./pages/PageError.js";
+import PageLogin from "./pages/PageLogin.js";
+import PageGame from "./pages/PageGame.js";
+import PageAiGame from "./pages/PageAiGame.js";
+import PageRoom from "./pages/PageRoom.js";
+import PageMain from "./pages/PageMain.js";
+
+import { myself } from "./myself.js";
+
+const pageMapping = {
+	error: PageError,
+	login: PageLogin,
+	game: PageGame,
+	"ai-game": PageAiGame,
+	room: PageRoom,
+	main: PageMain
+};
+
 function main() {
-	window.addEventListener("hashchange", function() {
-		renderPage();
+	const contentContainer = document.getElementsByClassName("content-container")[0];
+	let currentPage;
+	window.addEventListener("hashchange", function(event) {
+		currentPage.removeEvents();
+		let pageClass = pageMapping[getPageHashFromURL(location)];
+		if (!pageClass) {
+			pageClass = pageMapping["error"];
+		}
+		currentPage = new pageClass(contentContainer);
+		// TODO(Anthony): Authentication here. To ensure that user has been logged in
+		renderTemplate(contentContainer, currentPage.templateId);
+		currentPage.attachEvents();
 	});
-	renderPage();
+	// TODO(Anthony): Authentication here. To ensure that user has been logged in
+	let pageClass = pageMapping[getPageHashFromURL(location)];
+	if (!pageClass) {
+		pageClass = pageMapping["error"];
+	}
+	currentPage = new pageClass(contentContainer);
+	renderTemplate(contentContainer, currentPage.templateId);
+	currentPage.attachEvents();
 }
 
-function renderPage() {
-	const mainElement = document.getElementsByClassName("content-container")[0];
-	let hash = location.hash.slice(1);
+function getPageHashFromURL(url) {
+	let hash = url.hash.slice(1);
 	if (hash == '')
 		hash = "main";
-	// TODO(Anthony): Authentication here. To ensure that user has been logged in
-	renderTemplate(mainElement, "page-" + hash);
+	return hash;
 }
 
 function renderTemplate(container, templateId) {
