@@ -1,9 +1,9 @@
 # VER_3
 import json
-
+import redis
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-messages = []
+redis_instance = redis.StrictRedis(host='db_redis', port=6379, db=0)
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -14,7 +14,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
         await self.accept()
-        await self.send(text_data=json.dumps({"type": "messages", "payload": messages}))
+
+		# Fetch all previous messages from Redis
+        previous_messages = redis_instance.lrange(self.room_group_name, 0, -1)
+
+		# decode messages fetche from redis, which originally saved in bytes
+        decoded_messages = [msg.decode('utf-8') for msg in previous_messages]
+
+		# send it to front-end
+        await self.send(text_data=json.dumps({"type": "messages", "payload": decoded_messages}))
 
     async def disconnect(self, close_code):
         # Leave room group
@@ -24,11 +32,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
-        messages.append(message)
+
+		# Store the message in Redis
+        redis_instance.rpush(self.room_group_name, message)
 
         # Send message to room group
         await self.channel_layer.group_send(
-            self.room_group_name, {"type": "chat_message", "message": message}
+            self.room_group_name, {"type": "chat.message", "message": message}
         )
 
     # Receive message from room group
