@@ -3,6 +3,30 @@ import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+class TranscendenceConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        # Join room group
+        await self.channel_layer.group_add("group_test", self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        # Leave room group
+        await self.channel_layer.group_discard("group_test", self.channel_name)
+
+    async def receive(self, text_data):
+        received_json = json.loads(text_data)
+        event = {}
+        match (received_json):
+            case {"type": "init", "payload": payload}:
+                event = {"type": "example.event", "message": payload}
+        # Send message to room group
+        await self.channel_layer.group_send("group_test", event)
+
+    async def example_event(self, event):
+        message = event["message"]
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({"type": "ack_init", "payload": message}))
+
 messages = []
 
 class ChatConsumer(AsyncWebsocketConsumer):
