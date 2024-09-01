@@ -28,6 +28,11 @@ services:
     volumes:
       - db_redis:/data
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
 
   db_sql:
     container_name: db_sql
@@ -43,12 +48,19 @@ services:
     environment:
       POSTGRES_DB: transcendence
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password    
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
 
   app:
     depends_on:
-      - db_redis
-      - db_sql
+      db_redis:
+        condition: service_healthy
+      db_sql:
+        condition: service_healthy
     container_name: app
     image: app
     build:
@@ -60,4 +72,3 @@ services:
     restart: always
   
 
-    
