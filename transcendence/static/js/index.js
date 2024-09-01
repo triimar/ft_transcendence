@@ -23,11 +23,11 @@ const pageMapping = {
 	main: PageMain
 };
 
-function main() {
+async function main() {
 	const contentContainer = document.getElementsByClassName("content-container")[0];
 	let currentPage = null;
 	let isAuthenticated = false;
-	window.addEventListener("hashchange", function(event) {
+	window.addEventListener("hashchange", async (event) => {
 		currentPage.removeEvents();
 		let pageHash = getPageHashFromURL(location);
 		if (!pageMapping[pageHash]) pageHash = "error";
@@ -39,9 +39,7 @@ function main() {
 				pageHash = "login";
 			}
 			else {
-				if (pageHash == "login")
-					pageHash = "main";
-				}
+				if (pageHash == "login") pageHash = "main";
 				if (!myself.ws) myself.connectWs();
 			}
 		}
@@ -50,6 +48,7 @@ function main() {
 		myself.page = currentPage;
 		renderTemplate(contentContainer, currentPage.templateId);
 		currentPage.attachEvents();
+		if (myself.ws) await myself.sendMessageInit(pageHash);
 	});
 	let pageHash = getPageHashFromURL(location);
 	if (!pageMapping[pageHash]) pageHash = "error";
@@ -60,9 +59,7 @@ function main() {
 			pageHash = "login";
 		}
 		else {
-			if (pageHash == "login")
-				pageHash = "main";
-			}
+			if (pageHash == "login") pageHash = "main";
 			myself.connectWs();
 		}
 	}
@@ -71,6 +68,7 @@ function main() {
 	myself.page = currentPage;
 	renderTemplate(contentContainer, currentPage.templateId);
 	currentPage.attachEvents();
+	if (myself.ws) await myself.sendMessageInit(pageHash);
 }
 
 function getPageHashFromURL(url) {
