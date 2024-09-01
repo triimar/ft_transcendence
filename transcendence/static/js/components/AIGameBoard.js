@@ -12,7 +12,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		const BALL_SPEED_X = 5;
 		const BALL_SPEED_Y = 2;
 		const PADDLE_H = 150;
-		const PADDLE_W = 50;
+		const PADDLE_W = 150;
 		const PADDLE_SPEED = 6;
 		const AI_SPEED = 10;
 
@@ -37,17 +37,14 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		  y: canvas.height / 2,
 		  vx: BALL_SPEED_X,
 		  vy: BALL_SPEED_Y,
-		  radius: 25,
+		  size: 50,
 		  isReset: true,
 		  isSpeedingUp: true,
 		  color: "blue",
 		  draw()
 		  {
-			ctx.beginPath();
-			ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
-			ctx.closePath();
 			ctx.fillStyle = this.color;
-			ctx.fill();
+			ctx.fillRect(this.x, this.y, this.size, this.size);
 		  },
 		  reset(side)
 		  {
@@ -97,7 +94,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			{
 				this.y = canvas.height/2 - PADDLE_H/2;
 				this.height = PADDLE_H;
-				this.width = 50;
+				this.width = PADDLE_W;
 				integral = 0;
 				previousError = 0;
 			}
@@ -109,12 +106,10 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			lastTime = now;
 
 			const rt = 0.1; //reaction time to see ahead of the ball
-			const predictedBallY = ball.y + ball.vy * 0.1;
+			const predictedBallY = ball.y + ball.size / 2 + ball.vy * 0.1;
 			const error = predictedBallY - (ai.y + ai.height/2);
 			integral += error * dt;
 			const deriv = (error - previousError) / dt;
-			console.log(predictedBallY + ", " + ball.y);
-
 			const newPos = ((error * Kp) + (integral * Ki) + (deriv * Kd)) * ai.vy;
 			ai.y += newPos / canvas.height;
 			previousError = error;
@@ -136,35 +131,70 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			ball.x += ball.vx;
 			ball.y += ball.vy;
 		  
+			//Bounce off the ceiling/floor
 			if (
-				ball.y + ball.vy > canvas.height - ball.radius ||
-				ball.y + ball.vy < ball.radius)
+				ball.y + ball.vy > canvas.height - ball.size ||
+				ball.y + ball.vy <= 0)
 			{
 				ball.vy = -ball.vy;
 			}
-			if (ball.x + ball.vx > canvas.width - ball.radius)
+			//Right wall collision
+			if (ball.x + ball.vx > canvas.width - ball.size)
 			{
 				ball.reset(-1);
 				paddleLeft.reset();
 				ai.reset();
 			}
-			if (ball.x + ball.vx < ball.radius)
+			//Left wall collision
+			if (ball.x + ball.vx < 0)
 			{
 				ball.reset(1);
 				paddleLeft.reset();
 				ai.reset();
 			}
-			if (ball.x + ball.vx < ball.radius + paddleLeft.width &&
+
+			//Left paddle collisions
+			if (ball.x + ball.vx < paddleLeft.width &&
 				ball.y + ball.vy < paddleLeft.y + paddleLeft.height &&
-				ball.y + ball.vy > paddleLeft.y && ball.vx < 0)
+				ball.y + ball.vy + ball.size > paddleLeft.y && ball.vx < 0)
 			{
-				ball.vx = -ball.vx;
+				//Horizontal collision
+				if (ball.x + ball.vx + ball.size > paddleLeft.width)
+				{
+					ball.vx = -ball.vx;
+				}
+				else if (ball.y + ball.vy < paddleLeft.y) //Upper side collision
+				{
+					ball.vx = -ball.vx;
+					ball.vy = -ball.vy;
+				}
+				else if (ball.y + ball.vy + ball.size > paddleLeft.y) //Lower side collision
+				{
+					ball.vx = -ball.vx;
+					ball.vy = -ball.vy;
+				}
 			}
-			if (ball.x + ball.vx > ai.x - ball.radius &&
+
+			//AI paddle collisions
+			if (ball.x + ball.vx + ball.size > ai.x &&
 				ball.y + ball.vy < ai.y + ai.height &&
-				ball.y + ball.vy > ai.y && ball.vx > 0)
+				ball.y + ball.vy + ball.size > ai.y && ball.vx > 0)
 			{
-				ball.vx = -ball.vx;
+				//Horizontal collision
+				if (ball.x + ball.vx < ai.x)
+				{
+					ball.vx = -ball.vx;
+				}
+				else if (ball.y + ball.vy < ai.y) //Upper side collision
+				{
+					ball.vx = -ball.vx;
+					ball.vy = -ball.vy;
+				}
+				else if (ball.y + ball.vy + ball.size > ai.y) //Lower side collision
+				{
+					ball.vx = -ball.vx;
+					ball.vy = -ball.vy;
+				}
 			}
 
 			update_paddle_ai();
