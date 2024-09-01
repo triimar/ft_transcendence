@@ -223,6 +223,10 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		}
 
 		this.keydownEventListener = ((e) => {
+			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
+				// Prevent the default action (scrolling)
+				e.preventDefault();
+			}
 			switch (e.key) {
 				case "ArrowDown":
 				case "s":
