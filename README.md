@@ -1,12 +1,14 @@
 ## Setup
 
-1. Clone the repository:
+1. Clone the repository
 
 ## With docker
 2. Run init.sh
    ```
 	./init.sh
    ```
+3. Open your browser and navigate to http://127.0.0.1:8000/
+   
 ## When virtual environment is used (defunct)
 2. Create and activate a virtual environment:
    ```
