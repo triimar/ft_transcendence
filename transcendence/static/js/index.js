@@ -25,24 +25,50 @@ const pageMapping = {
 
 function main() {
 	const contentContainer = document.getElementsByClassName("content-container")[0];
-	let currentPage;
+	let currentPage = null;
+	let isAuthenticated = false;
 	window.addEventListener("hashchange", function(event) {
 		currentPage.removeEvents();
-		let pageClass = pageMapping[getPageHashFromURL(location)];
-		if (!pageClass) {
-			pageClass = pageMapping["error"];
+		let pageHash = getPageHashFromURL(location);
+		if (!pageMapping[pageHash]) pageHash = "error";
+		if (pageHash != "error") {
+			if (!isAuthenticated) isAuthenticated = myself.verifyJWT();
+			// NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
+			if (!isAuthenticated) {
+				// TODO(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+				pageHash = "login";
+			}
+			else {
+				if (pageHash == "login")
+					pageHash = "main";
+				}
+				if (!myself.ws) myself.connectWs();
+			}
 		}
+		let pageClass = pageMapping[pageHash];
 		currentPage = new pageClass(contentContainer);
-		// TODO(Anthony): Authentication here. To ensure that user has been logged in
+		myself.page = currentPage;
 		renderTemplate(contentContainer, currentPage.templateId);
 		currentPage.attachEvents();
 	});
-	// TODO(Anthony): Authentication here. To ensure that user has been logged in
-	let pageClass = pageMapping[getPageHashFromURL(location)];
-	if (!pageClass) {
-		pageClass = pageMapping["error"];
+	let pageHash = getPageHashFromURL(location);
+	if (!pageMapping[pageHash]) pageHash = "error";
+	if (pageHash != "error") {
+		isAuthenticated = myself.verifyJWT();
+		if (!isAuthenticated) {
+			// TODO(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+			pageHash = "login";
+		}
+		else {
+			if (pageHash == "login")
+				pageHash = "main";
+			}
+			myself.connectWs();
+		}
 	}
+	let pageClass = pageMapping[pageHash];
 	currentPage = new pageClass(contentContainer);
+	myself.page = currentPage;
 	renderTemplate(contentContainer, currentPage.templateId);
 	currentPage.attachEvents();
 }
