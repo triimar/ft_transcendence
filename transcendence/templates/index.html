@@ -39,7 +39,11 @@
 	<td-navigation-bar>
 		<p class="ui ui-text">EXIT ROOM</p>
 	</td-navigation-bar>
-	<h1>Room page</h1>
+	<td-lobby-room room-max="8" room-id="EFGHUY12KJ23" class="ui">
+		<td-avatar avatar-name=":3:" avatar-background="rgb(255, 100, 3)"></td-avatar>
+		<td-avatar avatar-name=".0." avatar-background="rgb(10, 100, 3)"></td-avatar>
+		<button class="ui" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button">PREPARE?</button>
+	</td-lobby-room>
 </template>
 <template id="page-main">
 	<style>
@@ -103,7 +107,8 @@
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
-			align-items: center;
+			align-items: flex-end;
+			gap: 0.4em;
 		}
 
 		#lobby-room-participants {
@@ -111,16 +116,26 @@
 			flex-direction: row;
 			justify-content: start;
 			flex-wrap: wrap;
+			width: calc(4 * var(--td-avatar-width));
 		}
 
 		#lobby-room-id {
-			margin: 0 1em;
+			margin: 0 0.4em 0 0;
 			text-align: center;
 			font-size: 1.5em;
 		}
+
+		#lobby-room-info {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-end;
+		}
 	</style>
 	<slot id="lobby-room-participants"></slot>
-	<p id="lobby-room-id"></p>
+	<div id="lobby-room-info">
+		<p id="lobby-room-id"></p>
+		<slot name="lobby-room-button"></slot>
+	</div>
 </template>
 <template id="component-lobby-room-join-button">
 	<style>
