@@ -44,6 +44,7 @@
 		<td-avatar avatar-name=".0." avatar-background="rgb(10, 100, 3)"></td-avatar>
 		<button class="ui" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button">PREPARE?</button>
 	</td-lobby-room>
+	<td-room-setting-size class="ui"></td-room-setting-size>
 </template>
 <template id="page-main">
 	<style>
@@ -136,6 +137,43 @@
 		<p id="lobby-room-id"></p>
 		<slot name="lobby-room-button"></slot>
 	</div>
+</template>
+<template id="component-room-setting-size">
+	<style>
+		:host {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		p {
+			font-size: 1.5em;
+			margin: 0;
+		}
+
+		.ui {
+			width: var(--td-avatar-width);
+			height: var(--td-avatar-height);
+			border: var(--td-border-size) solid var(--td-ui-font-color);
+			box-sizing: border-box;
+
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+		}
+
+		.disable-click {
+			cursor: not-allowed;
+			opacity: 0.5;
+		}
+	</style>
+	<div style="display: flex; flex-direction: row;">
+		<div class="ui" id="inc-button"><p style="user-select: none;">+</p></div>
+		<div class="ui" id="dec-button"><p style="user-select: none;">-</p></div>
+	</div>
+	<p style="margin-right: 0.4em;" id="label"></p>
 </template>
 <template id="component-lobby-room-join-button">
 	<style>
