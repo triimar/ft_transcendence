@@ -51,6 +51,7 @@ services:
       POSTGRES_DB: transcendence
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+      PGUSER: postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 3s
@@ -72,5 +73,5 @@ services:
     ports:
       - "8000:8000"
     restart: always
-  
+
 
