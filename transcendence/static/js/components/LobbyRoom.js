@@ -26,6 +26,7 @@ export default class ComponentLobbyRoom extends HTMLElement {
 					this.appendChild(button);
 				}
 			}
+			// TODO(HeiYiu): Might introduce join buttons that allow user to add themselves even if the room max is reached. User can simply change the attribute in this component in the html
 			break;
 		case "room-id":
 			let id = this.shadow.querySelector("#lobby-room-id");
