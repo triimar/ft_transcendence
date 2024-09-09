@@ -283,18 +283,29 @@
 		:host {
 			background: var(--td-ui-background-color);
 			cursor: pointer;
-		}
-
-		:host * {
-			color: var(--td-ui-font-color);
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 
 		:host(:not([disabled]):hover) {
 			background: var(--td-ui-font-color);
 		}
 
-		:host(:not([disabled]):hover) * {
+		:host ::slotted(*) {
+			color: var(--td-ui-font-color);
+		}
+
+		:host(:not([disabled]):hover) ::slotted(*) {
 			color: var(--td-ui-background-color);
+		}
+
+		:host(:not([disabled]):hover) ::slotted(.foreground) {
+			background: var(--td-ui-background-color);
+		}
+
+		:host ::slotted(.foreground) {
+			background: var(--td-ui-font-color);
 		}
 
 		:host([disabled]) {
@@ -302,6 +313,6 @@
 			opacity: 0.5;
 		}
 	</style>
-	<p></p>
+	<slot></slot>
 </template>
 </html>
