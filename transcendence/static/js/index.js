@@ -1,4 +1,4 @@
-import ComponentLobbyRoom, { ComponentLobbyRoomJoinButton } from "./components/LobbyRoom.js";
+import ComponentLobbyRoom from "./components/LobbyRoom.js";
 import ComponentAvatar from "./components/Avatar.js";
 import ComponentNavigationBar from "./components/NavigationBar.js";
 import ComponentLogo from "./components/Logo.js";
@@ -96,7 +96,6 @@ function renderTemplate(container, templateId) {
 
 window.addEventListener("DOMContentLoaded", main);
 window.customElements.define("td-lobby-room", ComponentLobbyRoom);
-window.customElements.define("td-lobby-room-join-button", ComponentLobbyRoomJoinButton);
 window.customElements.define("td-room-setting-size", ComponentRoomSettingSize);
 window.customElements.define("td-avatar", ComponentAvatar);
 window.customElements.define("td-navigation-bar", ComponentNavigationBar);
