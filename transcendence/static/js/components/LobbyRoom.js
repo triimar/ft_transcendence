@@ -21,9 +21,17 @@ export default class ComponentLobbyRoom extends HTMLElement {
 			if (participants_max > participants.length) {
 				for (let i = participants_max - participants.length; i > 0; i--)
 				{
-					let button = document.createElement("td-lobby-room-join-button");
+					let button = document.createElement("td-button");
 					button.classList.add("ui");
+					button.style.width = "var(--td-avatar-width)";
+					button.style.height = "var(--td-avatar-height)";
+					button.style.position = "relative";
+					button.style.padding = "0.5em em";
+					button.style.display = "block";
+
 					this.appendChild(button);
+					const template = document.getElementById("icon-lobby-room-join");
+					button.appendChild(template.content.cloneNode(true));
 				}
 			}
 			// TODO(HeiYiu): Might introduce join buttons that allow user to add themselves even if the room max is reached. User can simply change the attribute in this component in the html
@@ -33,14 +41,5 @@ export default class ComponentLobbyRoom extends HTMLElement {
 			id.textContent = newValue;
 			break;
 		}
-	}
-}
-
-export class ComponentLobbyRoomJoinButton extends HTMLElement {
-	constructor() {
-		super();
-		this.shadow = this.attachShadow({ mode: "open" });
-		const template = document.getElementById("component-lobby-room-join-button");
-		this.shadow.appendChild(template.content.cloneNode(true));
 	}
 }

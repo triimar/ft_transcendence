@@ -176,24 +176,13 @@
 	</div>
 	<p style="margin-right: 0.4em;" id="label"></p>
 </template>
-<template id="component-lobby-room-join-button">
+<template id="icon-lobby-room-join">
 	<style>
-		:host {
-			width: var(--td-avatar-width);
-			height: var(--td-avatar-height);
-			position: relative;
-			padding: 0.5em 1em;
-			cursor: pointer;
-
-			display: block;
-		}
-
 		#horizontal, #vertical {
 			position: absolute;
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%);
-			background: var(--td-ui-font-color);
 		}
 
 		#horizontal {
@@ -206,8 +195,8 @@
 			height: 80%;
 		}
 	</style>
-	<div id="horizontal"></div>
-	<div id="vertical"></div>
+	<div class="foreground" id="horizontal"></div>
+	<div class="foreground" id="vertical"></div>
 </template>
 <template id="component-avatar">
 	<style>
