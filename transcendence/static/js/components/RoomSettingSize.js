@@ -16,11 +16,11 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 				this.size++;
 				this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
 				if (this.size == this.maxSize) {
-					incButton.classList.add("disable-click");
+					incButton.setAttribute("disabled", "");
 				}
 				else {
-					incButton.classList.remove("disable-click");
-					decButton.classList.remove("disable-click");
+					incButton.removeAttribute("disabled");
+					decButton.removeAttribute("disabled");
 				}
 			}
 		});
@@ -29,16 +29,16 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 				this.size--;
 				this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
 				if (this.size == 2) {
-					decButton.classList.add("disable-click");
+					decButton.setAttribute("disabled", "");
 				}
 				else {
-					decButton.classList.remove("disable-click");
-					incButton.classList.remove("disable-click");
+					decButton.removeAttribute("disabled");
+					incButton.removeAttribute("disabled");
 				}
 			}
 		});
-		if (this.size == 2) decButton.classList.add("disable-click");
-		if (this.size == this.maxSize) incButton.classList.add("disable-click");
+		if (this.size == 2) decButton.setAttribute("disabled", "");
+		if (this.size == this.maxSize) incButton.setAttribute("disabled", "");
 		this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
 	}
 }
