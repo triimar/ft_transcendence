@@ -37,15 +37,15 @@
 </template>
 <template id="page-room">
 	<td-navigation-bar>
-		<p class="ui ui-text">EXIT ROOM</p>
+		<td-button class="ui"><p class="ui-text">EXIT ROOM</p></td-button>
 	</td-navigation-bar>
 	<td-lobby-room room-max="8" room-id="EFGHUY12KJ23" class="ui">
 		<td-avatar avatar-name=":3:" avatar-background="rgb(255, 100, 3)"></td-avatar>
 		<td-avatar avatar-name=".0." avatar-background="rgb(10, 100, 3)"></td-avatar>
-		<button class="ui" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button">PREPARE?</button>
+		<td-button class="ui" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button"><p>PREPARE?</p></td-button>
 	</td-lobby-room>
 	<td-room-setting-size class="ui"></td-room-setting-size>
-	<td-button class="ui" disabled></td-button>
+	<div class="ui ui-text"><p>More game options coming soon</p></div>
 </template>
 <template id="page-main">
 	<style>
@@ -56,7 +56,7 @@
 		}
 	</style>
 	<td-navigation-bar>
-		<p class="ui ui-text">ADD ROOM</p>
+		<td-button class="ui"><p class="ui-text">ADD ROOM</p></td-button>
 	</td-navigation-bar>
 	<td-lobby-room room-max="8" room-id="EFGHUY12KJ23" class="ui">
 		<td-avatar avatar-name=":3:" avatar-background="rgb(255, 100, 3)"></td-avatar>
