@@ -45,6 +45,7 @@
 		<button class="ui" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button">PREPARE?</button>
 	</td-lobby-room>
 	<td-room-setting-size class="ui"></td-room-setting-size>
+	<td-button class="ui" disabled></td-button>
 </template>
 <template id="page-main">
 	<style>
@@ -276,5 +277,31 @@
 		}
 	</style>
 	<canvas style="width: 100%;"  width="1200" height="600" class="ui"></canvas>
+</template>
+<template id="component-button">
+	<style>
+		:host {
+			background: var(--td-ui-background-color);
+			cursor: pointer;
+		}
+
+		:host * {
+			color: var(--td-ui-font-color);
+		}
+
+		:host(:not([disabled]):hover) {
+			background: var(--td-ui-font-color);
+		}
+
+		:host(:not([disabled]):hover) * {
+			color: var(--td-ui-background-color);
+		}
+
+		:host([disabled]) {
+			cursor: not-allowed;
+			opacity: 0.5;
+		}
+	</style>
+	<p></p>
 </template>
 </html>
