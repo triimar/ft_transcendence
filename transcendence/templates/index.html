@@ -237,11 +237,17 @@
 			box-sizing: border-box;
 			width: fit-content;
 		}
+
+		.ui-text {
+			padding: 0.5em 0.5em;
+			margin: 0;
+		}
 	</style>
 	<nav>
 		<td-logo></td-logo>
 		<div id="buttons-container">
 			<slot></slot>
+			<td-button class="ui" id="mode"><p class="ui-text">MODE</p></td-button>
 			<div class="ui">
 				<td-avatar avatar-name="-S-" avatar-background="rgb(30,30,140)"></td-avatar>
 			</div>
