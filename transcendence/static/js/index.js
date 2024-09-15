@@ -6,6 +6,7 @@ import ComponentGameBoard from "./components/GameBoard.js";
 import ComponentAIGameBoard from "./components/AIGameBoard.js";
 import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
 import ComponentButton from "./components/Button.js";
+import ComponentLever from "./components/Lever.js";
 
 import PageError from "./pages/PageError.js";
 import PageLogin from "./pages/PageLogin.js";
@@ -103,3 +104,4 @@ window.customElements.define("td-logo", ComponentLogo);
 window.customElements.define("td-game-board", ComponentGameBoard);
 window.customElements.define("td-ai-game-board", ComponentAIGameBoard);
 window.customElements.define("td-button", ComponentButton);
+window.customElements.define("td-lever", ComponentLever);

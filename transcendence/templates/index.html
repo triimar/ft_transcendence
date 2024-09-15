@@ -247,7 +247,7 @@
 		<td-logo></td-logo>
 		<div id="buttons-container">
 			<slot></slot>
-			<td-button class="ui" id="mode"><p class="ui-text">MODE</p></td-button>
+			<td-lever class="ui" id="mode"></td-lever>
 			<div class="ui">
 				<td-avatar avatar-name="-S-" avatar-background="rgb(30,30,140)"></td-avatar>
 			</div>
@@ -308,5 +308,31 @@
 		}
 	</style>
 	<slot></slot>
+</template>
+<template id="component-lever">
+	<style>
+		* {
+			margin: 0;	
+		}
+
+		:host {
+			background: var(--td-ui-background-color);
+			width: 2em !important;
+			box-sizing: content-box !important;
+			cursor: pointer;
+		}
+
+		.on {
+			transform: translate(100%, 0);
+		}
+
+		 #handle {
+			height: 1em;
+			aspect-ratio: 1 / 1;
+			background: var(--td-ui-toggle-color);
+			transition: transform 0.5s;
+		 }
+	</style>
+	<div id="handle"></div>
 </template>
 </html>
