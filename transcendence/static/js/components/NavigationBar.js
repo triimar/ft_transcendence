@@ -10,7 +10,6 @@ export default class ComponentNavigationBar extends HTMLElement {
 		this.modeSwitcherFunc = (() => {
 			let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');
 			let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');
-			console.log(bgColor, fgColor);
 			document.documentElement.style.setProperty('--td-ui-background-color', fgColor);
 			document.documentElement.style.setProperty('--td-ui-font-color', bgColor);
 		}).bind(this);
