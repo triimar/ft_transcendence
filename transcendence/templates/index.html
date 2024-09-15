@@ -269,7 +269,12 @@
 </template>
 <template id="component-button">
 	<style>
+		::slotted(*) {
+			transition: color 0.3s;
+		}
+
 		:host {
+			transition: background 0.3s, opacity 0.3s;
 			background: var(--td-ui-background-color);
 			cursor: pointer;
 			display: flex;
