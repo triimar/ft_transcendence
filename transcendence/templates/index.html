@@ -122,7 +122,7 @@
 		}
 
 		#lobby-room-id {
-			margin: 0 0.4em 0 0;
+			margin: 0 0.4em;
 			text-align: center;
 			font-size: 1.5em;
 		}
@@ -132,6 +132,18 @@
 			flex-direction: column;
 			align-items: flex-end;
 		}
+
+		@media only screen and (max-width: 1000px) {
+			:host {
+				flex-direction: column;
+				min-width: fit-content;
+			}
+
+			#lobby-room-participants {
+				width: 100%;
+			}
+		}
+
 	</style>
 	<slot id="lobby-room-participants"></slot>
 	<div id="lobby-room-info">
