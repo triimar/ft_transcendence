@@ -19,6 +19,7 @@
 	--td-border-size: 0.3em;
 	--td-ui-background-color: white;
 	--td-ui-font-color: black;
+	--td-ui-toggle-color: red;
 	--td-avatar-height: calc(4.16em * 0.8);
 	--td-avatar-width: calc(5em * 0.8);
 }

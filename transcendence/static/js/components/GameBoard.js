@@ -9,11 +9,11 @@ export default class ComponentGameBoard extends HTMLElement {
 	connectedCallback() {
 		const canvas = this.shadow.querySelector("canvas");
 		const ctx = canvas.getContext("2d");
-		const BALL_SPEED_X = 5;
-		const BALL_SPEED_Y = 2;
-		const PADDLE_H = 150;
-		const PADDLE_W = 150;
-		const PADDLE_SPEED = 6;
+		const BALL_SPEED = 5;
+		const MAXBOUNCEANGLE = Math.PI/4;
+		const PADDLE_H = canvas.width/10;
+		const PADDLE_W = canvas.width/10;
+		const PADDLE_SPEED = 15;
 
 		let raf;
 		let pause = false;
@@ -25,8 +25,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		const ball = {
 			x: canvas.width / 2,
 			y: canvas.height / 2,
-			vx: BALL_SPEED_X,
-			vy: BALL_SPEED_Y,
+			vx: BALL_SPEED,
+			vy: BALL_SPEED,
 			size: 50,
 			isReset: true,
 			isSpeedingUp: true,
@@ -40,8 +40,8 @@ export default class ComponentGameBoard extends HTMLElement {
 			{
 				this.x = canvas.width / 2;
 				this.y = canvas.height / 2;
-				this.vx = BALL_SPEED_X * side;
-				this.vy = BALL_SPEED_Y;
+				this.vx = BALL_SPEED * side;
+				this.vy = BALL_SPEED;
 				this.isReset = true;
 				this.isSpeedingUp = false;
 				this.vx = 1 * side;
@@ -49,6 +49,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		};
 
 		const paddleLeft = {
+			name: "6_6",
 			x: 0,
 			y: canvas.height/2 - PADDLE_H/2,
 			vy: PADDLE_SPEED,
@@ -59,6 +60,11 @@ export default class ComponentGameBoard extends HTMLElement {
 			{
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.width, this.height);
+				ctx.font="60px Monomaniac One";
+				ctx.textAlign="center"; 
+				ctx.textBaseline = "middle";
+				ctx.fillStyle = "#FFFFFF";
+				ctx.fillText(this.name, this.x + this.width/2, this.y + this.height/2);
 			},
 			reset()
 			{
@@ -69,6 +75,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		};
 
 		const paddleRight = {
+			name: "0-0",
 			x: canvas.width - PADDLE_W,
 			y: canvas.height/2 - PADDLE_H/2,
 			vy: PADDLE_SPEED,
@@ -79,6 +86,11 @@ export default class ComponentGameBoard extends HTMLElement {
 			{
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.width, this.height);
+				ctx.font="60px Monomaniac One";
+				ctx.textAlign="center"; 
+				ctx.textBaseline = "middle";
+				ctx.fillStyle = "#FFFFFF";
+				ctx.fillText(this.name, this.x + this.width/2, this.y + this.height/2);
 			},
 			reset()
 			{
@@ -89,13 +101,13 @@ export default class ComponentGameBoard extends HTMLElement {
 		};
 
 		function moving() {
-			if (ball.vx != 5 && ball.vx != -5 && !ball.isSpeedingUp)
+			if (ball.vx != PADDLE_SPEED && ball.vx != -PADDLE_SPEED && !ball.isSpeedingUp)
 			{
 				ball.isSpeedingUp = true;
 				setTimeout(function() {
-					if (ball.vx > 0 && ball.vx != 5)
+					if (ball.vx > 0 && ball.vx != PADDLE_SPEED)
 						ball.vx++;
-					else if (ball.vx != -5)
+					else if (ball.vx != -PADDLE_SPEED)
 						ball.vx--;
 					ball.isSpeedingUp = false;
 				}, 1000);
@@ -124,24 +136,34 @@ export default class ComponentGameBoard extends HTMLElement {
 				paddleLeft.reset();
 				paddleRight.reset();
 			}
-			if (ball.x + ball.vx < paddleLeft.width &&
+			if (ball.x + ball.vx < paddleLeft.width + paddleLeft.x &&
 				ball.y + ball.vy < paddleLeft.y + paddleLeft.height &&
 				ball.y + ball.vy + ball.size > paddleLeft.y && ball.vx < 0)
 			{
 				//Horizontal collision
-				if (ball.x + ball.vx + ball.size > paddleLeft.width)
+				if (ball.x + ball.vx + ball.size > paddleLeft.width + paddleLeft.x)
 				{
-					ball.vx = -ball.vx;
+					var relativeIntersection = (ball.y + ball.size/2 + ball.vy) - (paddleLeft.y + paddleLeft.height / 2);
+					var normalizedRelativeIntersectionY = (relativeIntersection/(paddleLeft.height/2));
+					var bounceAngle = normalizedRelativeIntersectionY * MAXBOUNCEANGLE;
+					var velocityY = ball.vy > 0 ? 1 : -1;
+					ball.vx = BALL_SPEED*Math.cos(bounceAngle);
+					ball.vy = BALL_SPEED*Math.sin(bounceAngle);
+					if ((ball.vy > 0 && velocityY === -1) || ball.vy < 0 && velocityY === 1)
+						ball.vy *= -1;
+					ball.vx = Math.abs(ball.vx);
 				}
 				else if (ball.y + ball.vy < paddleLeft.y) //Upper side collision
 				{
 					ball.vx = -ball.vx;
-					ball.vy = -ball.vy;
+					if (ball.vy > 0)
+						ball.vy = -ball.vy;
 				}
-				else if (ball.y + ball.vy + ball.size > paddleLeft.y) //Lower side collision
+				else if (ball.y + ball.vy + ball.size > paddleLeft.y + paddleLeft.height) //Lower side collision
 				{
 					ball.vx = -ball.vx;
-					ball.vy = -ball.vy;
+					if (ball.vy < 0)
+						ball.vy = -ball.vy;
 				}
 			}
 			//Right paddle collisions
@@ -150,19 +172,28 @@ export default class ComponentGameBoard extends HTMLElement {
 				ball.y + ball.vy + ball.size > paddleRight.y && ball.vx > 0)
 			{
 				//Horizontal collision
-				if (ball.x + ball.vx < paddleRight.x)
-				{
-					ball.vx = -ball.vx;
+				if (ball.x + ball.vx < paddleRight.x) {
+					var relativeIntersection = ((ball.y + ball.size/2) + ball.vy) - (paddleRight.y + paddleRight.height/2);
+					var normalizedRelativeIntersectionY = (relativeIntersection/(paddleRight.height/2));
+					var bounceAngle = normalizedRelativeIntersectionY * MAXBOUNCEANGLE;
+					var velocityY = ball.vy > 0 ? 1 : -1;
+					ball.vx = BALL_SPEED*Math.cos(bounceAngle);
+					ball.vy = BALL_SPEED*Math.sin(bounceAngle);
+					if ((ball.vy > 0 && velocityY === -1) || ball.vy < 0 && velocityY === 1)
+						ball.vy *= -1;
+					ball.vx = -Math.abs(ball.vx);
 				}
 				else if (ball.y + ball.vy < paddleRight.y) //Upper side collision
 				{
 					ball.vx = -ball.vx;
-					ball.vy = -ball.vy;
+					if (ball.vy > 0)
+						ball.vy = -ball.vy;
 				}
-				else if (ball.y + ball.vy + ball.size > paddleRight.y) //Lower side collision
+				else if (ball.y + ball.vy + ball.size > paddleRight.y + paddleRight.height) //Lower side collision
 				{
 					ball.vx = -ball.vx;
-					ball.vy = -ball.vy;
+					if (ball.vy < 0)
+						ball.vy = -ball.vy;
 				}
 			}
 		}
