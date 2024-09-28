@@ -13,6 +13,10 @@ def chat_lobby(request):
 def room(request, room_name):
     return render(request, 'room.html', {'room_name': room_name})
 
+# check if user is authenticated
+def check_auth(request):
+    return JsonResponse({'authenticated': True})
+
 # OAuth callback view
 def oauth_callback(request):
     code = request.GET.get('code')
@@ -26,7 +30,7 @@ def oauth_callback(request):
         'client_id': settings.OAUTH2_PROVIDER['CLIENT_ID'],
         'client_secret': settings.OAUTH2_PROVIDER['CLIENT_SECRET'],
         'code': code,
-        'redirect_uri': 'http://localhost:8000/authentification',
+        'redirect_uri': 'http://localhost:8000/api/auth_request',
     }
 
     # post request to get the access token
@@ -47,16 +51,17 @@ def oauth_callback(request):
         return JsonResponse({'error': 'Failed to fetch user data from 42 API'}, status=400)
 
     user_data = user_data_response.json()
-    print(user_data)
+    print(user_data) # save user data to database
 
-    return HttpResponse('User data fetched successfully')
+    return redirect('transcendence')
 
+# redirect to 42 OAuth page
 def oauth_redirect(request):
     authorization_url = (
         'https://api.intra.42.fr/oauth/authorize?'
         f'client_id={settings.OAUTH2_PROVIDER["CLIENT_ID"]}'
         '&response_type=code'
-        '&redirect_uri=http://localhost:8000/authentification'
+        '&redirect_uri=http://localhost:8000/api/auth_request'
         '&scope=public'
     )
     return redirect(authorization_url)
