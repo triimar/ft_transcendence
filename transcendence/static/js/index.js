@@ -42,7 +42,7 @@ async function main() {
 				pageHash = "login";
 			}
 			else {
-				if (pageHash == "login") pageHash = "main";
+				// if (pageHash == "login") pageHash = "main";
 				if (!myself.ws) myself.connectWs();
 			}
 		}
@@ -62,7 +62,7 @@ async function main() {
 			pageHash = "login";
 		}
 		else {
-			if (pageHash == "login") pageHash = "main";
+			// if (pageHash == "login") pageHash = "main";
 			myself.connectWs();
 		}
 	}
