@@ -100,4 +100,3 @@ if (prepared_count == len(room["avatars"]))
     self.send()
 ```
 # Game Page
-
