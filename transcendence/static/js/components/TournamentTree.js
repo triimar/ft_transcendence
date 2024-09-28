@@ -1,16 +1,16 @@
-export default class ComponentMatchTree extends HTMLElement {
+export default class ComponentTournamentTree extends HTMLElement {
 	//static observedAttributes = ["room-max", "room-id"];
 	
 	constructor() {
 		super();
 		this.shadow = this.attachShadow({ mode: "open" });
-		const template = document.getElementById("component-match-tree");
+		const template = document.getElementById("component-tournament-tree");
 		this.shadow.appendChild(template.content.cloneNode(true));
 	}
 
-	fetchMatchData() {
+	fetcTournamentData() {
         return {
-            "matchlist-avatars": [
+            "tournamentlist-avatars": [
                 { "avatar-name": "A.A", "avatar-background": "#FF5733" },
                 { "avatar-name": "pip", "avatar-background": "#33FF57" },
                 { "avatar-name": "wmw", "avatar-background": "#3357FF" },
