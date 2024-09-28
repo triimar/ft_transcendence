@@ -8,6 +8,7 @@ import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
 import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentMatchTree from "./components/MatchTree.js";
+import ComponentTournamentTree from "./components/TournamentTree.js";
 
 import PageError from "./pages/PageError.js";
 import PageLogin from "./pages/PageLogin.js";
@@ -17,7 +18,6 @@ import PageRoom from "./pages/PageRoom.js";
 import PageMain from "./pages/PageMain.js";
 
 import { myself } from "./myself.js";
-import ComponentMarchTree from "./components/MatchTree.js";
 
 const pageMapping = {
 	error: PageError,
@@ -164,3 +164,4 @@ window.customElements.define("td-ai-game-board", ComponentAIGameBoard);
 window.customElements.define("td-button", ComponentButton);
 window.customElements.define("td-lever", ComponentLever);
 window.customElements.define("td-match-tree", ComponentMatchTree);
+window.customElements.define("td-tournament-tree", ComponentTournamentTree);
