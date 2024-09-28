@@ -8,7 +8,8 @@ export default class ComponentTournamentTree extends HTMLElement {
 		this.shadow.appendChild(template.content.cloneNode(true));
 	}
 
-	fetcTournamentData() {
+	//does not actually fetch
+	fetchTournamentData() {
         return {
             "tournamentlist-avatars": [
                 { "avatar-name": "A.A", "avatar-background": "#FF5733" },
@@ -24,6 +25,8 @@ export default class ComponentTournamentTree extends HTMLElement {
 	}
 	connectedCallback() {
 	
+	
+	fetchGameData() 
 	}
 
 }
