@@ -4,7 +4,7 @@ import ComponentNavigationBar from "./components/NavigationBar.js";
 import ComponentLogo from "./components/Logo.js";
 import ComponentGameBoard from "./components/GameBoard.js";
 import ComponentAIGameBoard from "./components/AIGameBoard.js";
-import ComponentMatchTree from "./components/MatchTree.js";
+import ComponentTournamentTree from "./components/TournamentTree.js";
 
 import PageError from "./pages/PageError.js";
 import PageLogin from "./pages/PageLogin.js";
@@ -14,7 +14,6 @@ import PageRoom from "./pages/PageRoom.js";
 import PageMain from "./pages/PageMain.js";
 
 import { myself } from "./myself.js";
-import ComponentMarchTree from "./components/MatchTree.js";
 
 const pageMapping = {
 	error: PageError,
@@ -102,4 +101,4 @@ window.customElements.define("td-navigation-bar", ComponentNavigationBar);
 window.customElements.define("td-logo", ComponentLogo);
 window.customElements.define("td-game-board", ComponentGameBoard);
 window.customElements.define("td-ai-game-board", ComponentAIGameBoard);
-window.customElements.define("td-match-tree", ComponentMatchTree);
+window.customElements.define("td-tournament-tree", ComponentTournamentTree);
