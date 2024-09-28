@@ -21,7 +21,19 @@
 	<h1>Page unknown</h1>
 </template>
 <template id="page-login">
-	<h1>Login page</h1>
+	<style>
+		*:has(#login-box) {
+			justify-content: center;
+			height: 100vh;
+		}
+	</style>
+	<div id="login-box" style="display: flex; flex-direction: column;" class="ui">
+		<td-logo style="margin-left: 1em;"></td-logo>
+		<div style="display: flex; flex-direction: row;">
+			<td-button class="ui"><p class="ui-text">Guest login</p></td-button>
+			<td-button class="ui"><p class="ui-text">Intra login</p></td-button>
+		</div>
+	</div>
 </template>
 <template id="page-game">
 	<td-navigation-bar>
