@@ -32,6 +32,7 @@ async function main() {
 	let isAuthenticated = false;
 	window.addEventListener("hashchange", async (event) => {
 		currentPage.removeEvents();
+		myself.pageFinishedRendering = false;
 		let pageHash = getPageHashFromURL(location);
 		if (!pageMapping[pageHash]) pageHash = "error";
 		if (pageHash != "error") {
@@ -51,8 +52,10 @@ async function main() {
 		myself.page = currentPage;
 		renderTemplate(contentContainer, currentPage.templateId);
 		currentPage.attachEvents();
-		if (myself.ws) await myself.sendMessageInit(pageHash);
+		// TODO(HeiYiu): Send message depending on the page
+		myself.pageFinishedRendering = true;
 	});
+	myself.pageFinishedRendering = false;
 	let pageHash = getPageHashFromURL(location);
 	if (!pageMapping[pageHash]) pageHash = "error";
 	if (pageHash != "error") {
@@ -71,7 +74,8 @@ async function main() {
 	myself.page = currentPage;
 	renderTemplate(contentContainer, currentPage.templateId);
 	currentPage.attachEvents();
-	if (myself.ws) await myself.sendMessageInit(pageHash);
+	// TODO(HeiYiu): Send message depending on the page
+	myself.pageFinishedRendering = true;
 }
 
 function getPageHashFromURL(url) {
