@@ -1,6 +1,7 @@
 class Visitor {
 	constructor() {
 		this.page = null;
+		this.pageFinishedRendering = false; // Note(HeiYiu): this is a mutex that make sure the template is rendered before receiving incoming websocket message that will change the UI tree
 		this.ws = null;
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
 	}
@@ -29,6 +30,19 @@ class Visitor {
 		});
 		this.ws.addEventListener("close", function (event) {
 			console.log("Websocket connection is closed unexpectedly");
+		});
+	}
+
+	waitForPageToRender() {
+		// Note(HeiYiu): Change of hash will trigger the hashchange event handler to render a template. The hashchange event handler should set the pageFinishedRendering to true when it finished rendering
+		return new Promise((resolve, reject) => {
+			const intervalTime = 100; //ms
+			const interval = setInterval(() => {
+				if (this.pageFinishedRendering) {
+					clearInterval(internval);
+					resolve();
+				}
+			}, intervalTime);
 		});
 	}
 
