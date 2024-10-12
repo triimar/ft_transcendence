@@ -18,14 +18,34 @@ class Visitor {
 		this.ws.addEventListener("open", function (event) {
 			console.log("Websocket connection is open");
 		});
-		this.ws.addEventListener("message", function (event) {
+		this.ws.addEventListener("message", async function (event) {
 			const message = JSON.parse(event.data);
 			console.log("Incoming message:", message);
 			switch (message.type) {
 				case "ack_init":
-					let pageHash = message.payload;
-					console.log(`client appeared on page ${pageHash}!`);
-				break;
+					await this.waitForPageToRender();
+					// TODO(HeiYiu): get list of rooms and render them
+					break;
+				case "b_join_room":
+					if (this.page.templateId == "page-lobby") {
+
+					} else if (this.page.templateId == "page-room") {
+
+					}
+					break;
+				case "ack_join_room":
+					await this.waitForPageToRender();
+					// TODO(HeiYiu): Render the room
+					break;
+				case "b_add_room":
+					// TODO(HeiYiu): Append a room to lobby page
+					break;
+				case "ack_add_room":
+					await this.waitForPageToRender();
+					// TODO(HeiYiu): Render the newly added room
+					break;
+				default:
+					console.error("Received unknown websocket message type");
 			}
 		});
 		this.ws.addEventListener("close", function (event) {
