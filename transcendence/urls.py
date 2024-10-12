@@ -9,5 +9,5 @@ urlpatterns = [
     path('chat/<str:room_name>/', views.room, name='room'),
     path('api/trigger_auth/', views.oauth_redirect, name='oauth_redirect'),
     path('api/auth_request/', views.oauth_callback, name='oauth_callback'),
-    path('check_auth/', views.check_auth, name='check_auth'),
+    path('api/check_auth/', views.check_auth, name='check_auth'),
 ]
