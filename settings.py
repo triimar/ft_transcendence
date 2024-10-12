@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,6 +24,12 @@ SECRET_KEY = 'django-insecure-t3p2_bsi&$!4o6zw9ox)&^jri6s@_d#x1d-0shubl*xwt9&-!^
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+# Secret key for encoding and decoding JWT tokens
+JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'your_secret_key_here')
+
+# Algorithm used for encoding and decoding the JWT
+JWT_ALGORITHM = 'HS256'
 
 ALLOWED_HOSTS = []
 
@@ -82,7 +89,7 @@ OAUTH2_PROVIDER = {
     'ACCESS_TOKEN_EXPIRE_SECONDS': 36000,
     'AUTHORIZATION_CODE_EXPIRE_SECONDS': 600,
     'CLIENT_ID': 'u-s4t2ud-9c42ba9cfb7ad3fef02e176bef186ce227179755037a62ce93acd234de440dd6',
-    'CLIENT_SECRET': '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',
+    'CLIENT_SECRET': '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',
     'SCOPES': {'public': 'Public access'},
 }
 
