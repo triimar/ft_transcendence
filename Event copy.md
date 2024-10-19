@@ -72,7 +72,7 @@ room_data = [
 ```
 ## when the room owner click ADD ROOM button
 ```python
-{"type": "add_room", "room_id": room_id, "owner_id": owner_id} #to indicate who creates which room
+{"type": "add_room", "owner_id": owner_id} #to indicate who creates which room
 # updata room_data
 {"type": "b_add_room", "room_id": room_id, "owner_avatar": owner_avater} #same as the previous, broadcast room_list to lobby group.
 {"type": "ack_add_room", "single_room_data": added_room}
