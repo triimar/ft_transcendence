@@ -8,11 +8,42 @@ class Visitor {
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
 	}
 
-	verifyJWT() {
-		// TODO(HeiYiu): find in localStorage or CookieStorage if a JWT exists
-		// if yes, verify with the server
-		// if it verified, save the jwt in this object
+	async verifyJWT() {
+		// Note(HeiYiu): find in CookieStorage if a JWT exists
+		try {
+			let jwt = await cookieStore.get("jwt");
+			if (jwt) {
+				let response = await fetch("/api/check_auth");
+				this.jwt = await response.json();
+				return true;
+			}
+		}
+        catch (error) {}
+		return false;
+	}
+
+	isGuest() {
+		let method = localStorage.getItem("login_method");
+		if (method == "guest") return true;
 		return true;
+	}
+
+	async login(isAsGuest) {
+		if (isAsGuest) {
+			localStorage.setItem("login_method", "guest");
+			// Note(HeiYiu): ask server for a id
+			let response = await fetch("api/guest_login");
+			myself.id = await response.json();
+		} else {
+			localStorage.setItem("login_method", "intra");
+			// Note(HeiYiu): Redirect the page to do authentication
+			fetch("api/trigger_auth/");
+		}
+	}
+
+	async logout() {
+		this.jwt = null;
+		await cookieStore.remove("jwt");
 	}
 
 	connectWs() {

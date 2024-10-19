@@ -36,15 +36,17 @@ async function main() {
 		let pageHash = getPageHashFromURL(location);
 		if (!pageMapping[pageHash]) pageHash = "error";
 		if (pageHash != "error") {
-			if (!isAuthenticated) isAuthenticated = myself.verifyJWT();
-			// NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
-			if (!isAuthenticated) {
-				// TODO(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
-				pageHash = "login";
-			}
-			else {
-				// if (pageHash == "login") pageHash = "main";
-				if (!myself.ws) myself.connectWs();
+			if (!myself.isGuest()) {
+				if (!isAuthenticated) isAuthenticated = await myself.verifyJWT();
+				// NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
+				if (!isAuthenticated) {
+					// TODO(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+					pageHash = "login";
+				}
+				else {
+					if (pageHash == "login") pageHash = "main";
+					if (!myself.ws) myself.connectWs();
+				}
 			}
 		}
 		let pageClass = pageMapping[pageHash];
@@ -60,14 +62,16 @@ async function main() {
 	let pageHash = getPageHashFromURL(location);
 	if (!pageMapping[pageHash]) pageHash = "error";
 	if (pageHash != "error") {
-		isAuthenticated = myself.verifyJWT();
-		if (!isAuthenticated) {
-			// TODO(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
-			pageHash = "login";
-		}
-		else {
-			// if (pageHash == "login") pageHash = "main";
-			myself.connectWs();
+		if (!myself.isGuest()) {
+			isAuthenticated = await myself.verifyJWT();
+			if (!isAuthenticated) {
+				// TODO(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+				pageHash = "login";
+			}
+			else {
+				if (pageHash == "login") pageHash = "main";
+				myself.connectWs();
+			}
 		}
 	}
 	let pageClass = pageMapping[pageHash];
