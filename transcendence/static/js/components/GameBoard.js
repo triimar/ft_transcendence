@@ -143,7 +143,6 @@ export default class ComponentGameBoard extends HTMLElement {
 				//Horizontal collision
 				if (ball.x + ball.vx + ball.size > paddleLeft.width + paddleLeft.x)
 				{
-					console.log("width: " + canvas.width + " height: " + canvas.height);
 					var relativeIntersection = (ball.y + ball.size/2 + ball.vy) - (paddleLeft.y + paddleLeft.height / 2);
 					var normalizedRelativeIntersectionY = (relativeIntersection/(paddleLeft.height/2));
 					var bounceAngle = normalizedRelativeIntersectionY * MAXBOUNCEANGLE;

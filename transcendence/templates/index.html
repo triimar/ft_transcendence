@@ -13,9 +13,9 @@
 		<footer style="width: 70%; margin-top: auto; display: flex; flex-direction: column; align-items: center;" class="ui">
 			<p>:PONG © 2024</p>
 			<p style="font-size: 0.5em;">Made by Hei Yiu, Maria, Sangyao, Sol and Triin</p>
-		</div>
-	</footer>
-</main>
+			</div>
+		</footer>
+	</main>
 </body>
 <template id="page-error">
 	<h1>Page unknown</h1>
@@ -39,34 +39,7 @@
 	<td-navigation-bar>
 		<p class="ui ui-text">EXIT GAME</p>
 	</td-navigation-bar>
-	<script>
-		console.log("yay");
-		const roomName = 'example_room';  // Set this dynamically as needed
-		const ws = new WebSocket('ws://' + window.location.host + '/ws/game/' + roomName + '/');
-
-		ws.onmessage = function(event) {
-			const data = JSON.parse(event.data);
-			console.log(data.message);
-			// Handle incoming messages (game state updates)
-		};
-
-		ws.onopen = function(event) {
-			console.log('WebSocket connection established');
-		};
-
-		ws.onclose = function(event) {
-			console.log('WebSocket connection closed');
-		};
-
-		// Send game state updates
-		function sendGameState(state) {
-			ws.send(JSON.stringify({
-				'message': state
-			}));
-		}
-	</script>
-	<td-game-board>
-	</td-game-board>
+	<td-game-board></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
