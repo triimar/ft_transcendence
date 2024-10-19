@@ -1,7 +1,6 @@
 import json
 import redis
 from channels.generic.websocket import AsyncWebsocketConsumer
-import redis_data as data
 
 # Connect to Redis
 redis_instance = redis.Redis(host='db_redis', port=6379, db=0)
