@@ -53,7 +53,7 @@ async function main() {
 		myself.pageHash = pageHash;
 		renderTemplate(contentContainer, currentPage.templateId);
 		currentPage.attachEvents();
-		// TODO(HeiYiu): Send message depending on the page
+		if (myself.ws) sendInitMessage(pageHash);
 		myself.pageFinishedRendering = true;
 	});
 	myself.pageFinishedRendering = false;
@@ -76,7 +76,7 @@ async function main() {
 	myself.pageHash = pageHash;
 	renderTemplate(contentContainer, currentPage.templateId);
 	currentPage.attachEvents();
-	// TODO(HeiYiu): Send message depending on the page
+	if (myself.ws) sendInitMessage(pageHash);
 	myself.pageFinishedRendering = true;
 }
 
@@ -99,6 +99,23 @@ function renderTemplate(container, templateId) {
 		container.removeChild(container.firstElementChild);
 	}
 	container.prepend(clone);
+}
+
+function sendInitMessage(pageHash) {
+	switch (pageHash) {
+		case "error":
+		case "login":
+		case "game":
+		case "ai-game":
+			break;
+		case "room":
+			let roomId = 1314;
+			myself.sendMessageJoinRoom(roomId);
+			break;
+		case "main":
+			myself.sendMessageInit();
+			break;
+	}
 }
 
 window.addEventListener("DOMContentLoaded", main);

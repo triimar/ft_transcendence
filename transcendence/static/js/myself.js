@@ -3,6 +3,7 @@ class Visitor {
 		this.page = null;
 		this.pageHash = null;
 		this.pageFinishedRendering = false; // Note(HeiYiu): this is a mutex that make sure the template is rendered before receiving incoming websocket message that will change the UI tree
+		this.id = null;
 		this.ws = null;
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
 	}
@@ -97,14 +98,30 @@ class Visitor {
 		}
 	}
 
-	async sendMessageInit(pageHash) {
+	sendMessageInit() {
 		let message = {
 			type: "init",
-			payload: pageHash
+			"player_id": this.id
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
 
+	sendMessageJoinRoom(roomId) {
+		let message = {
+			type: "join_room",
+			"room_id": roomId,
+			"player_id": this.id
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageAddRoom() {
+		let message = {
+			type: "add_room",
+			"owner_id": this.id
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
 }
 
 export const myself = new Visitor();
