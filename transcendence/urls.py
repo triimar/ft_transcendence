@@ -10,4 +10,6 @@ urlpatterns = [
     path('api/trigger_auth/', views.oauth_redirect, name='oauth_redirect'),
     path('api/auth_request/', views.oauth_callback, name='oauth_callback'),
     path('api/check_auth/', views.check_auth, name='check_auth'),
+    path('api/guest_login/', views.guest_login, name='guest_login'),
+    path('api/logout/', views.logout, name='logout'),
 ]
