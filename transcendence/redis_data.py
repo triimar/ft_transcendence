@@ -50,7 +50,7 @@ player_data_sample = [
 ]
 redis_instance.set("player_data", json.dumps(player_data_sample))
 
-async def get_full_room_data() -> list:
+def get_full_room_data() -> list:
 	room_data = json.loads(redis_instance.get("room_data"))
 	player_data = json.loads(redis_instance.get("player_data"))
 
@@ -71,7 +71,7 @@ async def get_full_room_data() -> list:
 
 	return full_room_data
 
-async def add_player_to_room(room_id, player_id) -> bool:
+def add_player_to_room(room_id, player_id) -> bool:
 
 	room_data = json.loads(redis_instance.get("room_data"))
 	player_data = json.loads(redis_instance.get("player_data"))
@@ -94,7 +94,7 @@ async def add_player_to_room(room_id, player_id) -> bool:
 		print(f"Room with room_id {room_id} not found in room_data.")
 		return False
 
-async def get_one_room_data(room_id):
+def get_one_room_data(room_id):
 
     room_data = json.loads(redis_instance.get("room_data"))
 
@@ -103,7 +103,7 @@ async def get_one_room_data(room_id):
 
     return room
 
-async def add_new_room(room_id, owner_id):
+def add_new_room(room_id, owner_id) -> dict:
     room_data = json.loads(redis_instance.get("room_data") or '[]')
 
     # Create a new room with default settings
@@ -123,3 +123,14 @@ async def add_new_room(room_id, owner_id):
     room_data.append(new_room)
 
     redis_instance.set("room_data", json.dumps(room_data))
+
+    return new_room
+
+def get_one_player(player_id) -> dict|None:
+    player_data = json.loads(redis_instance.get("player_data"))
+
+    one_player = next((player for player in player_data if player["player_id"] == player_id), None)
+
+    return one_player
+
+
