@@ -1,6 +1,7 @@
 class Visitor {
 	constructor() {
 		this.page = null;
+		this.pageHash = null;
 		this.pageFinishedRendering = false; // Note(HeiYiu): this is a mutex that make sure the template is rendered before receiving incoming websocket message that will change the UI tree
 		this.ws = null;
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
@@ -27,9 +28,9 @@ class Visitor {
 					// TODO(HeiYiu): get list of rooms and render them
 					break;
 				case "b_join_room":
-					if (this.page.templateId == "page-lobby") {
+					if (this.pageHash == "main") {
 
-					} else if (this.page.templateId == "page-room") {
+					} else if (this.pageHash == "room") {
 
 					}
 					break;

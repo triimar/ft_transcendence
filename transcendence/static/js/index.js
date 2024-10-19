@@ -50,6 +50,7 @@ async function main() {
 		let pageClass = pageMapping[pageHash];
 		currentPage = new pageClass(contentContainer);
 		myself.page = currentPage;
+		myself.pageHash = pageHash;
 		renderTemplate(contentContainer, currentPage.templateId);
 		currentPage.attachEvents();
 		// TODO(HeiYiu): Send message depending on the page
@@ -72,6 +73,7 @@ async function main() {
 	let pageClass = pageMapping[pageHash];
 	currentPage = new pageClass(contentContainer);
 	myself.page = currentPage;
+	myself.pageHash = pageHash;
 	renderTemplate(contentContainer, currentPage.templateId);
 	currentPage.attachEvents();
 	// TODO(HeiYiu): Send message depending on the page
