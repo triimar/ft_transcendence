@@ -21,14 +21,11 @@ def check_if_unique_avatar(avatar):
     return not exists
 
 def assign_random_avatar():
-    while True:
-        eye = ['\"', '*', 'V', 'A', 'Y', 'w', '0', 'e', 'T', '$', 'Q', 'M', 'X', '^', '=', 'z', 'L'] # 17 eyes
-        mouth = ['o', '8', '@', 'D', 'c', 'p', 'w', 'x', 'u', 'v', 's', '_', ',', '.', '9', 'm', '+'] # 17 mouths
-        random_eye = random.choice(eye)
-        random_mouth = random.choice(mouth)
-        avatar = random_eye + random_mouth + random_eye
-        # if check_if_unique_avatar(avatar):
-        #     break
+    eye = ['\"', '*', 'V', 'A', 'Y', 'w', '0', 'e', 'T', '$', 'Q', 'M', 'X', '^', '=', 'z', 'L'] # 17 eyes
+    mouth = ['o', '8', '@', 'D', 'c', 'p', 'w', 'x', 'u', 'v', 's', '_', ',', '.', '9', 'm', '+'] # 17 mouths
+    random_eye = random.choice(eye)
+    random_mouth = random.choice(mouth)
+    avatar = random_eye + random_mouth + random_eye
     return avatar
 
 def create_new_user(login):
