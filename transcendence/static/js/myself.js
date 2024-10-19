@@ -51,7 +51,7 @@ class Visitor {
 		this.ws.addEventListener("open", function (event) {
 			console.log("Websocket connection is open");
 		});
-		this.ws.addEventListener("message", async function (event) {
+		this.ws.addEventListener("message", async (event) => {
 			const message = JSON.parse(event.data);
 			console.log("Incoming message:", message);
 			switch (message.type) {
@@ -92,7 +92,7 @@ class Visitor {
 			const intervalTime = 100; //ms
 			const interval = setInterval(() => {
 				if (this.pageFinishedRendering) {
-					clearInterval(internval);
+					clearInterval(interval);
 					resolve();
 				}
 			}, intervalTime);
