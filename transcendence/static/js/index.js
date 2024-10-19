@@ -40,11 +40,16 @@ async function main() {
 				if (!isAuthenticated) isAuthenticated = await myself.verifyJWT();
 				// NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
 				if (!isAuthenticated) {
-					// TODO(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+					// Note(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+					if (pageHash) localStorage.setItem("last_page_hash", pageHash);
 					pageHash = "login";
 				}
 				else {
-					if (pageHash == "login") pageHash = "main";
+					if (pageHash == "login") {
+						lastPageHash = localStorage.getItem("last_page_hash");
+						pageHash = lastPageHash ? lastPageHash : "main";
+						localStorage.removeItem("last_page_hash");
+					}
 					if (!myself.ws) myself.connectWs();
 				}
 			}
@@ -65,11 +70,16 @@ async function main() {
 		if (!myself.isGuest()) {
 			isAuthenticated = await myself.verifyJWT();
 			if (!isAuthenticated) {
-				// TODO(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+				// Note(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+				if (pageHash) localStorage.setItem("last_page_hash", pageHash);
 				pageHash = "login";
 			}
 			else {
-				if (pageHash == "login") pageHash = "main";
+				if (pageHash == "login") {
+					lastPageHash = localStorage.getItem("last_page_hash");
+					pageHash = lastPageHash ? lastPageHash : "main";
+					localStorage.removeItem("last_page_hash");
+				}
 				myself.connectWs();
 			}
 		}
