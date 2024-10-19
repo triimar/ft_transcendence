@@ -1,7 +1,7 @@
 import json
 import redis
 from channels.generic.websocket import AsyncWebsocketConsumer
-import redis_data as data
+from . import redis_data as data
 import shortuuid
 
 class LobbyConsumer(AsyncWebsocketConsumer):
