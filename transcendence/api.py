@@ -1,6 +1,8 @@
+import jwt
 import requests
 import shortuuid
-from .user import *
+from . import user
+from django.conf import settings
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
 
@@ -27,8 +29,8 @@ def logout(request):
 
 def guest_login(request):
     guest_uuid = shortuuid.ShortUUID().random(length=6)
-    avatar = assign_random_avatar()
-    color = assign_random_background_color()
+    avatar = user.assign_random_avatar()
+    color = user.assign_random_background_color()
     # save_user_cache(guest_id, avatar, color, guest=True)
     return JsonResponse({'guest_login': guest_id})
 
@@ -81,7 +83,7 @@ def oauth_callback(request):
 #    if check_if_new_user(user_login):
 #        create_new_user(user_login)
 
-    jwt_token = create_jwt(access_token_response.json(), user_login)
+    jwt_token = user.create_jwt(access_token_response.json(), user_login)
 
     # redirect to the main page with jwt token as cookie set
     response = HttpResponseRedirect('/')  # Redirect to the dashboard or desired URL
