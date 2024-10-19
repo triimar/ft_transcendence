@@ -32,7 +32,7 @@ def guest_login(request):
     avatar = user.assign_random_avatar()
     color = user.assign_random_background_color()
     # save_user_cache(guest_id, avatar, color, guest=True)
-    return JsonResponse({'guest_login': guest_id})
+    return JsonResponse({'guest_login': guest_uuid})
 
 # check if user is authenticated
 def check_auth(request):
