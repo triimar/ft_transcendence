@@ -29,31 +29,48 @@ const pageMapping = {
 async function main() {
 	const contentContainer = document.getElementsByClassName("content-container")[0];
 	let currentPage = null;
-	let isAuthenticated = false;
 	window.addEventListener("hashchange", async (event) => {
 		currentPage.removeEvents();
 		myself.pageFinishedRendering = false;
 		let pageHash = getPageHashFromURL(location);
 		if (!pageMapping[pageHash]) pageHash = "error";
 		if (pageHash != "error") {
-			if (!myself.isGuest()) {
-				if (!isAuthenticated) isAuthenticated = await myself.verifyJWT();
-				// NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
-				if (!isAuthenticated) {
-					// Note(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
-					if (pageHash) localStorage.setItem("last_page_hash", pageHash);
-					pageHash = "login";
-				}
-				else {
-					if (pageHash == "login") {
-						lastPageHash = localStorage.getItem("last_page_hash");
-						pageHash = lastPageHash ? lastPageHash : "main";
-						localStorage.removeItem("last_page_hash");
-					}
-					if (!myself.ws) myself.connectWs();
-				}
-			}
-		}
+            switch (myself.getLoginMethod()) {
+            case "guest": {
+                if (pageHash == "login") {
+                    let lastPageHash = localStorage.getItem("last_page_hash");
+                    pageHash = lastPageHash ? lastPageHash : "main";
+                    localStorage.removeItem("last_page_hash");
+                }
+                if (!myself.ws) myself.connectWs();
+            } break;
+            case "intra": {
+                let isAuthenticated = false;
+                if (myself.jwt == null) {
+                    isAuthenticated = await myself.verifyJWT();
+                }
+                else {
+                    isAuthenticated = true;
+                }
+                // NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
+                if (!isAuthenticated) {
+                    // Note(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+                    if (pageHash) localStorage.setItem("last_page_hash", pageHash);
+                    pageHash = "login";
+                } else {
+                    if (pageHash == "login") {
+                        let lastPageHash = localStorage.getItem("last_page_hash");
+                        pageHash = lastPageHash ? lastPageHash : "main";
+                        localStorage.removeItem("last_page_hash");
+                    }
+                    if (!myself.ws) myself.connectWs();
+                }
+            } break;
+            default: {
+                pageHash = "login";
+            }
+            }
+        }
 		let pageClass = pageMapping[pageHash];
 		currentPage = new pageClass(contentContainer);
 		myself.page = currentPage;
@@ -66,24 +83,37 @@ async function main() {
 	myself.pageFinishedRendering = false;
 	let pageHash = getPageHashFromURL(location);
 	if (!pageMapping[pageHash]) pageHash = "error";
-	if (pageHash != "error") {
-		if (!myself.isGuest()) {
-			isAuthenticated = await myself.verifyJWT();
-			if (!isAuthenticated) {
-				// Note(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
-				if (pageHash) localStorage.setItem("last_page_hash", pageHash);
-				pageHash = "login";
-			}
-			else {
-				if (pageHash == "login") {
-					lastPageHash = localStorage.getItem("last_page_hash");
-					pageHash = lastPageHash ? lastPageHash : "main";
-					localStorage.removeItem("last_page_hash");
-				}
-				myself.connectWs();
-			}
-		}
-	}
+    if (pageHash != "error") {
+        switch (myself.getLoginMethod()) {
+        case "guest": {
+            if (pageHash == "login") {
+                let lastPageHash = localStorage.getItem("last_page_hash");
+                pageHash = lastPageHash ? lastPageHash : "main";
+                localStorage.removeItem("last_page_hash");
+            }
+            if (!myself.ws) myself.connectWs();
+        } break;
+        case "intra": {
+            let isAuthenticated = await myself.verifyJWT();
+            // NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
+            if (!isAuthenticated) {
+                // Note(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+                if (pageHash) localStorage.setItem("last_page_hash", pageHash);
+                pageHash = "login";
+            } else {
+                if (pageHash == "login") {
+                    let lastPageHash = localStorage.getItem("last_page_hash");
+                    pageHash = lastPageHash ? lastPageHash : "main";
+                    localStorage.removeItem("last_page_hash");
+                }
+                myself.connectWs();
+            }
+        } break;
+        default: {
+            pageHash = "login";
+        }
+        }
+    }
 	let pageClass = pageMapping[pageHash];
 	currentPage = new pageClass(contentContainer);
 	myself.page = currentPage;

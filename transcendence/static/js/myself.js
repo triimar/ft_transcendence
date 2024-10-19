@@ -22,10 +22,8 @@ class Visitor {
 		return false;
 	}
 
-	isGuest() {
-		let method = localStorage.getItem("login_method");
-		if (method == "guest") return true;
-		return true;
+	getLoginMethod() {
+		return localStorage.getItem("login_method");
 	}
 
 	async login(isAsGuest) {
