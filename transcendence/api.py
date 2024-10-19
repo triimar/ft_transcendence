@@ -21,7 +21,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 # delete the jwt token from the cookie
 
 def logout(request):
-    response = HttpResponseRedirect('transcendence')
+    response = HttpResponseRedirect('/')
     response.delete_cookie('jwt')
     return response
 
