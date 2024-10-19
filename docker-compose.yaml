@@ -45,6 +45,7 @@ services:
       - 5432
     volumes:
       - db_sql:/var/lib/postgresql/data
+      - ./db_init.sql:/docker-entrypoint-initdb.d/db_init.sql
     restart: always
     shm_size: 128mb
     environment:

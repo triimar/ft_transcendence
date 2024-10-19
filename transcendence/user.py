@@ -1,34 +1,52 @@
 import jwt
+import random
+import redis
 from django.conf import settings
+from django.db import connection
 
-def save_user_to_db(guest, avatar, color):
-    pass
+def add_user_to_db(user_id, avatar, color):
+    with connection.cursor() as cursor:
+        cursor.execute("INSERT INTO users (login, avatar, color) VALUES (%s, %s, %s)", [user_id, avatar, color])
 
-def save_user_cache(guest, avatar, color, guest=False):
+def save_user_cache(id, avatar, color, guest=False):
     pass
 
 def assign_random_background_color():
-    pass
+    return ''.join(map(str, [random.choice('0123456789ABCDEF') for i in range(6)]))
+
+def check_if_unique_avatar(avatar):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT EXISTS (SELECT 1 FROM users WHERE avatar = %s);", (avatar,))
+        exists = cursor.fetchone()[0]
+    return not exists
 
 def assign_random_avatar():
-    # eyes = ['\/', '*', '\"', '' ]
-    # mouth = []
-    pass
+    while True:
+        eye = ['\"', '*', 'V', 'A', 'Y', 'w', '0', 'e', 'T', '$', 'Q', 'M', 'X', '^', '=', 'z', 'L'] # 17 eyes
+        mouth = ['o', '8', '@', 'D', 'c', 'p', 'w', 'x', 'u', 'v', 's', '_', ',', '.', '9', 'm', '+'] # 17 mouths
+        random_eye = random.choice(eye)
+        random_mouth = random.choice(mouth)
+        avatar = random_eye + random_mouth + random_eye
+        # if check_if_unique_avatar(avatar):
+        #     break
+    return avatar
 
 def create_new_user(login):
-    pass
-    # avatar = assign_random_avatar()
-    # color = assign_random_background_color()
+    avatar = assign_random_avatar()
+    color = assign_random_background_color()
     # save_user_cache(user_login, avatar, color)
-    # save_user_to_db(user_login, avatar, color)
+    add_user_to_db(user_login, avatar, color)
 
 def check_if_new_user(login):
-    pass
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT EXISTS (SELECT 1 FROM users WHERE login = %s);", (login,))
+        exists = cursor.fetchone()[0]
+    return not exists
 
 def create_jwt(access_token_response, login):
     payload = {
         'login': login,
-        'iat': access_token_response.json().get('created_at'),
-        'exp': iat + access_token_response.json().get('expires_in'),
+        'iat': access_token_response.get('created_at'),
+        'exp': access_token_response.get('created_at') + access_token_response.get('expires_in'),
     }
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
