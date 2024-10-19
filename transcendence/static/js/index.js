@@ -1,9 +1,12 @@
-import ComponentLobbyRoom, { ComponentLobbyRoomJoinButton } from "./components/LobbyRoom.js";
+import ComponentLobbyRoom from "./components/LobbyRoom.js";
 import ComponentAvatar from "./components/Avatar.js";
 import ComponentNavigationBar from "./components/NavigationBar.js";
 import ComponentLogo from "./components/Logo.js";
 import ComponentGameBoard from "./components/GameBoard.js";
 import ComponentAIGameBoard from "./components/AIGameBoard.js";
+import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
+import ComponentButton from "./components/Button.js";
+import ComponentLever from "./components/Lever.js";
 
 import PageError from "./pages/PageError.js";
 import PageLogin from "./pages/PageLogin.js";
@@ -39,7 +42,7 @@ async function main() {
 				pageHash = "login";
 			}
 			else {
-				if (pageHash == "login") pageHash = "main";
+				// if (pageHash == "login") pageHash = "main";
 				if (!myself.ws) myself.connectWs();
 			}
 		}
@@ -59,7 +62,7 @@ async function main() {
 			pageHash = "login";
 		}
 		else {
-			if (pageHash == "login") pageHash = "main";
+			// if (pageHash == "login") pageHash = "main";
 			myself.connectWs();
 		}
 	}
@@ -94,9 +97,11 @@ function renderTemplate(container, templateId) {
 
 window.addEventListener("DOMContentLoaded", main);
 window.customElements.define("td-lobby-room", ComponentLobbyRoom);
-window.customElements.define("td-lobby-room-join-button", ComponentLobbyRoomJoinButton);
+window.customElements.define("td-room-setting-size", ComponentRoomSettingSize);
 window.customElements.define("td-avatar", ComponentAvatar);
 window.customElements.define("td-navigation-bar", ComponentNavigationBar);
 window.customElements.define("td-logo", ComponentLogo);
 window.customElements.define("td-game-board", ComponentGameBoard);
 window.customElements.define("td-ai-game-board", ComponentAIGameBoard);
+window.customElements.define("td-button", ComponentButton);
+window.customElements.define("td-lever", ComponentLever);

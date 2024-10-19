@@ -3,6 +3,8 @@ import json
 import random
 
 from game.game_dictionary import rooms
+from channels.db import database_sync_to_async
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 BALL_SPEED = 5

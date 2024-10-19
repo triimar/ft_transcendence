@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -51,17 +50,18 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 
 # Application definition
-
 INSTALLED_APPS = [
     'daphne',
     'transcendence',
-    # 'channels',
+    'channels',
+    'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'oauth2_provider',
 ]
 
 MIDDLEWARE = [
@@ -74,8 +74,20 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'transcendence.urls'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend', # Default Django auth backend
+]
 
+OAUTH2_PROVIDER = {
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 36000,
+    'AUTHORIZATION_CODE_EXPIRE_SECONDS': 600,
+    'CLIENT_ID': 'u-s4t2ud-9c42ba9cfb7ad3fef02e176bef186ce227179755037a62ce93acd234de440dd6',
+    'CLIENT_SECRET': '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',
+    'SCOPES': {'public': 'Public access'},
+}
+
+
+ROOT_URLCONF = 'transcendence.urls'
 
 TEMPLATES = [
     {
@@ -86,12 +98,13 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
+                'django.contrib.auth.context_processors.auth', # auth context processor for superuser
                 'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
+
 
 # WSGI_APPLICATION = 'first.wsgi.application'
 
@@ -111,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
-]
+] # Auth setting for superuser
 
 
 # Internationalization
