@@ -36,14 +36,14 @@ def guest_login(request):
 
 # check if user is authenticated
 def check_auth(request):
-    jwt_token = request.cookies.get('jwt')
+    jwt_token = request.COOKIES.get('jwt')
     try:
         payload = jwt.decode(jwt_token, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
-    except jwt.invalidTokenError:
-        return {'error': 'Invalid token'}
+    except jwt.InvalidTokenError:
+        return JsonResponse({'error': 'Invalid token'})
     except jwt.ExpiredSignatureError:
-        return {'error': 'Token has expired'}
-    return payload
+        return JsonResponse({'error': 'Token has expired'})
+    return JsonResponse(payload)
 
 # OAuth callback view
 def oauth_callback(request):
