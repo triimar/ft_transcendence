@@ -32,7 +32,7 @@ class Visitor {
 		if (isAsGuest) {
 			localStorage.setItem("login_method", "guest");
 			// Note(HeiYiu): ask server for a id
-			let response = await fetch("api/guest_login");
+			let response = await fetch("api/guest_login/");
 			myself.id = await response.json();
 		} else {
 			localStorage.setItem("login_method", "intra");
