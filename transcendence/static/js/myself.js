@@ -29,16 +29,20 @@ class Visitor {
 	}
 
 	async login(isAsGuest) {
-		if (isAsGuest) {
-			localStorage.setItem("login_method", "guest");
-			// Note(HeiYiu): ask server for a id
-			let response = await fetch("api/guest_login/");
-			myself.id = await response.json();
-		} else {
-			localStorage.setItem("login_method", "intra");
-			// Note(HeiYiu): Redirect the page to do authentication
-			fetch("api/trigger_auth/");
-		}
+        if (isAsGuest) {
+            localStorage.setItem("login_method", "guest");
+            // Note(HeiYiu): ask server for a id
+            let response = await fetch("api/guest_login/");
+            myself.id = await response.json();
+        } else {
+            localStorage.setItem("login_method", "intra");
+            // Note(HeiYiu): Redirect the page to do authentication
+            window.location.href = "api/trigger_auth/";
+            // fetch("api/trigger_auth/")
+            // .then(res => {
+            //     if (res.redirected) window.location.href = response.url;
+            // });
+        }
 	}
 
 	async logout() {
