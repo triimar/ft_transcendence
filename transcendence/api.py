@@ -28,7 +28,7 @@ def logout(request):
     return response
 
 def guest_login(request):
-    guest_uuid = shortuuid.ShortUUID().random(length=6)
+    guest_uuid = shortuuid.ShortUUID().random(length=22)
     avatar = user.assign_random_avatar()
     color = user.assign_random_background_color()
     # save_user_cache(guest_id, avatar, color, guest=True)
