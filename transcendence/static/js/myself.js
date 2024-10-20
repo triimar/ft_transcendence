@@ -8,17 +8,32 @@ class Visitor {
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
 	}
 
+    #getCookie(name) {
+        let cookies = document.cookie.split(';');
+        for(let i = 0; i < cookies.length; i++) {
+            let c = cookies[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1, c.length);
+            }
+            let target = name + '=';
+            if (c.indexOf(target) == 0) return c.substring(target.length, c.length);
+        }
+        return null;
+    }
+
 	async verifyJWT() {
 		// Note(HeiYiu): find in CookieStorage if a JWT exists
 		try {
-			let jwt = await cookieStore.get("jwt");
+			let jwt = this.#getCookie("jwt");
 			if (jwt) {
-				let response = await fetch("/api/check_auth");
+				let response = await fetch("/api/check_auth/");
 				this.jwt = await response.json();
 				return true;
 			}
 		}
-        catch (error) {}
+        catch (error) {
+            console.error(error);
+        }
 		return false;
 	}
 
