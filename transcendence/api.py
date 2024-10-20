@@ -90,8 +90,8 @@ def oauth_callback(request):
     response.set_cookie(
         key='jwt', 
         value=jwt_token, 
-        httponly=True,  # make the cookie inaccessible to js
-        secure=True,  # ensure the cookie is sent over HTTPS
+        httponly=False,  # make the cookie inaccessible to js
+        secure=False,  # ensure the cookie is sent over HTTPS TODO: Change it back to true when we set up HTTPS either through django or nginx in another docker container
         samesite='Lax'  # define when to allow the cookie to be sent
     )
     return response
