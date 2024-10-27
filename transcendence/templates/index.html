@@ -266,17 +266,52 @@
 			padding: 0.5em 0.5em;
 			margin: 0;
 		}
+
+        #avatar-info-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 10;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #avatar-info {
+            width: 50%;
+            height: 80%;
+            background: var(--td-ui-background-color);
+        }
+
+        #close-btn {
+            position: relative;
+            top: 0;
+            left: calc(100% - 1.4rem - (2 * var(--td-border-size)));
+        }
+
+        .hide {
+            visibility: hidden;
+        }
 	</style>
 	<nav>
 		<td-logo></td-logo>
 		<div id="buttons-container">
 			<slot></slot>
 			<td-lever class="ui" id="mode"></td-lever>
-			<div class="ui">
+			<div class="ui" id="avatar" style="cursor: pointer;">
 				<td-avatar avatar-name="-S-" avatar-background="rgb(30,30,140)"></td-avatar>
 			</div>
 		</div>
 	</nav>
+    <div id="avatar-info-container" class="hide">
+        <div id="avatar-info" class="ui">
+            <td-button id="close-btn" class="ui"><p style="aspect-ratio: 1; height: 1rem; text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">X</p></td-button>
+        </div>
+    </div>
 </template>
 <template id="component-logo">
 	<h1>:PONG</h1>
