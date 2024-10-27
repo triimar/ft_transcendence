@@ -58,9 +58,10 @@ class Visitor {
         }
 	}
 
-	async logout() {
+	logout() {
 		this.jwt = null;
-		await cookieStore.remove("jwt");
+        localStorage.removeItem("login_method");
+        document.cookie = "";
 	}
 
 	connectWs() {

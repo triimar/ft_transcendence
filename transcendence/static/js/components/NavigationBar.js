@@ -1,3 +1,4 @@
+import { myself } from "../myself.js"
 export default class ComponentNavigationBar extends HTMLElement {
 	constructor() {
 		super();
@@ -20,11 +21,17 @@ export default class ComponentNavigationBar extends HTMLElement {
         }).bind(this);
 		this.shadow.querySelector("#avatar").addEventListener("click", this.toggleAvatarInfoFunc, true);
 		this.shadow.querySelector("#close-btn").addEventListener("click", this.toggleAvatarInfoFunc, true);
+        this.logoutFunc = (() => {
+            myself.logout();
+            window.location.hash = "#login";
+        }).bind(this);
+		this.shadow.querySelector("#logout-btn").addEventListener("click", this.logoutFunc, true);
 	}
 
 	disconnectedCallback() {
 		this.shadow.querySelector("#mode").removeEventListener("click", this.modeSwitcherFunc, true);
 		this.shadow.querySelector("#avatar").removeEventListener("click", this.toggleAvatarInfoFunc, true);
 		this.shadow.querySelector("#close-btn").removeEventListener("click", this.toggleAvatarInfoFunc, true);
+		this.shadow.querySelector("#logout-btn").removeEventListener("click", this.logoutFunc, true);
 	}
 }
