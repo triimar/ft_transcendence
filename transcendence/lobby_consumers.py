@@ -33,7 +33,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             case {"type": "init", "player_id": player_id}:
                 self.player_id = player_id # save who the player is
                 if player_id:
-                    room_list = data.get_full_room_data()
+                    room_list = await data.get_full_room_data()
                     await self.send(text_data=json.dumps({"type": "ack_init", "rooms": room_list}))
             case {"type": "join_room",  "room_id": room_id, "player_id": player_id}:
                 self.room_group_name = room_id
@@ -42,8 +42,8 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     self.lobby_group_name,
                     self.channel_name
 				)
-                if data.add_player_to_room(room_id=room_id, player_id=player_id):
-                    avatar = data.get_one_player(player_id=player_id)
+                if await data.add_player_to_room(room_id=room_id, player_id=player_id):
+                    avatar = await data.get_one_player(player_id=player_id)
                     if avatar is not None:
                         event_join_room = {"type": "join.room", "room_id": room_id, "avatar": avatar}
                     else:
@@ -56,7 +56,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     )
                     self.joined_group = ["room"]
                     await self.channel_layer.group_send(self.room_group_name, event=event_join_room)
-                    joined_room = data.get_one_room_data(room_id=room_id)
+                    joined_room = await data.get_one_room_data(room_id=room_id)
                     if joined_room:
                         await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": joined_room}))
                     else:
@@ -67,13 +67,13 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     self.lobby_group_name,
                     self.channel_name
 				)
-                added_room = data.add_new_room(room_id=room_id, owner_id=owner_id)
+                added_room = await data.add_new_room(room_id=room_id, owner_id=owner_id)
                 await self.channel_layer.group_add(
                         self.room_group_name,
                         self.channel_name
                 )
                 self.joined_group = ["room"]
-                owner_avatar = data.get_one_player(player_id=owner_id)
+                owner_avatar = await data.get_one_player(player_id=owner_id)
                 if owner_avatar is not None:
                     event_add_room = {"type": "add.room", "room_id": room_id, "owner_avatar": owner_avatar}
                 else:
