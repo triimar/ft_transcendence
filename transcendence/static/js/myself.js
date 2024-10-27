@@ -42,11 +42,17 @@ class Visitor {
 	}
 
 	async login(isAsGuest) {
+        let is_success = true;
         if (isAsGuest) {
             localStorage.setItem("login_method", "guest");
             // Note(HeiYiu): ask server for a id
-            let response = await fetch("api/guest_login/");
-            myself.id = await response.json();
+            try {
+                let response = await fetch("api/guest_login/");
+                myself.id = await response.json();
+            } catch(error) {
+                console.error("Guest login error:", error);
+                is_success = false;
+            }
         } else {
             localStorage.setItem("login_method", "intra");
             // Note(HeiYiu): Redirect the page to do authentication
@@ -56,6 +62,7 @@ class Visitor {
             //     if (res.redirected) window.location.href = response.url;
             // });
         }
+        return is_success;
 	}
 
 	logout() {
