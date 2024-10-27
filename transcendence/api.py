@@ -60,9 +60,9 @@ def check_auth(request):
     try:
         payload = jwt.decode(jwt_token, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
     except jwt.InvalidTokenError:
-        return {'error': 'Invalid token'}
+        return JsonResponse({'error': 'Invalid token'})
     except jwt.ExpiredSignatureError:
-        return {'error': 'Token has expired'}
+        return JsonResponse({'error': 'Token has expired'})
     return JsonResponse(payload)
 
 # OAuth callback view
