@@ -9,10 +9,14 @@ export default class PageLogin {
         this.btnLoginGuestEvent = async () => {
             console.log("guest login");
             await myself.login(true);
-            let lastPageHash = localStorage.getItem("last_page_hash");
-            if (!lastPageHash) lastPageHash = "main";
-            location.hash = '#' + lastPageHash;
-            localStorage.removeItem("last_page_hash");
+            let hash = window.location.hash.slice(1);
+            if ((hash == '') || (hash == "login")) {
+                hash = "main";
+                location.hash = '#' + hash;
+            } else {
+                location.hash = '#' + hash;
+                window.dispatchEvent(new HashChangeEvent("hashchange"));
+            }
         };
         this.container.querySelector("#btn-login-guest").addEventListener("click", this.btnLoginGuestEvent);
         this.btnLoginIntraEvent = async () => {
