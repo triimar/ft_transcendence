@@ -8,14 +8,21 @@ export default class PageLogin {
 	attachEvents() {
         this.btnLoginGuestEvent = async () => {
             console.log("guest login");
-            await myself.login(true);
-            let hash = window.location.hash.slice(1);
-            if ((hash == '') || (hash == "login")) {
-                hash = "main";
-                location.hash = '#' + hash;
-            } else {
-                location.hash = '#' + hash;
+            let is_success = await myself.login(true);
+            if (!is_success) {
+                localStorage.removeItem("login_method");
+                location.hash = "#login";
                 window.dispatchEvent(new HashChangeEvent("hashchange"));
+            }
+            else {
+                let hash = window.location.hash.slice(1);
+                if ((hash == '') || (hash == "login")) {
+                    hash = "main";
+                    location.hash = '#' + hash;
+                } else {
+                    location.hash = '#' + hash;
+                    window.dispatchEvent(new HashChangeEvent("hashchange"));
+                }
             }
         };
         this.container.querySelector("#btn-login-guest").addEventListener("click", this.btnLoginGuestEvent);
