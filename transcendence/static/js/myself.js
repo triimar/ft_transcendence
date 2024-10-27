@@ -68,7 +68,7 @@ class Visitor {
 	logout() {
 		this.jwt = null;
         localStorage.removeItem("login_method");
-        document.cookie = "";
+        document.cookie = 'jwt=; Max-Age=-99999999;';
 	}
 
 	connectWs() {
