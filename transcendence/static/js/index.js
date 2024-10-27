@@ -55,18 +55,21 @@ async function main() {
                 // NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
                 if (!isAuthenticated) {
                     // Note(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
-                    if (pageHash) localStorage.setItem("last_page_hash", pageHash);
+                    if (pageHash && pageHash != "login") localStorage.setItem("last_page_hash", pageHash);
                     pageHash = "login";
                 } else {
+                    let lastPageHash = localStorage.getItem("last_page_hash");
                     if (pageHash == "login") {
-                        let lastPageHash = localStorage.getItem("last_page_hash");
                         pageHash = lastPageHash ? lastPageHash : "main";
-                        localStorage.removeItem("last_page_hash");
+                    } else if (lastPageHash) {
+                        pageHash = lastPageHash;
                     }
+                    localStorage.removeItem("last_page_hash");
                     if (!myself.ws) myself.connectWs();
                 }
             } break;
             default: {
+                if (pageHash && pageHash != "login") localStorage.setItem("last_page_hash", pageHash);
                 pageHash = "login";
             }
             }
@@ -98,18 +101,21 @@ async function main() {
             // NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
             if (!isAuthenticated) {
                 // Note(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
-                if (pageHash) localStorage.setItem("last_page_hash", pageHash);
+                if (pageHash && pageHash != "login") localStorage.setItem("last_page_hash", pageHash);
                 pageHash = "login";
             } else {
+                let lastPageHash = localStorage.getItem("last_page_hash");
                 if (pageHash == "login") {
-                    let lastPageHash = localStorage.getItem("last_page_hash");
                     pageHash = lastPageHash ? lastPageHash : "main";
-                    localStorage.removeItem("last_page_hash");
+                } else if (lastPageHash) {
+                    pageHash = lastPageHash;
                 }
+                localStorage.removeItem("last_page_hash");
                 myself.connectWs();
             }
         } break;
         default: {
+            if (pageHash && pageHash != "login") localStorage.setItem("last_page_hash", pageHash);
             pageHash = "login";
         }
         }
