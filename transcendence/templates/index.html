@@ -60,6 +60,13 @@
 	<div class="ui ui-text"><p>More game options coming soon</p></div>
 	<td-match-tree></td-match-tree>
 	<td-tournament-tree></td-tournament-tree>
+	<td-tournament-tree style="
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 0.4em;">
+	</td-tournament-tree>
 </template>
 
 <template id="page-main">
@@ -366,7 +373,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
         }
         .matchup {
             display: flex;
@@ -377,12 +383,22 @@
         .vs_line {
             width: var(--td-border-size);
             height: calc(var(--td-avatar-height)* 1.25);
-            background-color: black;
+            background-color: var(--td-ui-font-color);
             margin: 0 auto;
         }
+
+		.ui {
+			border: var(--td-border-size) solid var(--td-ui-font-color);
+			box-sizing: border-box;
+			display: flex;
+			width: fit-content;
+			/* gap: em; */
+		}
     </style>
     <div class="tournament-container">
-        <!-- Rounds will be dynamically added here -->
     </div>
+	<div class="ui">
+	</div>
 </template>
+
 </html>
