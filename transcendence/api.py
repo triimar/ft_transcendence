@@ -58,7 +58,7 @@ def oauth_callback(request):
         'client_id': settings.OAUTH2_PROVIDER['CLIENT_ID'],
         'client_secret': settings.OAUTH2_PROVIDER['CLIENT_SECRET'],
         'code': code,
-        'redirect_uri': 'http://localhost:8000/callback',
+        'redirect_uri': 'http://localhost:8000/api/callback',
     }
 
     # post request to get the access token
@@ -99,11 +99,10 @@ def oauth_callback(request):
 # redirect to 42 OAuth page
 def oauth_redirect(request):
     authorization_url = (
-        "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-2c74cb6c9f554597b5c7d047ce0c48014e0b52ad290228c6d520a09f588d1602&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fcallback&response_type=code"
-        # 'https://api.intra.42.fr/oauth/authorize?'
-        # f'client_id={settings.OAUTH2_PROVIDER["CLIENT_ID"]}'
-        # '&response_type=code'
-        # '&redirect_uri=http://localhost:8000/api/auth_request'
-        # '&scope=public'
+        'https://api.intra.42.fr/oauth/authorize?'
+        f'client_id={settings.OAUTH2_PROVIDER["CLIENT_ID"]}'
+        '&response_type=code'
+        '&redirect_uri=http://localhost:8000/api/callback'
+        '&scope=public'
     )
     return redirect(authorization_url)
