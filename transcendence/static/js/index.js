@@ -26,10 +26,15 @@ const pageMapping = {
 	main: PageMain
 };
 
+let isTriggerHashChange = true;
 async function main() {
 	const contentContainer = document.getElementsByClassName("content-container")[0];
 	let currentPage = null;
 	window.addEventListener("hashchange", async (event) => {
+        if (!isTriggerHashChange) {
+            isTriggerHashChange = true;
+            return;
+        }
 		currentPage.removeEvents();
 		myself.pageFinishedRendering = false;
 		let pageHash = getPageHashFromURL(location);
@@ -92,6 +97,8 @@ async function authenticateVisitor(pageHash) {
                 } else if (lastPageHash) {
                     pageHash = lastPageHash;
                 }
+                isTriggerHashChange = false;
+                window.location.hash = '#' + pageHash;
                 localStorage.removeItem("last_page_hash");
             }
         } break;
