@@ -147,9 +147,11 @@ class Visitor {
 		if (this.ws.readyState !== this.ws.OPEN) {
 			try {
 				await this.#waitForOpenConnection();
+                console.log("Sending message", message);
 				this.ws.send(message);
 			} catch (err) { console.error(err); }
 		} else {
+            console.log("Sending message", message);
 			this.ws.send(message);
 		}
 	}
