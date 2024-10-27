@@ -28,6 +28,7 @@ class Visitor {
 			if (jwt) {
 				let response = await fetch("/api/check_auth/");
 				this.jwt = await response.json();
+                this.id = this.jwt.login;
 				return true;
 			}
 		}
