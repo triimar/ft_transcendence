@@ -57,7 +57,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     self.joined_group = ["room"]
                     await self.channel_layer.group_send(self.room_group_name, event=event_join_room)
                     joined_room = await data.get_one_room_data(room_id=room_id)
-                    if joined_room:
+                    if joined_room is not None:
                         await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": joined_room}))
                     else:
                         await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": "Cannot find the room to join!"}))
