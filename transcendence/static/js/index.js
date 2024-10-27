@@ -73,14 +73,24 @@ async function authenticateVisitor(pageHash) {
     let isAuthenticated = false;
     switch (myself.getLoginMethod()) {
         case "guest": {
-            let lastPageHash = localStorage.getItem("last_page_hash");
-            if (pageHash == "login") {
-                pageHash = lastPageHash ? lastPageHash : "main";
-            } else if (lastPageHash) {
-                pageHash = lastPageHash;
+            if (myself.jwt == null) {
+                isAuthenticated = await myself.verifyJWT();
             }
-            localStorage.removeItem("last_page_hash");
-            isAuthenticated = true;
+            else {
+                isAuthenticated = true;
+            }
+            if (!isAuthenticated) {
+                if (pageHash && pageHash != "login") localStorage.setItem("last_page_hash", pageHash);
+                pageHash = "login";
+            } else {
+                let lastPageHash = localStorage.getItem("last_page_hash");
+                if (pageHash == "login") {
+                    pageHash = lastPageHash ? lastPageHash : "main";
+                } else if (lastPageHash) {
+                    pageHash = lastPageHash;
+                }
+                localStorage.removeItem("last_page_hash");
+            }
         } break;
         case "intra": {
             if (myself.jwt == null) {
@@ -102,7 +112,6 @@ async function authenticateVisitor(pageHash) {
                     pageHash = lastPageHash;
                 }
                 localStorage.removeItem("last_page_hash");
-                isAuthenticated = true;
             }
         } break;
         default: {
