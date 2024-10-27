@@ -48,7 +48,7 @@ def guest_login(request):
     response.set_cookie(
         key='jwt', 
         value=jwt_token, 
-        httponly=True,  # make the cookie inaccessible to js
+        httponly=False,  # make the cookie inaccessible to js
         secure=True,  # ensure the cookie is sent over HTTPS
         samesite='Lax'  # define when to allow the cookie to be sent
     )
@@ -56,14 +56,14 @@ def guest_login(request):
 
 # check if user is authenticated
 def check_auth(request):
-    jwt_token = request.cookies.get('jwt')
+    jwt_token = request.COOKIES.get('jwt')
     try:
         payload = jwt.decode(jwt_token, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
-    except jwt.invalidTokenError:
+    except jwt.InvalidTokenError:
         return {'error': 'Invalid token'}
     except jwt.ExpiredSignatureError:
         return {'error': 'Token has expired'}
-    return payload
+    return JsonResponse(payload)
 
 # OAuth callback view
 def oauth_callback(request):
@@ -107,7 +107,7 @@ def oauth_callback(request):
 
     payload = {
         'id': intra_user_uuid,
-        'guest': false,
+        'guest': False,
         'iat': access_token_response.json().get('created_at'),
         'exp': access_token_response.json().get('created_at') + access_token_response.json().get('expires_in'),
     }
@@ -119,7 +119,7 @@ def oauth_callback(request):
     response.set_cookie(
         key='jwt', 
         value=jwt_token, 
-        httponly=True,  # make the cookie inaccessible to js
+        httponly=False,  # make the cookie inaccessible to js
         secure=True,  # ensure the cookie is sent over HTTPS
         samesite='Lax'  # define when to allow the cookie to be sent
     )
