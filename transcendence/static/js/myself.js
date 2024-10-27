@@ -83,7 +83,23 @@ class Visitor {
 			switch (message.type) {
 				case "ack_init":
 					await this.waitForPageToRender();
-					// TODO(HeiYiu): get list of rooms and render them
+					// Note(HeiYiu): get list of rooms and render them
+                    let fragment = document.createDocumentFragment();
+                    for (let room of message.rooms) {
+                        let roomElement = document.createElement("td-lobby-room");
+                        for (let avatar of room.avatars) {
+                            let avatarElement = document.createElement("td-avatar");
+                            avatarElement.setAttribute("avatar-name", avatar["player_emoji"]);
+                            avatarElement.setAttribute("avatar-background", '#' + avatar["player_bg_color"]);
+                            avatarElement.setAttribute("avatar-id", avatar["player_id"]);
+                            roomElement.appendChild(avatarElement);
+                        }
+                        roomElement.setAttribute("room-max", room["max_player"]);
+                        roomElement.setAttribute("room-id", room["room_id"]);
+                        roomElement.classList.add("ui");
+                        fragment.appendChild(roomElement);
+                    }
+                    this.page.container.appendChild(fragment);
 					break;
 				case "b_join_room":
 					if (this.pageHash == "main") {
