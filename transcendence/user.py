@@ -39,11 +39,3 @@ def check_if_new_user(login):
         cursor.execute("SELECT EXISTS (SELECT 1 FROM users WHERE login = %s);", (login,))
         exists = cursor.fetchone()[0]
     return not exists
-
-def create_jwt(access_token_response, login):
-    payload = {
-        'login': login,
-        'iat': access_token_response.get('created_at'),
-        'exp': access_token_response.get('created_at') + access_token_response.get('expires_in'),
-    }
-    return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)

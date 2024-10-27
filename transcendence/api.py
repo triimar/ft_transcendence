@@ -1,8 +1,6 @@
-import jwt
 import requests
 import shortuuid
-from . import user
-from django.conf import settings
+from .user import *
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
 
@@ -29,21 +27,21 @@ def logout(request):
 
 def guest_login(request):
     guest_uuid = shortuuid.ShortUUID().random(length=22)
-    avatar = user.assign_random_avatar()
-    color = user.assign_random_background_color()
+    avatar = assign_random_avatar()
+    color = assign_random_background_color()
     # save_user_cache(guest_id, avatar, color, guest=True)
-    return JsonResponse({'guest_login': guest_uuid})
+    return JsonResponse({'guest_login': guest_id})
 
 # check if user is authenticated
 def check_auth(request):
-    jwt_token = request.COOKIES.get('jwt')
+    jwt_token = request.cookies.get('jwt')
     try:
         payload = jwt.decode(jwt_token, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
-    except jwt.InvalidTokenError:
-        return JsonResponse({'error': 'Invalid token'})
+    except jwt.invalidTokenError:
+        return {'error': 'Invalid token'}
     except jwt.ExpiredSignatureError:
-        return JsonResponse({'error': 'Token has expired'})
-    return JsonResponse(payload)
+        return {'error': 'Token has expired'}
+    return payload
 
 # OAuth callback view
 def oauth_callback(request):
@@ -67,31 +65,39 @@ def oauth_callback(request):
     if access_token_response.status_code != 200:
         return JsonResponse({'error': 'Failed to obtain access token from OAuth'}, status=400)
 
-    access_token = access_token_response.json().get('access_token')
+    # access_token = access_token_response.json().get('access_token')
 
     # use the access token to fetch user data
-    user_data_response = requests.get(
-        'https://api.intra.42.fr/v2/me', 
-        headers = {'Authorization': f'Bearer {access_token}'}
-    )
+    # user_data_response = requests.get(
+    #     'https://api.intra.42.fr/v2/me', 
+    #     headers = {'Authorization': f'Bearer {access_token}'}
+    # )
 
-    if user_data_response.status_code != 200:
-        return JsonResponse({'error': 'Failed to fetch user data from 42 API'}, status=400)
+    # if user_data_response.status_code != 200:
+    #     return JsonResponse({'error': 'Failed to fetch user data from 42 API'}, status=400)
 
-    user_login = user_data_response.json().get('login')
+    # user_login = user_data_response.json().get('login')
 
 #    if check_if_new_user(user_login):
 #        create_new_user(user_login)
 
-    jwt_token = user.create_jwt(access_token_response.json(), user_login)
+    intra_user_uuid = shortuuid.ShortUUID().random(length=22)
+
+    payload = {
+        'id': intra_user_uuid,
+        'iat': access_token_response.get('created_at'),
+        'exp': access_token_response.get('created_at') + access_token_response.get('expires_in'),
+    }
+
+    jwt_token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
     # redirect to the main page with jwt token as cookie set
     response = HttpResponseRedirect('/')  # Redirect to the dashboard or desired URL
     response.set_cookie(
         key='jwt', 
         value=jwt_token, 
-        httponly=False,  # make the cookie inaccessible to js
-        secure=False,  # ensure the cookie is sent over HTTPS TODO: Change it back to true when we set up HTTPS either through django or nginx in another docker container
+        httponly=True,  # make the cookie inaccessible to js
+        secure=True,  # ensure the cookie is sent over HTTPS
         samesite='Lax'  # define when to allow the cookie to be sent
     )
     return response
@@ -102,7 +108,7 @@ def oauth_redirect(request):
         'https://api.intra.42.fr/oauth/authorize?'
         f'client_id={settings.OAUTH2_PROVIDER["CLIENT_ID"]}'
         '&response_type=code'
-        '&redirect_uri=http://localhost:8000/api/callback'
+        '&redirect_uri=http://localhost:8000/api/call_back'
         '&scope=public'
     )
     return redirect(authorization_url)

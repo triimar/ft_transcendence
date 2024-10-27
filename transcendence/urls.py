@@ -10,7 +10,6 @@ urlpatterns = [
     path('chat/<str:room_name>/', views.room, name='room'),
     path('api/trigger_auth/', api.oauth_redirect, name='oauth_redirect'),
     path('api/callback/', api.oauth_callback, name='oauth_callback'),
-    # path('api/auth_request/', views.oauth_callback, name='oauth_callback'),
     path('api/check_auth/', api.check_auth, name='check_auth'),
     path('api/guest_login/', api.guest_login, name='guest_login'),
     path('api/logout/', api.logout, name='logout'),
