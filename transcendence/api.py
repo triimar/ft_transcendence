@@ -44,7 +44,7 @@ def guest_login(request):
     # save_user_cache(guest_id, avatar, color, guest=True)
 
     # redirect to the main page with jwt token as cookie set
-    response = HttpResponseRedirect('/')  # Redirect to the dashboard or desired URL
+    response = JsonResponse(payload)
     response.set_cookie(
         key='jwt', 
         value=jwt_token, 
