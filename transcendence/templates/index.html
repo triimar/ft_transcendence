@@ -365,31 +365,21 @@
         .tournament-container {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
             gap: 20px;
         }
-
-        .round {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 40px;
-        }
-
         .matchup {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            gap: 5px;
+            gap: calc(var(--td-avatar-width) / 2);
         }
-
-        .connector {
+        .vs_line {
             width: var(--td-border-size);
-            height: 50px;
+            height: calc(var(--td-avatar-height)* 1.25);
             background-color: black;
             margin: 0 auto;
         }
-
     </style>
     <div class="tournament-container">
         <!-- Rounds will be dynamically added here -->
