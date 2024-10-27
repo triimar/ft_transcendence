@@ -37,11 +37,13 @@ async function main() {
 		if (pageHash != "error") {
             switch (myself.getLoginMethod()) {
             case "guest": {
+                let lastPageHash = localStorage.getItem("last_page_hash");
                 if (pageHash == "login") {
-                    let lastPageHash = localStorage.getItem("last_page_hash");
                     pageHash = lastPageHash ? lastPageHash : "main";
-                    localStorage.removeItem("last_page_hash");
+                } else if (lastPageHash) {
+                    pageHash = lastPageHash;
                 }
+                localStorage.removeItem("last_page_hash");
                 if (!myself.ws) myself.connectWs();
             } break;
             case "intra": {
@@ -89,11 +91,13 @@ async function main() {
     if (pageHash != "error") {
         switch (myself.getLoginMethod()) {
         case "guest": {
+            let lastPageHash = localStorage.getItem("last_page_hash");
             if (pageHash == "login") {
-                let lastPageHash = localStorage.getItem("last_page_hash");
                 pageHash = lastPageHash ? lastPageHash : "main";
-                localStorage.removeItem("last_page_hash");
+            } else if (lastPageHash) {
+                pageHash = lastPageHash;
             }
+            localStorage.removeItem("last_page_hash");
             if (!myself.ws) myself.connectWs();
         } break;
         case "intra": {
