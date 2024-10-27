@@ -107,6 +107,7 @@ def oauth_callback(request):
 
     payload = {
         'id': intra_user_uuid,
+        'guest': false,
         'iat': access_token_response.json().get('created_at'),
         'exp': access_token_response.json().get('created_at') + access_token_response.json().get('expires_in'),
     }
