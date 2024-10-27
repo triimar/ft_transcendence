@@ -37,7 +37,7 @@ async function main() {
 		if (pageHash != "error") {
             let [isAuthenticated, newPageHash] = await authenticateVisitor(pageHash);
             pageHash = newPageHash;
-            if (isAuthenticated && !myself.ws) myself.connectWs();
+            if (pageHash != "login" && isAuthenticated && !myself.ws) myself.connectWs();
         }
 		let pageClass = pageMapping[pageHash];
 		currentPage = new pageClass(contentContainer);
@@ -54,7 +54,7 @@ async function main() {
     if (pageHash != "error") {
         let [isAuthenticated, newPageHash] = await authenticateVisitor(pageHash);
         pageHash = newPageHash;
-        if (isAuthenticated && !myself.ws) myself.connectWs();
+        if (pageHash != "login" && isAuthenticated && !myself.ws) myself.connectWs();
     }
 	let pageClass = pageMapping[pageHash];
 	currentPage = new pageClass(contentContainer);
@@ -102,6 +102,7 @@ async function authenticateVisitor(pageHash) {
                     pageHash = lastPageHash;
                 }
                 localStorage.removeItem("last_page_hash");
+                isAuthenticated = true;
             }
         } break;
         default: {
