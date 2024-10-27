@@ -20,6 +20,7 @@ room_data_sample = [
             {"player_id": "example_player_id_2"},
             {"player_id": "example_player_id_3"},
         ],
+        "prepared_count": 1,
         "max_player": 3
     },
     {
@@ -33,6 +34,7 @@ room_data_sample = [
             {"player_id": "example_player_id_5"},
             {"player_id": "example_player_id_6"}
         ],
+        "prepared_count": 1,
         "max_player": 5
     }
 ]
@@ -142,6 +144,7 @@ async def add_new_room(room_id, owner_id) -> dict:
         "avatars": [
             {"player_id": owner_id}
         ],
+        "prepared_count": 1,
         "max_player": 2
     }
 
