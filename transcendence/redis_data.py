@@ -52,8 +52,8 @@ redis_instance.set("player_data", json.dumps(player_data_sample))
 
 async def get_full_room_data() -> list:
 	redis_instance = await get_redis_client()
-	room_data = json.loads(redis_instance.get("room_data"))
-	player_data = json.loads(redis_instance.get("player_data"))
+	room_data = json.loads(await redis_instance.get("room_data"))
+	player_data = json.loads(await redis_instance.get("player_data"))
 
 	player_data_dict = {player["player_id"]: player for player in player_data}
 
@@ -75,8 +75,8 @@ async def get_full_room_data() -> list:
 async def add_player_to_room(room_id, player_id) -> bool:
 	redis_instance = await get_redis_client()
 
-	room_data = json.loads(redis_instance.get("room_data"))
-	player_data = json.loads(redis_instance.get("player_data"))
+	room_data = json.loads(await redis_instance.get("room_data"))
+	player_data = json.loads(await redis_instance.get("player_data"))
 
 	# Find the player details from player_data
 	new_player = next((player for player in player_data if player["player_id"] == player_id), None)
@@ -91,7 +91,7 @@ async def add_player_to_room(room_id, player_id) -> bool:
 			if room["room_id"] == room_id:
 				room["avatars"].append({"player_id": new_player["player_id"]})
 				print(f"Player {player_id} added to {room['room_id']}.")
-				redis_instance.set("room_data", json.dumps(room_data))
+				await redis_instance.set("room_data", json.dumps(room_data))
 				return True
 		print(f"Room with room_id {room_id} not found in room_data.")
 		return False
@@ -99,7 +99,7 @@ async def add_player_to_room(room_id, player_id) -> bool:
 async def get_one_room_data(room_id):
     redis_instance = await get_redis_client()
 
-    room_data = json.loads(redis_instance.get("room_data"))
+    room_data = json.loads(await redis_instance.get("room_data"))
 
     # Find the room by room_id
     room = next((room for room in room_data if room["room_id"] == room_id), None)
@@ -109,7 +109,7 @@ async def get_one_room_data(room_id):
 async def add_new_room(room_id, owner_id) -> dict:
     redis_instance = await get_redis_client()
 
-    room_data = json.loads(redis_instance.get("room_data") or '[]')
+    room_data = json.loads(await redis_instance.get("room_data") or '[]')
 
     # Create a new room with default settings
     new_room = {
@@ -127,13 +127,13 @@ async def add_new_room(room_id, owner_id) -> dict:
 
     room_data.append(new_room)
 
-    redis_instance.set("room_data", json.dumps(room_data))
+    await redis_instance.set("room_data", json.dumps(room_data))
 
     return new_room
 
 async def get_one_player(player_id) -> dict|None:
     redis_instance = await get_redis_client()
-    player_data = json.loads(redis_instance.get("player_data"))
+    player_data = json.loads(await redis_instance.get("player_data"))
 
     one_player = next((player for player in player_data if player["player_id"] == player_id), None)
 
