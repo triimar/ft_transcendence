@@ -48,7 +48,9 @@ class Visitor {
             // Note(HeiYiu): ask server for a id
             try {
                 let response = await fetch("api/guest_login/");
-                myself.id = await response.json();
+                let json = await response.json();
+                myself.jwt = json;
+                myself.id = json.id;
             } catch(error) {
                 console.error("Guest login error:", error);
                 is_success = false;
