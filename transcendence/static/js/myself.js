@@ -28,7 +28,7 @@ class Visitor {
 			if (jwt) {
 				let response = await fetch("/api/check_auth/");
 				this.jwt = await response.json();
-                this.id = this.jwt.login;
+                this.id = this.jwt.id;
 				return true;
 			}
 		}
@@ -50,8 +50,6 @@ class Visitor {
             try {
                 let response = await fetch("api/guest_login/");
                 let json = await response.json();
-                myself.jwt = json;
-                myself.id = json.id;
             } catch(error) {
                 console.error("Guest login error:", error);
                 is_success = false;
