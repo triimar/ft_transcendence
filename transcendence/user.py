@@ -1,7 +1,5 @@
-import jwt
 import random
 import redis
-from django.conf import settings
 from django.db import connection
 
 def add_user_to_db(user_id, avatar, color):

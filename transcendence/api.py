@@ -1,6 +1,9 @@
 import requests
 import shortuuid
-from .user import *
+import jwt
+import time
+from django.conf import settings
+from .user import assign_random_avatar, assign_random_background_color, check_if_new_user, create_new_user, save_user_cache
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
 
@@ -21,16 +24,35 @@ from django.http import HttpResponseRedirect, JsonResponse
 # delete the jwt token from the cookie
 
 def logout(request):
-    response = HttpResponseRedirect('/')
-    response.delete_cookie('jwt')
-    return response
+    pass
 
 def guest_login(request):
-    guest_uuid = shortuuid.ShortUUID().random(length=22)
+    guest_id = shortuuid.ShortUUID().random(length=22)
+    now = int(time.time())
+    
+    payload = {
+        'id': guest_id,
+        'guest': True,
+        'iat': now,
+        'exp': now + 3600,
+    }
+
+    jwt_token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+
     avatar = assign_random_avatar()
     color = assign_random_background_color()
     # save_user_cache(guest_id, avatar, color, guest=True)
-    return JsonResponse({'guest_login': guest_id})
+
+    # redirect to the main page with jwt token as cookie set
+    response = HttpResponseRedirect('/')  # Redirect to the dashboard or desired URL
+    response.set_cookie(
+        key='jwt', 
+        value=jwt_token, 
+        httponly=True,  # make the cookie inaccessible to js
+        secure=True,  # ensure the cookie is sent over HTTPS
+        samesite='Lax'  # define when to allow the cookie to be sent
+    )
+    return response
 
 # check if user is authenticated
 def check_auth(request):
@@ -85,8 +107,8 @@ def oauth_callback(request):
 
     payload = {
         'id': intra_user_uuid,
-        'iat': access_token_response.get('created_at'),
-        'exp': access_token_response.get('created_at') + access_token_response.get('expires_in'),
+        'iat': access_token_response.json().get('created_at'),
+        'exp': access_token_response.json().get('created_at') + access_token_response.json().get('expires_in'),
     }
 
     jwt_token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
@@ -108,7 +130,7 @@ def oauth_redirect(request):
         'https://api.intra.42.fr/oauth/authorize?'
         f'client_id={settings.OAUTH2_PROVIDER["CLIENT_ID"]}'
         '&response_type=code'
-        '&redirect_uri=http://localhost:8000/api/call_back'
+        '&redirect_uri=http://localhost:8000/api/callback'
         '&scope=public'
     )
     return redirect(authorization_url)
