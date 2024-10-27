@@ -1,5 +1,6 @@
 import json
 import redis
+from .redis_client import get_redis_client
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 # Connect to Redis
@@ -49,7 +50,8 @@ player_data_sample = [
 ]
 redis_instance.set("player_data", json.dumps(player_data_sample))
 
-def get_full_room_data() -> list:
+async def get_full_room_data() -> list:
+	redis_instance = await get_redis_client()
 	room_data = json.loads(redis_instance.get("room_data"))
 	player_data = json.loads(redis_instance.get("player_data"))
 
@@ -70,7 +72,8 @@ def get_full_room_data() -> list:
 
 	return full_room_data
 
-def add_player_to_room(room_id, player_id) -> bool:
+async def add_player_to_room(room_id, player_id) -> bool:
+	redis_instance = await get_redis_client()
 
 	room_data = json.loads(redis_instance.get("room_data"))
 	player_data = json.loads(redis_instance.get("player_data"))
@@ -93,7 +96,8 @@ def add_player_to_room(room_id, player_id) -> bool:
 		print(f"Room with room_id {room_id} not found in room_data.")
 		return False
 
-def get_one_room_data(room_id):
+async def get_one_room_data(room_id):
+    redis_instance = await get_redis_client()
 
     room_data = json.loads(redis_instance.get("room_data"))
 
@@ -102,7 +106,9 @@ def get_one_room_data(room_id):
 
     return room
 
-def add_new_room(room_id, owner_id) -> dict:
+async def add_new_room(room_id, owner_id) -> dict:
+    redis_instance = await get_redis_client()
+
     room_data = json.loads(redis_instance.get("room_data") or '[]')
 
     # Create a new room with default settings
@@ -125,7 +131,8 @@ def add_new_room(room_id, owner_id) -> dict:
 
     return new_room
 
-def get_one_player(player_id) -> dict|None:
+async def get_one_player(player_id) -> dict|None:
+    redis_instance = await get_redis_client()
     player_data = json.loads(redis_instance.get("player_data"))
 
     one_player = next((player for player in player_data if player["player_id"] == player_id), None)
