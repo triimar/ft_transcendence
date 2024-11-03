@@ -1,7 +1,7 @@
 class Visitor {
 	constructor() {
 		this.page = null;
-		this.pageHash = null;
+		this.pageName = null;
 		this.pageFinishedRendering = false; // Note(HeiYiu): this is a mutex that make sure the template is rendered before receiving incoming websocket message that will change the UI tree
 		this.id = null;
 		this.ws = null;
@@ -102,9 +102,9 @@ class Visitor {
                     this.page.container.appendChild(fragment);
 					break;
 				case "b_join_room":
-					if (this.pageHash == "main") {
+					if (this.pageName == "main") {
 
-					} else if (this.pageHash == "room") {
+					} else if (this.pageName == "room") {
 
 					}
 					break;

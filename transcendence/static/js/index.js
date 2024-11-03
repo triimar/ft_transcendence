@@ -39,36 +39,36 @@ async function main() {
 		currentPage.removeEvents();
 		myself.pageFinishedRendering = false;
 		let pageHash = getPageHashFromURL(location);
-		if (!pageMapping[pageHash]) pageHash = "error";
-		if (pageHash != "error") {
+        if (analysisPageHash(pageHash)[0] != "error") {
             let [isAuthenticated, newPageHash] = await authenticateVisitor(pageHash);
             pageHash = newPageHash;
             if (pageHash != "login" && isAuthenticated && !myself.ws) myself.connectWs();
         }
-		let pageClass = pageMapping[pageHash];
-		currentPage = new pageClass(contentContainer);
-		myself.page = currentPage;
-		myself.pageHash = pageHash;
-		renderTemplate(contentContainer, currentPage.templateId);
-		currentPage.attachEvents();
-		if (myself.ws) sendInitMessage(pageHash);
+        let [pageName, roomId, gameIndex] = analysisPageHash(pageHash);
+        let pageClass = pageMapping[pageName];
+        currentPage = new pageClass(contentContainer);
+        myself.page = currentPage;
+        myself.pageName = pageName;
+        renderTemplate(contentContainer, currentPage.templateId);
+        currentPage.attachEvents();
+        if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
 		myself.pageFinishedRendering = true;
 	});
 	myself.pageFinishedRendering = false;
 	let pageHash = getPageHashFromURL(location);
-	if (!pageMapping[pageHash]) pageHash = "error";
-    if (pageHash != "error") {
+    if (analysisPageHash(pageHash)[0] != "error") {
         let [isAuthenticated, newPageHash] = await authenticateVisitor(pageHash);
         pageHash = newPageHash;
         if (pageHash != "login" && isAuthenticated && !myself.ws) myself.connectWs();
     }
-	let pageClass = pageMapping[pageHash];
-	currentPage = new pageClass(contentContainer);
+    let [pageName, roomId, gameIndex] = analysisPageHash(pageHash);
+    let pageClass = pageMapping[pageName];
+    currentPage = new pageClass(contentContainer);
 	myself.page = currentPage;
-	myself.pageHash = pageHash;
+	myself.pageName = pageName;
 	renderTemplate(contentContainer, currentPage.templateId);
 	currentPage.attachEvents();
-	if (myself.ws) sendInitMessage(pageHash);
+	if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
 	myself.pageFinishedRendering = true;
 }
 
@@ -100,6 +100,7 @@ async function authenticateVisitor(pageHash) {
                 }
                 isTriggerHashChange = false;
                 window.location.hash = '#' + pageHash;
+                window.dispatchEvent(new HashChangeEvent("hashchange"));
                 localStorage.removeItem("last_page_hash");
             }
         } break;
@@ -118,6 +119,45 @@ function getPageHashFromURL(url) {
 	return hash;
 }
 
+function analysisPageHash(pageHash) {
+    let pageName = "error";
+    let roomId = null;
+    let gameIndex = null;
+	switch (pageHash) {
+		case "error":
+        case "login":
+		case "main":
+            pageName = pageHash; break;
+        default: {
+            if (pageHash.startsWith("room")) {
+                let index = pageHash.indexOf("-");
+                if (index == -1) {
+                    pageName = "room";
+                    roomId = pageHash.substring(4);
+                } else if (pageHash.startsWith("ai-game", index + 1)) {
+                    pageName = "ai-game";
+                    roomId = pageHash.substring(4, index);
+                    gameIndex = pageHash.substring(index + 8);
+                } else if (pageHash.startsWith("game", index + 1)) {
+                    pageName = "game";
+                    roomId = pageHash.substring(4, index);
+                    gameIndex = pageHash.substring(index + 5);
+                }
+                // TODO(HeiYiu): More precise syntax checking
+                if (roomId == "") {
+                    pageName = "error";
+                    roomId = null;
+                }
+                if (gameIndex == "") {
+                    pageName = "error";
+                    gameIndex = null;
+                }
+            }
+        }
+	}
+    return [pageName, roomId, gameIndex];
+}
+
 function renderTemplate(container, templateId) {
 	let template = document.getElementById(templateId);
 	if (template == null) {
@@ -132,15 +172,14 @@ function renderTemplate(container, templateId) {
 	container.prepend(clone);
 }
 
-function sendInitMessage(pageHash) {
-	switch (pageHash) {
+function sendInitMessage(pageName, roomId, gameIndex) {
+	switch (pageName) {
 		case "error":
 		case "login":
 		case "game":
 		case "ai-game":
 			break;
 		case "room":
-			let roomId = 1314;
 			myself.sendMessageJoinRoom(roomId);
 			break;
 		case "main":
