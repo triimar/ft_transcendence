@@ -6,6 +6,7 @@ from django.conf import settings
 from .user import assign_random_avatar, assign_random_background_color, check_if_new_user, create_new_user, save_user_cache
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
+from .redis_data import add_one_player
 
 # TODO: borrow a new api
 
@@ -26,7 +27,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 def logout(request):
     pass
 
-def guest_login(request):
+async def guest_login(request):
     guest_id = shortuuid.ShortUUID().random(length=22)
     now = int(time.time())
     
@@ -41,6 +42,7 @@ def guest_login(request):
 
     avatar = assign_random_avatar()
     color = assign_random_background_color()
+    await add_one_player(guest_id, avatar, color);
     # save_user_cache(guest_id, avatar, color, guest=True)
 
     # redirect to the main page with jwt token as cookie set
@@ -66,7 +68,7 @@ def check_auth(request):
     return JsonResponse(payload)
 
 # OAuth callback view
-def oauth_callback(request):
+async def oauth_callback(request):
     code = request.GET.get('code')
     if not code:
         return JsonResponse({'error': 'No code provided from OAuth'}, status=400)
@@ -103,7 +105,11 @@ def oauth_callback(request):
 #    if check_if_new_user(user_login):
 #        create_new_user(user_login)
 
+    # TODO(HeiYiu): Check if user exists
     intra_user_uuid = shortuuid.ShortUUID().random(length=22)
+    avatar = assign_random_avatar()
+    color = assign_random_background_color()
+    add_one_player(intra_user_uuid, avatar, color);
 
     payload = {
         'id': intra_user_uuid,
