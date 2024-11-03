@@ -3,30 +3,12 @@ import shortuuid
 import jwt
 import time
 from django.conf import settings
-from .user import assign_random_avatar, assign_random_background_color, check_if_new_user, create_new_user, save_user_cache
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
+from .user import assign_random_avatar, assign_random_background_color, create_new_user, save_user_cache
+from .db_async_queries import user_exists, get_uuid
 
-# TODO: borrow a new api
-
-# TODO: user management
-# check the database for the user
-# if user does not exist, create a new user
-# get the user id from the database
-
-# TODO: assign a random avatar and background color to the user
-# only for the new login
-# update the redis cache and the database with the user data
-
-# TODO: make the login button work
-
-# TODO: make the logout button work
-# delete the jwt token from the cookie
-
-def logout(request):
-    pass
-
-def guest_login(request):
+async def guest_login(request):
     guest_id = shortuuid.ShortUUID().random(length=22)
     now = int(time.time())
     
@@ -39,8 +21,8 @@ def guest_login(request):
 
     jwt_token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
-    avatar = assign_random_avatar()
-    color = assign_random_background_color()
+    avatar = await assign_random_avatar()
+    color = await assign_random_background_color()
     # save_user_cache(guest_id, avatar, color, guest=True)
 
     # redirect to the main page with jwt token as cookie set
@@ -66,7 +48,7 @@ def check_auth(request):
     return JsonResponse(payload)
 
 # OAuth callback view
-def oauth_callback(request):
+async def oauth_callback(request):
     code = request.GET.get('code')
     if not code:
         return JsonResponse({'error': 'No code provided from OAuth'}, status=400)
@@ -87,23 +69,24 @@ def oauth_callback(request):
     if access_token_response.status_code != 200:
         return JsonResponse({'error': 'Failed to obtain access token from OAuth'}, status=400)
 
-    # access_token = access_token_response.json().get('access_token')
+    access_token = access_token_response.json().get('access_token')
 
     # use the access token to fetch user data
-    # user_data_response = requests.get(
-    #     'https://api.intra.42.fr/v2/me', 
-    #     headers = {'Authorization': f'Bearer {access_token}'}
-    # )
+    user_data_response = requests.get(
+        'https://api.intra.42.fr/v2/me', 
+        headers = {'Authorization': f'Bearer {access_token}'}
+    )
 
-    # if user_data_response.status_code != 200:
-    #     return JsonResponse({'error': 'Failed to fetch user data from 42 API'}, status=400)
+    if user_data_response.status_code != 200:
+        return JsonResponse({'error': 'Failed to fetch user data from 42 API'}, status=400)
 
-    # user_login = user_data_response.json().get('login')
+    user_login = user_data_response.json().get('login')
 
-#    if check_if_new_user(user_login):
-#        create_new_user(user_login)
-
-    intra_user_uuid = shortuuid.ShortUUID().random(length=22)
+    if (await user_exists(user_login)):
+        intra_user_uuid = await get_uuid(user_login)
+    else:
+        intra_user_uuid = shortuuid.ShortUUID().random(length=22)
+        create_new_user(intra_user_uuid, user_login)
 
     payload = {
         'id': intra_user_uuid,
