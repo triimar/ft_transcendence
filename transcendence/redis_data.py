@@ -139,4 +139,9 @@ async def get_one_player(player_id) -> dict|None:
 
     return one_player
 
+async def add_one_player(player_id, player_emoji, player_bg_color):
+    redis_instance = await get_redis_client()
+    player_data = json.loads(await redis_instance.get("player_data"))
+    player_data.append({"player_id": player_id, "player_emoji": player_emoji, "player_bg_color": player_bg_color});
+    await redis_instance.set("player_data", json.dumps(player_data))
 
