@@ -48,14 +48,14 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                         event_join_room = {"type": "join.room", "room_id": room_id, "avatar": avatar}
                     else:
                         event_join_room = {"type": "join.room", "room_id": room_id}
-                    await self.channel_layer.group_send(self.lobby_group_name, event=event_join_room)
+                    await self.channel_layer.group_send(self.lobby_group_name, event_join_room)
                     # Add this consumer to a group identified by 'room_id'
                     await self.channel_layer.group_add(
                         self.room_group_name,
                         self.channel_name
                     )
                     self.joined_group = ["room"]
-                    await self.channel_layer.group_send(self.room_group_name, event=event_join_room)
+                    await self.channel_layer.group_send(self.room_group_name, event_join_room)
                     joined_room = await data.get_one_room_data(room_id=room_id)
                     if joined_room is not None:
                         await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": joined_room}))
@@ -78,7 +78,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     event_add_room = {"type": "add.room", "room_id": room_id, "owner_avatar": owner_avatar}
                 else:
                     event_add_room = {"type": "add.room", "room_id": room_id}
-                await self.channel_layer.group_send(self.room_group_name, event=event_add_room)
+                await self.channel_layer.group_send(self.room_group_name, event_add_room)
                 await self.send(text_data=json.dumps({"type": "ack_add_room", "single_room_data": added_room}))
 
 
