@@ -119,6 +119,15 @@ class Visitor {
 					await this.waitForPageToRender();
 					// TODO(HeiYiu): Render the newly added room
 					break;
+                case "error":
+                    let popup = document.getElementById("notification-popup");
+                    let popupText = popup.children[0];
+                    popupText.textContent = message.message;
+                    popup.classList.add("show");
+                    setTimeout(() => {
+                        popup.classList.remove("show");
+                    }, 8000);
+                    break;
 				default:
 					console.error("Received unknown websocket message type");
 			}
