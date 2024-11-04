@@ -6,7 +6,7 @@ from django.conf import settings
 from .user import assign_random_avatar, assign_random_background_color, check_if_new_user, create_new_user, save_user_cache
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
-from .redis_data import add_one_player
+from .redis_data import add_one_player, get_one_player
 
 # TODO: borrow a new api
 
@@ -26,6 +26,20 @@ from .redis_data import add_one_player
 
 def logout(request):
     pass
+
+async def avatar_information(request):
+    jwt_token = request.COOKIES.get('jwt')
+    try:
+        payload = jwt.decode(jwt_token, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
+    except jwt.InvalidTokenError:
+        return JsonResponse({'error': 'Invalid token'}, status=404)
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({'error': 'Token has expired'}, status=404)
+    player = await get_one_player(payload['id'])
+    if player is not None:
+        return JsonResponse(player)
+    else:
+        return JsonResponse({'error': 'Cannot find player'}, status=404)
 
 async def guest_login(request):
     guest_id = shortuuid.ShortUUID().random(length=22)
@@ -62,9 +76,9 @@ def check_auth(request):
     try:
         payload = jwt.decode(jwt_token, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
     except jwt.InvalidTokenError:
-        return JsonResponse({'error': 'Invalid token'})
+        return JsonResponse({'error': 'Invalid token'}, status=404)
     except jwt.ExpiredSignatureError:
-        return JsonResponse({'error': 'Token has expired'})
+        return JsonResponse({'error': 'Token has expired'}, status=404)
     return JsonResponse(payload)
 
 # OAuth callback view
