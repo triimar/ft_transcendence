@@ -4,6 +4,8 @@ class Visitor {
 		this.pageName = null;
 		this.pageFinishedRendering = false; // Note(HeiYiu): this is a mutex that make sure the template is rendered before receiving incoming websocket message that will change the UI tree
 		this.id = null;
+        this.avatar_emoji = null;
+        this.avatar_bg_color = null;
 		this.ws = null;
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
 	}
@@ -37,6 +39,18 @@ class Visitor {
         }
 		return false;
 	}
+
+    async fetchAvatarInfo() {
+        try {
+            let response = await fetch("/api/myself/");
+            let json = await response.json();
+            this.avatar_emoji = json.player_emoji;
+            this.avatar_bg_color = '#' + json.player_bg_color;
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
 
 	getLoginMethod() {
 		return localStorage.getItem("login_method");
