@@ -109,10 +109,18 @@ async def get_one_room_data(room_id):
     redis_instance = await get_redis_client()
 
     room_data = json.loads(await redis_instance.get("room_data"))
+    player_data = json.loads(await redis_instance.get("player_data"))
+    player_data_dict = {player["player_id"]: player for player in player_data}
 
     # Find the room by room_id
     room = next((room for room in room_data if room["room_id"] == room_id), None)
 
+    # Add player data to each avatar in the room
+    for avatar in room["avatars"]:
+        player_id = avatar["player_id"]
+        # Fetch the corresponding player data and merge it
+        if player_id in player_data_dict:
+            avatar.update(player_data_dict[player_id])
     return room
 
 async def add_new_room(room_id, owner_id) -> dict:
