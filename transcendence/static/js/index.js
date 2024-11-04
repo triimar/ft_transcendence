@@ -42,7 +42,12 @@ async function main() {
         if (analysisPageHash(pageHash)[0] != "error") {
             let [isAuthenticated, newPageHash] = await authenticateVisitor(pageHash);
             pageHash = newPageHash;
-            if (pageHash != "login" && isAuthenticated && !myself.ws) myself.connectWs();
+            if (isAuthenticated) {
+                if (pageHash != "login" && !myself.ws) myself.connectWs();
+                if ((myself.avatar_emoji == null) || (myself.avatar_bg_color == null)) {
+                    await myself.fetchAvatarInfo();
+                }
+            }
         }
         let [pageName, roomId, gameIndex] = analysisPageHash(pageHash);
         let pageClass = pageMapping[pageName];
@@ -59,7 +64,12 @@ async function main() {
     if (analysisPageHash(pageHash)[0] != "error") {
         let [isAuthenticated, newPageHash] = await authenticateVisitor(pageHash);
         pageHash = newPageHash;
-        if (pageHash != "login" && isAuthenticated && !myself.ws) myself.connectWs();
+        if (isAuthenticated) {
+            if (pageHash != "login" && !myself.ws) myself.connectWs();
+            if ((myself.avatar_emoji == null) || (myself.avatar_bg_color == null)) {
+                await myself.fetchAvatarInfo();
+            }
+        }
     }
     let [pageName, roomId, gameIndex] = analysisPageHash(pageHash);
     let pageClass = pageMapping[pageName];
