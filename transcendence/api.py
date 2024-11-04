@@ -1,7 +1,8 @@
 import requests
-import shortuuid
+import uuid
 import jwt
 import time
+from random import random
 from django.conf import settings
 from .user import assign_random_avatar, assign_random_background_color, check_if_new_user, create_new_user, save_user_cache
 from django.shortcuts import redirect
@@ -42,7 +43,7 @@ async def avatar_information(request):
         return JsonResponse({'error': 'Cannot find player'}, status=404)
 
 async def guest_login(request):
-    guest_id = shortuuid.ShortUUID().random(length=22)
+    guest_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, str(random())))
     now = int(time.time())
     
     payload = {
@@ -56,7 +57,7 @@ async def guest_login(request):
 
     avatar = assign_random_avatar()
     color = assign_random_background_color()
-    await add_one_player(guest_id, avatar, color);
+    await add_one_player(guest_id, avatar, color)
     # save_user_cache(guest_id, avatar, color, guest=True)
 
     # redirect to the main page with jwt token as cookie set
@@ -120,10 +121,12 @@ async def oauth_callback(request):
 #        create_new_user(user_login)
 
     # TODO(HeiYiu): Check if user exists
-    intra_user_uuid = shortuuid.ShortUUID().random(length=22)
-    avatar = assign_random_avatar()
-    color = assign_random_background_color()
-    add_one_player(intra_user_uuid, avatar, color);
+    intra_user_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, access_token_response.json().get('access_token')))
+    player = await get_one_player(intra_user_uuid)
+    if player is None:
+        avatar = assign_random_avatar()
+        color = assign_random_background_color()
+        await add_one_player(intra_user_uuid, avatar, color)
 
     payload = {
         'id': intra_user_uuid,
