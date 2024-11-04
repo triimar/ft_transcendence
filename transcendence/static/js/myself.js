@@ -82,6 +82,9 @@ class Visitor {
 
 	logout() {
 		this.jwt = null;
+        this.id = null;
+        this.avatar_emoji = null;
+        this.avatar_bg_color = null;
         localStorage.removeItem("login_method");
         document.cookie = 'jwt=; Max-Age=-99999999;';
 	}
