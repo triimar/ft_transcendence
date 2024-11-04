@@ -96,6 +96,9 @@ async def add_player_to_room(room_id, player_id) -> RedisError:
         # Find room based on room id and add new player to it
         for room in room_data:
             if room["room_id"] == room_id:
+                for avatar in room["avatars"]:
+                    if avatar["player_id"] == new_player["player_id"]:
+                        return RedisError.NONE
                 if room["max_player"] <= len(room["avatars"]):
                     return RedisError.MAXROOMPLAYERSREACHED
                 room["avatars"].append({"player_id": new_player["player_id"]})
