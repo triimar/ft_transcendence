@@ -110,7 +110,19 @@ class Visitor {
 					break;
 				case "ack_join_room":
 					await this.waitForPageToRender();
-					// TODO(HeiYiu): Render the room
+                    let roomElement = this.page.container.querySelector("td-lobby-room");
+                    let room = message["single_room_data"];
+                    roomElement.setAttribute("room-id", room["room_id"]);
+                    for (let avatar of room.avatars) {
+                        let avatarElement = document.createElement("td-avatar");
+                        avatarElement.setAttribute("avatar-name", avatar["player_emoji"]);
+                        avatarElement.setAttribute("avatar-background", '#' + avatar["player_bg_color"]);
+                        avatarElement.setAttribute("avatar-id", avatar["player_id"]);
+                        roomElement.appendChild(avatarElement);
+                    }
+                    roomElement.setAttribute("room-max", room["max_player"]);
+                    let settingSizeElement = this.page.container.querySelector("td-room-setting-size");
+                    settingSizeElement.size = room.avatars.length;
 					break;
 				case "b_add_room":
 					// TODO(HeiYiu): Append a room to lobby page
