@@ -1,3 +1,4 @@
+from enum import Enum
 import json
 import redis
 from .redis_client import get_redis_client
@@ -50,51 +51,56 @@ player_data_sample = [
 ]
 redis_instance.set("player_data", json.dumps(player_data_sample))
 
+class RedisError(Enum):
+    NONE = 0
+    NOPLAYERFOUND = 1
+    NOROOMFOUND = 2
+
 async def get_full_room_data() -> list:
-	redis_instance = await get_redis_client()
-	room_data = json.loads(await redis_instance.get("room_data"))
-	player_data = json.loads(await redis_instance.get("player_data"))
+    redis_instance = await get_redis_client()
+    room_data = json.loads(await redis_instance.get("room_data"))
+    player_data = json.loads(await redis_instance.get("player_data"))
 
-	player_data_dict = {player["player_id"]: player for player in player_data}
+    player_data_dict = {player["player_id"]: player for player in player_data}
 
-	full_room_data = []
+    full_room_data = []
 
-	for room in room_data:
-		# Add player data to each avatar in the room
-		for avatar in room["avatars"]:
-			player_id = avatar["player_id"]
-			# Fetch the corresponding player data and merge it
-			if player_id in player_data_dict:
-				avatar.update(player_data_dict[player_id])
+    for room in room_data:
+        # Add player data to each avatar in the room
+        for avatar in room["avatars"]:
+            player_id = avatar["player_id"]
+            # Fetch the corresponding player data and merge it
+            if player_id in player_data_dict:
+                avatar.update(player_data_dict[player_id])
 
-		# Append the updated room data to the combined list
-		full_room_data.append(room)
+        # Append the updated room data to the combined list
+        full_room_data.append(room)
 
-	return full_room_data
+    return full_room_data
 
-async def add_player_to_room(room_id, player_id) -> bool:
-	redis_instance = await get_redis_client()
+async def add_player_to_room(room_id, player_id) -> RedisError:
+    redis_instance = await get_redis_client()
 
-	room_data = json.loads(await redis_instance.get("room_data"))
-	player_data = json.loads(await redis_instance.get("player_data"))
+    room_data = json.loads(await redis_instance.get("room_data"))
+    player_data = json.loads(await redis_instance.get("player_data"))
 
-	# Find the player details from player_data
-	new_player = next((player for player in player_data if player["player_id"] == player_id), None)
+    # Find the player details from player_data
+    new_player = next((player for player in player_data if player["player_id"] == player_id), None)
 
-	# Check if the player exists in player_data
-	if new_player is None:
-		print(f"Player with player_id {player_id} not found in player_data.")
-		return False
-	else:
-		# Find room based on room id and add new player to it
-		for room in room_data:
-			if room["room_id"] == room_id:
-				room["avatars"].append({"player_id": new_player["player_id"]})
-				print(f"Player {player_id} added to {room['room_id']}.")
-				await redis_instance.set("room_data", json.dumps(room_data))
-				return True
-		print(f"Room with room_id {room_id} not found in room_data.")
-		return False
+    # Check if the player exists in player_data
+    if new_player is None:
+        print(f"Player with player_id {player_id} not found in player_data.")
+        return RedisError.NOPLAYERFOUND
+    else:
+        # Find room based on room id and add new player to it
+        for room in room_data:
+            if room["room_id"] == room_id:
+                room["avatars"].append({"player_id": new_player["player_id"]})
+                print(f"Player {player_id} added to {room['room_id']}.")
+                await redis_instance.set("room_data", json.dumps(room_data))
+                return RedisError.NONE
+        print(f"Room with room_id {room_id} not found in room_data.")
+        return RedisError.NOROOMFOUND
 
 async def get_one_room_data(room_id):
     redis_instance = await get_redis_client()
@@ -115,7 +121,7 @@ async def add_new_room(room_id, owner_id) -> dict:
     new_room = {
         "room_id": room_id,
         "room_owner": owner_id,
-		# TODO: add default room setting
+        # TODO: add default room setting
         # "room_setting": {
         #     "default_setting": "value"
         # },

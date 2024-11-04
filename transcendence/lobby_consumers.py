@@ -42,25 +42,30 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     self.lobby_group_name,
                     self.channel_name
 				)
-                if await data.add_player_to_room(room_id=room_id, player_id=player_id):
-                    avatar = await data.get_one_player(player_id=player_id)
-                    if avatar is not None:
-                        event_join_room = {"type": "join.room", "room_id": room_id, "avatar": avatar}
-                    else:
-                        event_join_room = {"type": "join.room", "room_id": room_id}
-                    await self.channel_layer.group_send(self.lobby_group_name, event_join_room)
-                    # Add this consumer to a group identified by 'room_id'
-                    await self.channel_layer.group_add(
-                        self.room_group_name,
-                        self.channel_name
-                    )
-                    self.joined_group = ["room"]
-                    await self.channel_layer.group_send(self.room_group_name, event_join_room)
-                    joined_room = await data.get_one_room_data(room_id=room_id)
-                    if joined_room is not None:
-                        await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": joined_room}))
-                    else:
-                        await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": "Cannot find the room to join!"}))
+                match (await data.add_player_to_room(room_id=room_id, player_id=player_id)):
+                    case data.RedisError.NONE:
+                        avatar = await data.get_one_player(player_id=player_id)
+                        if avatar is not None:
+                            event_join_room = {"type": "join.room", "room_id": room_id, "avatar": avatar}
+                        else:
+                            event_join_room = {"type": "join.room", "room_id": room_id}
+                        await self.channel_layer.group_send(self.lobby_group_name, event_join_room)
+                        # Add this consumer to a group identified by 'room_id'
+                        await self.channel_layer.group_add(
+                            self.room_group_name,
+                            self.channel_name
+                        )
+                        self.joined_group = ["room"]
+                        await self.channel_layer.group_send(self.room_group_name, event_join_room)
+                        joined_room = await data.get_one_room_data(room_id=room_id)
+                        if joined_room is not None:
+                            await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": joined_room}))
+                        else:
+                            await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": "Cannot find the room to join!"}))
+                    case data.RedisError.NOPLAYERFOUND:
+                        await self.send(text_data=json.dumps({"type": "error", "message": "player id not found"}))
+                    case data.RedisError.NOROOMFOUND:
+                        await self.send(text_data=json.dumps({"type": "error", "message": "room id not found"}))
             case {"type": "add_room","owner_id": owner_id}:
                 self.room_group_name = shortuuid.ShortUUID().random(length=15)
                 await self.channel_layer.group_discard(
