@@ -26,6 +26,16 @@ export default class ComponentNavigationBar extends HTMLElement {
             window.location.hash = "#login";
         }).bind(this);
 		this.shadow.querySelector("#logout-btn").addEventListener("click", this.logoutFunc, true);
+        // Note(HeiYiu): Change avatar
+        let avatarElement = document.createElement("td-avatar");
+        avatarElement.setAttribute("avatar-name", myself.avatar_emoji);
+        avatarElement.setAttribute("avatar-background", myself.avatar_bg_color);
+        avatarElement.setAttribute("avatar-id", myself.id);
+        avatarElement.setAttribute("slot", "avatar");
+        let dummyAvatars = this.shadow.querySelectorAll(".dummy-avatar");
+        for (let dummyAvatar of dummyAvatars) {
+            dummyAvatar.parentNode.replaceChild(avatarElement.cloneNode(), dummyAvatar);
+        }
 	}
 
 	disconnectedCallback() {
