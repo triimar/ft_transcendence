@@ -66,6 +66,8 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                         await self.send(text_data=json.dumps({"type": "error", "message": "player id not found"}))
                     case data.RedisError.NOROOMFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message": "room id not found"}))
+                    case data.RedisError.MAXROOMPLAYERSREACHED:
+                        await self.send(text_data=json.dumps({"type": "error", "message": "max number of players reached. Cannot join room"}))
             case {"type": "add_room","owner_id": owner_id}:
                 self.room_group_name = shortuuid.ShortUUID().random(length=15)
                 await self.channel_layer.group_discard(
