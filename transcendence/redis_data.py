@@ -55,6 +55,7 @@ class RedisError(Enum):
     NONE = 0
     NOPLAYERFOUND = 1
     NOROOMFOUND = 2
+    MAXROOMPLAYERSREACHED = 3;
 
 async def get_full_room_data() -> list:
     redis_instance = await get_redis_client()
@@ -95,6 +96,8 @@ async def add_player_to_room(room_id, player_id) -> RedisError:
         # Find room based on room id and add new player to it
         for room in room_data:
             if room["room_id"] == room_id:
+                if room["max_player"] <= len(room["avatars"]):
+                    return RedisError.MAXROOMPLAYERSREACHED
                 room["avatars"].append({"player_id": new_player["player_id"]})
                 print(f"Player {player_id} added to {room['room_id']}.")
                 await redis_instance.set("room_data", json.dumps(room_data))
