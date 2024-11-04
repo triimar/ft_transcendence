@@ -98,9 +98,10 @@ async function authenticateVisitor(pageHash) {
                 } else if (lastPageHash) {
                     pageHash = lastPageHash;
                 }
-                isTriggerHashChange = false;
-                window.location.hash = '#' + pageHash;
-                window.dispatchEvent(new HashChangeEvent("hashchange"));
+                if (getPageHashFromURL(window.location) != pageHash) {
+                    isTriggerHashChange = false;
+                    window.location.hash = '#' + pageHash;
+                }
                 localStorage.removeItem("last_page_hash");
             }
         } break;
