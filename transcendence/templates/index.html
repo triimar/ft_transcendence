@@ -58,13 +58,21 @@
 	</td-lobby-room>
 	<td-room-setting-size class="ui"></td-room-setting-size>
 	<div class="ui ui-text"><p>More game options coming soon</p></div>
-	<td-tournament-tree style="
+	<!-- <td-tournament-tree style="
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
 	gap: 0.4em;">
-	</td-tournament-tree>
+	</td-tournament-tree> -->
+	<td-binary-tree></td-binary-tree>
+
+
+
+
+
+
+
 </template>
 
 <template id="page-main">
@@ -365,6 +373,35 @@
 	</style>
 	<div id="handle"></div>
 </template>
+<template id="component-binary-tree">
+	<style>
+		:host {
+			display: block;
+			transform: scale(0.75);
+			transform-origin: center; /* Optional: adjust origin if centering is needed */
+		}
+		.tournament {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 50px;
+			}
+			.round {
+				display: flex;
+				justify-content: center;
+			}
+			.match {
+				display: flex;
+				flex-direction: row;
+				padding: 10px;
+			}
+	</style>
+	<div class="tournament"></div>
+
+
+</template>
+
+
 <template id="component-tournament-tree">
     <style>
         .tournament-container {

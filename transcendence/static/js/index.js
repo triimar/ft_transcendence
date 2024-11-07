@@ -8,6 +8,7 @@ import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
 import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
+import ComponentBinaryTournamentTree from "./components/BinaryTournamentTree.js";
 
 import PageError from "./pages/PageError.js";
 import PageLogin from "./pages/PageLogin.js";
@@ -160,3 +161,4 @@ window.customElements.define("td-ai-game-board", ComponentAIGameBoard);
 window.customElements.define("td-button", ComponentButton);
 window.customElements.define("td-lever", ComponentLever);
 window.customElements.define("td-tournament-tree", ComponentTournamentTree);
+window.customElements.define("td-binary-tree", ComponentBinaryTournamentTree)
