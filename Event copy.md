@@ -9,9 +9,7 @@ room_data = [
     {
         "room_id": "example_room_1",
         "room_owner": "player_id_1",
-        "room_setting": {
-            ...
-        }
+        "mode": "balance" #"shoot","bomb","remix"
         "avatars": [
             {"player_id": "example_player_id_1", "player_emoji": "233", "player_bg_color": "ff0000"},
             {"player_id": "example_player_id_2", "player_emoji": "234", "player_bg_color": "ffff00"},
@@ -112,3 +110,16 @@ room_data = [
 ```python
 {"type": ""}
 # Game Page
+```
+
+## when player leave the room
+```python
+{"type": "leave_room", "room_id": room_id, "player_id": player_id}
+# 1. when normal player leaves the room.
+# 2. when room owner leaves the room., update the room owner
+# 3. when the last one leaves the room.
+{"type": "b_leave_room", "room_id": room_id, "avatar": avatar, "room_owner": new_room_owner}
+ # broadcast to both lobby page and room page.
+ # first broadcast, then add this consumer in the lobby page group, then do the following ack_leave_room
+{"type": "ack_leave_room", "rooms": room_list} # ack lobby page for the left player
+```
