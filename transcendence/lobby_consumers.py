@@ -69,20 +69,21 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     case data.RedisError.MAXROOMPLAYERSREACHED:
                         await self.send(text_data=json.dumps({"type": "error", "message": "max number of players reached. Cannot join room", "redirect_hash": "main"}))
             case {"type": "add_room","owner_id": owner_id}:
-                self.room_group_name = shortuuid.ShortUUID().random(length=15)
+                room_id = shortuuid.ShortUUID().random(length=15)
+                self.room_group_name = room_id
                 await self.channel_layer.group_discard(
                     self.lobby_group_name,
                     self.channel_name
 				)
-                added_room = await data.add_new_room(room_id=room_id, owner_id=owner_id)
+                added_room = await data.add_new_room(room_id, owner_id)
                 await self.channel_layer.group_add(
                         self.room_group_name,
                         self.channel_name
                 )
                 self.joined_group = ["room"]
-                owner_avatar = await data.get_one_player(player_id=owner_id)
+                owner_avatar = await data.get_one_player(owner_id)
                 if owner_avatar is not None:
-                    event_add_room = {"type": "add.room", "room_id": room_id, "owner_avatar": owner_avatar}
+                    event_add_room = {"type": "add.room", "room_id": room_id, "avatar": owner_avatar}
                 else:
                     event_add_room = {"type": "add.room", "room_id": room_id}
                 await self.channel_layer.group_send(self.room_group_name, event_add_room)
