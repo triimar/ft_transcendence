@@ -87,7 +87,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 else:
                     event_add_room = {"type": "add.room", "room_id": room_id}
                 await self.channel_layer.group_send(self.room_group_name, event_add_room)
-                await self.send(text_data=json.dumps({"type": "ack_add_room", "single_room_data": added_room}))
+                await self.send(text_data=json.dumps({"type": "ack_add_room", "room_id": room_id}))
 
 
 	# functions for dealing with events
