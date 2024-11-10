@@ -21,6 +21,8 @@ export default class PageMain {
             label.style.left = "0";
             this.container.appendChild(label);
         }
+        let addRoomButton = this.container.querySelector("#add-room-btn");
+        addRoomButton.addEventListener("click", myself.sendMessageAddRoom.bind(myself));
 	}
 
 	removeEvents() {
