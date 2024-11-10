@@ -145,8 +145,8 @@ class Visitor {
 					// TODO(HeiYiu): Append a room to lobby page
 					break;
 				case "ack_add_room":
-					await this.waitForPageToRender();
-					// TODO(HeiYiu): Render the newly added room
+                    let roomId = message["room_id"];
+                    window.location.href = "#room" + roomId;
 					break;
                 case "error":
                     this.displayPopupMessage(message.message);
