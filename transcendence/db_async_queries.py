@@ -14,7 +14,7 @@ async def user_exists(uuid):
         result = await conn.fetchval(query, uuid)
         return result
 
-async def get_uuid(login)
+async def get_uuid(login):
     async with (await get_connection()).acquire() as conn:
         query = "SELECT uuid FROM users WHERE login=$1"
         result = await conn.fetchval(query, login)
