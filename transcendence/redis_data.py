@@ -12,23 +12,21 @@ room_data_sample = [
     {
         "room_id": "example_room_1",
         "room_ownder": "player_id_1",
-        # "room_setting": {
-        #     ...
-        # }
+        "ready": 2
+        "mode": "balance", #"shoot","bomb","remix"
         "avatars": [
             {"player_id": "example_player_id_1"},
             {"player_id": "example_player_id_2"},
             {"player_id": "example_player_id_3"},
-        ],
+        ], # can be list
         "prepared_count": 1,
         "max_player": 3
     },
     {
         "room_id": "example_room_2",
         "room_ownder": "player_id_4",
-        # "room_setting": {
-        #     ...
-        # }
+        "mode": "balance", #"shoot","bomb","remix"
+        "ready": 3
         "avatars": [
             {"player_id": "example_player_id_4"},
             {"player_id": "example_player_id_5"},
@@ -50,7 +48,7 @@ player_data_sample = [
     {"player_id": "example_player_id_4", "player_emoji": "236", "player_bg_color": "0000ff"},
     {"player_id": "example_player_id_5", "player_emoji": "237", "player_bg_color": "ff00ff"},
     {"player_id": "example_player_id_6", "player_emoji": "238", "player_bg_color": "00ffff"}
-]
+] # can be dict of dict
 redis_instance.set("player_data", json.dumps(player_data_sample))
 
 class RedisError(Enum):
