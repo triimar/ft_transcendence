@@ -2,7 +2,7 @@
 import json
 import random
 
-from game.game_dictionary import rooms
+from .game.game_dictionary import rooms
 from channels.db import database_sync_to_async
 
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -98,8 +98,25 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.handle_ready_message(data)
         elif message_type == 'update':
             await self.handle_update_message(data)
+        elif message_type == 'paddle_move':
+            await self.handle_paddle_message(data)
         elif message_type == 'score':
             await self.handle_score_message(data)
+
+
+# {
+#     match_id: jfi30,
+#     ball: {
+#         position: {
+#             x: 50,
+#             y: 50
+#         },
+#         velocity: {
+#             vx: 5,
+#             vy: 2
+#         }
+#     }
+# }
 
     async def handle_ready_message(self, data):
         player_id = data['player_id']
@@ -126,67 +143,111 @@ class GameConsumer(AsyncWebsocketConsumer):
         else:
             await self.send(text_data=json.dumps({'status': 'invalid_match', 'match_id': match_id}))
 
+
+# {
+#     match_id: jfi30,
+#     ball: {
+#         position: {
+#             x: 50,
+#             y: 50
+#         },
+#         velocity: {
+#             vx: 5,
+#             vy: 2
+#         }
+#     }
+# }
+
+
     async def handle_update_message(self, data):
         match_id = data['match_id']
         ball_position = data['ball']['position']
         ball_velocity = data['ball']['velocity']
-        paddle_updates = data['paddles']  # This will be a dictionary of player_id -> paddle state
 
         # Update game state
         room = rooms[self.room_id]
         match = room['matches'][match_id]
         match['ball']['position'] = ball_position
         match['ball']['velocity'] = ball_velocity
-        for player_id in match['players']:
-            if player_id in paddle_updates:
-                room['players'][player_id]['paddle']['position'] = paddle_updates[player_id]['position']
-                room['players'][player_id]['paddle']['velocity'] = paddle_updates[player_id]['velocity']
 
         # Broadcast the updated game state to all players in the room
         await self.channel_layer.group_send(
             self.room_id,
             {
-                'type': 'game_update',
+                'type': 'game.update',
                 'match_id': match_id,
                 'ball': match['ball'],
-                'paddles': {player_id: room['players'][player_id]['paddle'] for player_id in match['players']}
             }
         )
+# {
+#     match_id: jfi30,
+#     player: {
+#         id: player392f,
+#         position: 50
+#     }
 
-    async def handle_score_message(self, data):
+# }
+
+
+    async def handle_paddle_message(self, data):
         match_id = data['match_id']
-        paddle_updates = data['paddles']  # This will be a dictionary of player_id -> paddle state
-        point = data['player_id']
-        win = False
+        player = data['player']
 
         # Update game state
         room = rooms[self.room_id]
         match = room['matches'][match_id]
+        
+        match[player['id']]['position'] = player['position']
+
+        # Broadcast the updated game state to all players in the room
+        await self.channel_layer.group_send(
+            self.room_id,
+            {
+                'type': 'paddle_update',
+                'match_id': match_id,
+                'paddles': {player['id']: player['position']}
+            }
+        )
+
+
+# {
+#     match_id: vj2k4,
+#     winner: player_sjf2,
+#     loser: player_op2m,
+#     balance: False
+# }
+
+    async def handle_score_message(self, data):
+        match_id = data['match_id']
+        point = data['winner']
+        no_point = data['loser']
+        balance = data['balance']
+        win = False
+
+        # Update game state
+        match = rooms[self.room_id]['matches'][match_id]
         match['ball']['position']['x'] = CANVAS_WIDTH/2
         match['ball']['position']['y'] = CANVAS_HEIGHT/2
         match['ball']['velocity']['vx'] = random.randrange(1, 5)
         match['ball']['velocity']['vy'] = random.randrange(1, 5)
 
-        for player_id in match['players']:
-            if player_id in paddle_updates:
-                room['players'][player_id]['paddle']['position'] = paddle_updates[player_id]['position']
-                room['players'][player_id]['paddle']['velocity'] = paddle_updates[player_id]['velocity']
+        match[point]['score'] += 1
+        if (match[point]['score'] == 8):
+            match['winner'] = match[point]
+            win = True
 
-        for player_id in match['players']:
-            if (player_id == point):
-                room['players'][player_id]['score'] += 1
-                if (room['players'][player_id]['score'] == 8):
-                    match['winner'] = room['players'][player_id]
-                    win = True
+        if (balance == True):
+            match[point]['size'] -= 5
+            match[no_point]['size'] += 5
 
         # Broadcast the updated game state to all players in the room
         await self.channel_layer.group_send(
             self.room_id,
             {
-                'type': 'point_score',
+                'type': 'point.score',
                 'match_id': match_id,
                 'ball': match['ball'],
-                'paddles': {player_id: room['players'][player_id]['paddle'] for player_id in match['players']},
+                'paddles': {point, no_point},
                 'win': win,
                 'winner': point
             }

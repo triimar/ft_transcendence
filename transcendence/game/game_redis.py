@@ -2,7 +2,6 @@ import json
 import redis
 from channels.generic.websocket import AsyncWebSocketConsumer
 
-import redis_data as data
 
 game_data_sample = [
 	{

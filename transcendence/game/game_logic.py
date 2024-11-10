@@ -12,3 +12,6 @@ def handleReady(json_message):
 	paddle2_y = data['paddle2']['y']
 
     # Perform physics calculations (simple example)
+
+def game_loop():
+	
