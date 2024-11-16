@@ -8,13 +8,13 @@ export default class ComponentLobbyRoom extends HTMLElement {
 		this.shadow.appendChild(template.content.cloneNode(true));
 	}
 
-    connectedCallback() {
-        let id = this.shadow.querySelector("#lobby-room-id");
-        id.addEventListener("click", () => {
-            navigator.clipboard.writeText(location.origin + "/#room" + id.textContent);
-            myself.displayPopupMessage("Invitation link copied to clipboard");
-        });
-    }
+		connectedCallback() {
+				let id = this.shadow.querySelector("#lobby-room-id");
+				id.addEventListener("click", () => {
+						navigator.clipboard.writeText(location.origin + "/#room" + id.textContent);
+						myself.displayPopupMessage("Invitation link copied to clipboard");
+				});
+		}
 
 	attributeChangedCallback(name, oldValue, newValue) {
 		switch (name)
@@ -52,10 +52,10 @@ export default class ComponentLobbyRoom extends HTMLElement {
 					button.style.position = "relative";
 					button.style.padding = "0.5em em";
 					button.style.display = "block";
-                    button.addEventListener("click", () => {
-                        let id = this.shadow.querySelector("#lobby-room-id");
-                        window.location.href = "#room" + id.textContent;
-                    });
+										button.addEventListener("click", () => {
+												let id = this.shadow.querySelector("#lobby-room-id");
+												window.location.href = "#room" + id.textContent;
+										});
 					if (this.joinDisabled) button.setAttribute("disabled", "");
 
 					this.appendChild(button);
