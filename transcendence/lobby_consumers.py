@@ -109,6 +109,18 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 await self.send(text_data=json.dumps({"type": "ack_leave_room", "rooms": room_list}))
 
 
+            case {"type": "max_player","room_id": room_id, "max_player_num": max_player_num}:
+                match (await data.update_max_player_num_in_one_room(room_id, max_player_num)):
+                    case data.RedisError.NONE:
+                        event_update_max_num =  {"type": "update.maxplayernum", "room_id": room_id, "max_player_num": max_player_num}
+                        await self.channel_layer.group_send(self.room_group_name, event_update_max_num)
+                        await self.channel_layer.group_send(self.lobby_group_name, event_update_max_num)
+                    case data.RedisError.NOROOMFOUND:
+                        await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
+                    case data.RedisError.MAXROOMPLAYERSREACHED:
+                        await self.send(text_data=json.dumps({"type": "error", "message": "max number of players reached. Cannot join room", "redirect_hash": "main"}))
+
+
 	# functions for dealing with events
     async def join_room(self, event):
         room_id = event["room_id"]
@@ -144,6 +156,16 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
 
 
+
+
+
+    async def update_maxplayernum(self, event):
+        room_id = event["room_id"]
+        max_player_num = event["max_player_num"]
+
+        text_data = json.dumps({"type": "b_max_player", "room_id": room_id, "max_player_num": max_player_num})
+
+        await self.send(text_data=text_data)
 
 
 

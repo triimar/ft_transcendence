@@ -4,6 +4,7 @@ import redis
 from .redis_client import get_redis_client
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+MAX_NUM_PLAYER = 8
 # Connect to Redis
 redis_instance = redis.Redis(host='db_redis', port=6379, db=0)
 
@@ -173,6 +174,21 @@ async def delete_one_room(room_id) -> None:
 
     await redis_instance.set("room_data", json.dumps(room_data))
 
+async def update_max_player_num_in_one_room(room_id, max_player_num) -> RedisError:
+    redis_instance = await get_redis_client()
+
+    room_data = json.loads(await redis_instance.get("room_data"))
+
+    for room in room_data:
+        if room["room_id"] == room_id:
+            if max_player_num > MAX_NUM_PLAYER:
+                return RedisError.MAXROOMPLAYERSREACHED
+            room["max_player"] = max_player_num
+            await redis_instance.set("room_data", json.dumps(room_data))
+            return RedisError.NONE
+    return RedisError.NOROOMFOUND
+
+
 async def delete_one_player_from_room(room_id, player_id):
     redis_instance = await get_redis_client()
 
@@ -200,6 +216,4 @@ async def update_room_owner(room_id, player_id):
             room["prepared_count"] -= 1
 
     redis_instance.set("room_data", json.dumps(room_data))
-
-
 
