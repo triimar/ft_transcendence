@@ -11,8 +11,7 @@ redis_instance = redis.Redis(host='db_redis', port=6379, db=0)
 room_data_sample = [
     {
         "room_id": "example_room_1",
-        "room_ownder": "player_id_1",
-        "ready": 2
+        "room_owner": "player_id_1",
         "mode": "balance", #"shoot","bomb","remix"
         "avatars": [
             {"player_id": "example_player_id_1"},
@@ -24,9 +23,8 @@ room_data_sample = [
     },
     {
         "room_id": "example_room_2",
-        "room_ownder": "player_id_4",
+        "room_owner": "player_id_4",
         "mode": "balance", #"shoot","bomb","remix"
-        "ready": 3
         "avatars": [
             {"player_id": "example_player_id_4"},
             {"player_id": "example_player_id_5"},
@@ -165,4 +163,41 @@ async def add_one_player(player_id, player_emoji, player_bg_color):
     player_data = json.loads(await redis_instance.get("player_data"))
     player_data.append({"player_id": player_id, "player_emoji": player_emoji, "player_bg_color": player_bg_color});
     await redis_instance.set("player_data", json.dumps(player_data))
+
+async def delete_one_room(room_id) -> None:
+    redis_instance = await get_redis_client()
+
+    room_data = json.loads(await redis_instance.get("room_data"))
+
+    room_data = [room for room in room_data if room['room_id'] != room_id]
+
+    await redis_instance.set("room_data", json.dumps(room_data))
+
+async def delete_one_player_from_room(room_id, player_id):
+    redis_instance = await get_redis_client()
+
+    room_data = json.loads(await redis_instance.get("room_data"))
+
+
+    for room in room_data:
+        if room["room_id"] == room_id:
+            room['avatars'] = [avatar for avatar in room['avatars'] if avatar['player_id'] != player_id]
+
+
+    redis_instance.set("room_data", json.dumps(room_data))
+
+async def update_room_owner(room_id, player_id):
+    redis_instance = await get_redis_client()
+
+    room_data = json.loads(await redis_instance.get("room_data"))
+
+
+    for room in room_data:
+        if room["room_id"] == room_id:
+            room['avatars'] = [avatar for avatar in room['avatars'] if avatar['player_id'] != player_id]
+            room["room_owner"] = room["avatars"][0]["player_id"]
+
+    redis_instance.set("room_data", json.dumps(room_data))
+
+
 
