@@ -5,6 +5,8 @@ from .redis_client import get_redis_client
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 MAX_NUM_PLAYER = 8
+SUPPORTED_MODES = ["balance", "shoot","bomb","remix"]
+
 # Connect to Redis
 redis_instance = redis.Redis(host='db_redis', port=6379, db=0)
 
@@ -12,7 +14,7 @@ redis_instance = redis.Redis(host='db_redis', port=6379, db=0)
 room_data_sample = [
     {
         "room_id": "example_room_1",
-        "room_owner": "player_id_1",
+        "room_ownder": "player_id_1",
         "mode": "balance", #"shoot","bomb","remix"
         "avatars": [
             {"player_id": "example_player_id_1"},
@@ -54,7 +56,8 @@ class RedisError(Enum):
     NONE = 0
     NOPLAYERFOUND = 1
     NOROOMFOUND = 2
-    MAXROOMPLAYERSREACHED = 3;
+    MAXROOMPLAYERSREACHED = 3
+    MODENOTSUPPORTED = 4
 
 async def get_full_room_data() -> list:
     redis_instance = await get_redis_client()
@@ -134,10 +137,7 @@ async def add_new_room(room_id, owner_id) -> dict:
     new_room = {
         "room_id": room_id,
         "room_owner": owner_id,
-        # TODO: add default room setting
-        # "room_setting": {
-        #     "default_setting": "value"
-        # },
+        "mode": "",
         "avatars": [
             {"player_id": owner_id}
         ],
@@ -216,4 +216,20 @@ async def update_room_owner(room_id, player_id):
             room["prepared_count"] -= 1
 
     redis_instance.set("room_data", json.dumps(room_data))
+
+
+async def upate_game_mode_in_one_room(room_id, mode) -> RedisError:
+    if mode not in SUPPORTED_MODES:
+        return RedisError.MODENOTSUPPORTED
+
+    redis_instance = await get_redis_client()
+    room_data = json.loads(await redis_instance.get("room_data"))
+
+    for room in room_data:
+        if room["room_id"] == room_id:
+            room["mode"] = mode
+            await redis_instance.set("room_data", json.dumps(room_data))
+            return RedisError.NONE
+    return RedisError.NOROOMFOUND
+
 

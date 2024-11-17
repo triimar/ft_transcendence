@@ -119,6 +119,17 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                         await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
                     case data.RedisError.MAXROOMPLAYERSREACHED:
                         await self.send(text_data=json.dumps({"type": "error", "message": "max number of players reached. Cannot join room", "redirect_hash": "main"}))
+            case {"type": "update_mode", "room_id": room_id, "mode": mode}:
+                match(await data.upate_game_mode_in_one_room(room_id, mode)):
+                    case data.RedisError.NONE:
+                        event_update_mode = {"type":"update.mode", "room_id":room_id, "mode": mode}
+                        await self.channel_layer.group_send(self.room_group_name, event_update_mode)
+                    case data.RedisError.NOROOMFOUND:
+                        await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
+                    case data.RedisError.MODENOTSUPPORTED:
+                        await self.send(text_data=json.dumps({"type": "error", "message": "mode not supported", "redirect_hash": "main"})) # where should redirect to?
+
+
 
 
 	# functions for dealing with events
@@ -166,6 +177,14 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         text_data = json.dumps({"type": "b_max_player", "room_id": room_id, "max_player_num": max_player_num})
 
         await self.send(text_data=text_data)
+
+    async def update_mode(self, event):
+        room_id = event["room_id"]
+        updated_mode = event["mode"]
+
+        text_data = json.dumps({"type": "b_max_player", "room_id": room_id, "mode": updated_mode})
+        await self.send(text_data=text_data)
+
 
 
 
