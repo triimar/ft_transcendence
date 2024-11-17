@@ -116,19 +116,31 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                         await self.channel_layer.group_send(self.room_group_name, event_update_max_num)
                         await self.channel_layer.group_send(self.lobby_group_name, event_update_max_num)
                     case data.RedisError.NOROOMFOUND:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
                     case data.RedisError.MAXROOMPLAYERSREACHED:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "max number of players reached. Cannot join room", "redirect_hash": "main"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message": "max number of players reached. Cannot join room", "redirect_hash": "main"})) # where should redirect to?
             case {"type": "update_mode", "room_id": room_id, "mode": mode}:
                 match(await data.upate_game_mode_in_one_room(room_id, mode)):
                     case data.RedisError.NONE:
                         event_update_mode = {"type":"update.mode", "room_id":room_id, "mode": mode}
                         await self.channel_layer.group_send(self.room_group_name, event_update_mode)
                     case data.RedisError.NOROOMFOUND:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
                     case data.RedisError.MODENOTSUPPORTED:
                         await self.send(text_data=json.dumps({"type": "error", "message": "mode not supported", "redirect_hash": "main"})) # where should redirect to?
-
+            case {"type": "prepare_game", "room_id": room_id, "player_id": player_id}:
+                match(await data.update_prepared_count_in_one_room(room_id, player_id)):
+                    case data.RedisError.NONE:
+                        event_update_mode = {"type": "update.preparegame", "room_id": room_id, "player_id": player_id, "all_prepared": False}
+                        await self.channel_layer.group_send(self.room_group_name, event_update_mode)
+                    case data.RedisError.PLAYERALLPREPARED:
+                        owner_id = await data.get_onwer_id(room_id)
+                        event_update_mode = {"type": "update.preparegame", "room_id": room_id, "player_id": player_id, "all_prepared": True, "room_owner":owner_id}
+                        await self.channel_layer.group_send(self.room_group_name, event_update_mode)
+                    case data.RedisError.NOROOMFOUND:
+                        await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
+                    case data.RedisError.NOPLAYERFOUND:
+                        await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
 
 
 
@@ -182,7 +194,17 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         room_id = event["room_id"]
         updated_mode = event["mode"]
 
-        text_data = json.dumps({"type": "b_max_player", "room_id": room_id, "mode": updated_mode})
+        text_data = json.dumps({"type": "b_update_mode", "room_id": room_id, "mode": updated_mode})
+        await self.send(text_data=text_data)
+
+    async def update_preparegame(self, event):
+        room_id = event["room_id"]
+        player_id = event["player_id"]
+
+        if event["all_prepared"]:
+            text_data = json.dumps({"type": "b_prepare_game", "room_id": room_id, "player_id":player_id, "ready_to_start": event["room_owner"]})
+        else:
+            text_data = json.dumps({"type": "b_prepare_game", "room_id": room_id, "player_id":player_id})
         await self.send(text_data=text_data)
 
 
