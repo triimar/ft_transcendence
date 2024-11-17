@@ -88,33 +88,28 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     event_add_room = {"type": "add.room", "room_id": room_id}
                 await self.channel_layer.group_send(self.room_group_name, event_add_room)
                 await self.send(text_data=json.dumps({"type": "ack_add_room", "room_id": room_id}))
+            case {"type": "leave_room","room_id": room_id,"player_id": player_id}:
+                current_room = await data.get_one_room_data(room_id)
+                await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+                if len(current_room["avatarts"]) != 1:
+                    if current_room["room_owner"] == player_id:
+                        new_room_owner = await data.update_room_owner(room_id, player_id)
+                        event_leave_room = {"type": "leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "new_room_onwer": new_room_owner}
+                    else:
+                        await data.delete_one_player_from_room(room_id,player_id)
+                        event_leave_room = {"type": "leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id}
+                    await self.channel_layer.group_send(self.room_group_name, event_leave_room)
+                else:
+                    await data.delete_one_room(room_id)
+                    event_leave_room = {"type": "leave.room", "delete_room": True, "room_id": room_id, "player_id": player_id}
+                await self.channel_layer.group_send(self.lobby_group_name, event_leave_room)
+                await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
+                self.join_group = ["lobby"]
+                room_list = await data.get_full_room_data()
+                await self.send(text_data=json.dumps({"type": "ack_leave_room", "rooms": room_list}))
 
 
 	# functions for dealing with events
-    # async def joinroom_lobby(self, event):
-    #     message = event['message']
-    #     if message:
-    #         room_data =  data.get_full_room_data()
-    #         if room_data:
-    #             room_list = json.loads(room_data)
-    #             await self.send(text_data=json.dumps({"type": "ack_join_room_lobby", "payload": room_list}))
-    #         else:
-    #             await self.send(text_data=json.dumps(
-    #                 {"type": "ack_join_room_lobby", "payload": "Cannot get room data after one play joined."})
-    #             )
-
-    # async def joinroom_room(self, event):
-    #     message = event['message']
-    #     if message:
-    #         room_id = message["room_id"]
-    #         single_room_data = data.get_one_room_data(room_id=room_id)
-    #         if single_room_data:
-    #             await self.send(text_data=json.dumps({"type": "ack_join_room_room", "payload": single_room_data}))
-    #         else:
-    #             await self.send(text_data=json.dumps(
-    #                 {"type": "ack_join_room_room", "payload": "Cannot get certain room data after one play joined."})
-    #             )
-
     async def join_room(self, event):
         room_id = event["room_id"]
         try:
@@ -132,6 +127,23 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         except KeyError as e:
             text_data = json.dumps({"type": "b_add_room", "room_id": room_id, "owner_avatar": "Cannot get room owner's avatar!" })
         await self.send(text_data=text_data)
+
+    async def leave_room(self, event):
+        room_id = event["room_id"]
+        player_id = event["player_id"]
+        if event["delete_room"] == True:
+            text_data = json.dumps({"type": "b_leave_room", "room_id": room_id})
+        else:
+            try:
+                new_room_owner = event["new_room_owner"]
+                text_data = json.dumps({"type":"b_leave_room", "room_id": room_id, "player_id": player_id,"new_room_owner": new_room_owner})
+            except KeyError as e:
+                text_data = json.dumps({"type":"b_leave_room", "room_id": room_id, "player_id": player_id})
+        await self.send(text_data=text_data)
+
+
+
+
 
 
 
