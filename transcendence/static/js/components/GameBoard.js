@@ -123,9 +123,17 @@ export default class ComponentGameBoard extends HTMLElement {
 			{
 				ball.vy = -ball.vy;
 				myself.sendMessage(JSON.stringify({
-					'message_type': 'move_paddle',
-					'player': player,
-					'direction': direction
+					match_id: ,
+					ball: {
+						position: {
+							x: ball.x,
+							y: ball.y
+						},
+						velocity: {
+							vx: ball.vx,
+							vy: ball.vy
+						}
+					}
 				}))
 			}
 			//Right wall collision

@@ -44,6 +44,16 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             await self.create_room(data)
         elif message_type == 'join_room':
             await self.join_room(data)
+        elif message_type == 'create_match':
+            await self.create_match(data)
+        elif message_type == 'ready':
+            await self.handle_ready_message(data)
+        elif message_type == 'update':
+            await self.handle_update_message(data)
+        elif message_type == 'paddle_move':
+            await self.handle_paddle_message(data)
+        elif message_type == 'score':
+            await self.handle_score_message(data)
 
     async def create_room(self, data):
         room_id = data['room_id']
@@ -72,29 +82,14 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         else:
             await self.send(text_data=json.dumps({'status': 'room_not_found', 'room_id': room_id}))
 
-
-class GameConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        self.room_id = self.scope['url_route']['kwargs']['room_id']
-        await self.channel_layer.group_add(self.room_id, self.channel_name)
-        await self.accept()
-
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.room_id, self.channel_name)
-
-    async def receive(self, text_data):
-        data = json.loads(text_data)
-        message_type = data.get('type')
-
-        if message_type == 'ready':
-            await self.handle_ready_message(data)
-        elif message_type == 'update':
-            await self.handle_update_message(data)
-        elif message_type == 'paddle_move':
-            await self.handle_paddle_message(data)
-        elif message_type == 'score':
-            await self.handle_score_message(data)
-
+    async def create_match(self, data):
+        room_id = data['room_id']
+        match_id = data['match_id']
+        rooms[room_id][match_id] = {
+            'players': {},
+            'matches': {}
+        }
+        await self.send(text_data=json.dumps({'status': 'match_created', 'match_id': room_id}))
 
 # {
 #     match_id: jfi30,
@@ -179,7 +174,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 #     }
 
 # }
-
 
     async def handle_paddle_message(self, data):
         match_id = data['match_id']
@@ -274,7 +268,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             'win': win,
             'winner': winner
         }))
-
 
 
 messages = []
