@@ -58,6 +58,7 @@ class RedisError(Enum):
     NOROOMFOUND = 2
     MAXROOMPLAYERSREACHED = 3
     MODENOTSUPPORTED = 4
+    PLAYERALLPREPARED = 5
 
 async def get_full_room_data() -> list:
     redis_instance = await get_redis_client()
@@ -232,4 +233,29 @@ async def upate_game_mode_in_one_room(room_id, mode) -> RedisError:
             return RedisError.NONE
     return RedisError.NOROOMFOUND
 
+async def update_prepared_count_in_one_room(room_id, player_id):
+    redis_instance = await get_redis_client()
+    room_data = json.loads(await redis_instance.get("room_data"))
 
+    for room in room_data:
+        if room["room_id"] == room_id:
+            if all(player_id != value for value in room["avatars"].values()):
+                return RedisError.NOPLAYERFOUND
+            current_prepared = room["prepard_count"] + 1
+            room["prepard_count"] = current_prepared
+            await redis_instance.set("room_data", json.dumps(room_data))
+            if current_prepared == len(room["avatars"]):
+                return RedisError.PLAYERALLPREPARED
+            else:
+                return RedisError.NONE
+    return RedisError.NOROOMFOUND
+
+async def get_owner_id(room_id) -> str:
+    redis_instance = await get_redis_client()
+
+    room_data = json.loads(await redis_instance.get("room_data"))
+
+    for room in room_data:
+        if room["room_id"] == room_id:
+            return room["room_ownder"]
+    return ""
