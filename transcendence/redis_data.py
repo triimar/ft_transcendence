@@ -181,7 +181,8 @@ async def delete_one_player_from_room(room_id, player_id):
 
     for room in room_data:
         if room["room_id"] == room_id:
-            room['avatars'] = [avatar for avatar in room['avatars'] if avatar['player_id'] != player_id]
+            room["avatars"] = [avatar for avatar in room["avatars"] if avatar["player_id"] != player_id]
+            room["prepared_count"] -= 1
 
 
     redis_instance.set("room_data", json.dumps(room_data))
@@ -194,8 +195,9 @@ async def update_room_owner(room_id, player_id):
 
     for room in room_data:
         if room["room_id"] == room_id:
-            room['avatars'] = [avatar for avatar in room['avatars'] if avatar['player_id'] != player_id]
+            room["avatars"] = [avatar for avatar in room["avatars"] if avatar["player_id"] != player_id]
             room["room_owner"] = room["avatars"][0]["player_id"]
+            room["prepared_count"] -= 1
 
     redis_instance.set("room_data", json.dumps(room_data))
 
