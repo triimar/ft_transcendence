@@ -118,16 +118,16 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     case data.RedisError.NOROOMFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
                     case data.RedisError.MAXROOMPLAYERSREACHED:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "max number of players reached. Cannot join room", "redirect_hash": "main"})) # where should redirect to?
+                        await self.send(text_data=json.dumps({"type": "error", "message": "max number of players reached. Cannot join room"}))
             case {"type": "update_mode", "room_id": room_id, "mode": mode}:
-                match(await data.upate_game_mode_in_one_room(room_id, mode)):
+                match(await data.update_game_mode_in_one_room(room_id, mode)):
                     case data.RedisError.NONE:
                         event_update_mode = {"type":"update.mode", "room_id":room_id, "mode": mode}
                         await self.channel_layer.group_send(self.room_group_name, event_update_mode)
                     case data.RedisError.NOROOMFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
                     case data.RedisError.MODENOTSUPPORTED:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "mode not supported", "redirect_hash": "main"})) # where should redirect to?
+                        await self.send(text_data=json.dumps({"type": "error", "message": "mode not supported"}))
             case {"type": "prepare_game", "room_id": room_id, "player_id": player_id}:
                 match(await data.update_prepared_count_in_one_room(room_id, player_id)):
                     case data.RedisError.NONE:

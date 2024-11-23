@@ -166,6 +166,7 @@ async def add_one_player(player_id, player_emoji, player_bg_color):
     player_data.append({"player_id": player_id, "player_emoji": player_emoji, "player_bg_color": player_bg_color});
     await redis_instance.set("player_data", json.dumps(player_data))
 
+# leave room
 async def delete_one_room(room_id) -> None:
     redis_instance = await get_redis_client()
 
@@ -174,20 +175,6 @@ async def delete_one_room(room_id) -> None:
     room_data = [room for room in room_data if room['room_id'] != room_id]
 
     await redis_instance.set("room_data", json.dumps(room_data))
-
-async def update_max_player_num_in_one_room(room_id, max_player_num) -> RedisError:
-    redis_instance = await get_redis_client()
-
-    room_data = json.loads(await redis_instance.get("room_data"))
-
-    for room in room_data:
-        if room["room_id"] == room_id:
-            if max_player_num > MAX_NUM_PLAYER:
-                return RedisError.MAXROOMPLAYERSREACHED
-            room["max_player"] = max_player_num
-            await redis_instance.set("room_data", json.dumps(room_data))
-            return RedisError.NONE
-    return RedisError.NOROOMFOUND
 
 
 async def delete_one_player_from_room(room_id, player_id):
@@ -218,8 +205,22 @@ async def update_room_owner(room_id, player_id):
 
     redis_instance.set("room_data", json.dumps(room_data))
 
+# update room data
+async def update_max_player_num_in_one_room(room_id, max_player_num) -> RedisError:
+    redis_instance = await get_redis_client()
 
-async def upate_game_mode_in_one_room(room_id, mode) -> RedisError:
+    room_data = json.loads(await redis_instance.get("room_data"))
+
+    for room in room_data:
+        if room["room_id"] == room_id:
+            if max_player_num > MAX_NUM_PLAYER:
+                return RedisError.MAXROOMPLAYERSREACHED
+            room["max_player"] = max_player_num
+            await redis_instance.set("room_data", json.dumps(room_data))
+            return RedisError.NONE
+    return RedisError.NOROOMFOUND
+
+async def update_game_mode_in_one_room(room_id, mode) -> RedisError:
     if mode not in SUPPORTED_MODES:
         return RedisError.MODENOTSUPPORTED
 
