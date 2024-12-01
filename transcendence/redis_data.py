@@ -14,7 +14,7 @@ redis_instance = redis.Redis(host='db_redis', port=6379, db=0)
 room_data_sample = [
     {
         "room_id": "example_room_1",
-        "room_ownder": "player_id_1",
+        "room_owner": "player_id_1",
         "mode": "balance", #"shoot","bomb","remix"
         "avatars": [
             {"player_id": "example_player_id_1"},
