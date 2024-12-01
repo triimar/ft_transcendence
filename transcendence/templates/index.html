@@ -58,22 +58,10 @@
 	</td-lobby-room>
 	<td-room-setting-size class="ui"></td-room-setting-size>
 	<div class="ui ui-text"><p>More game options coming soon</p></div>
-	<!-- <td-tournament-tree style="
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: center;
-	gap: 0.4em;">
-	</td-tournament-tree> -->
-	<td-binary-tree></td-binary-tree>
-
-
-
-
-
-
-
+	<td-tournament-tree></td-tournament-tree>
 </template>
+
+
 
 <template id="page-main">
 	<style>
@@ -373,11 +361,11 @@
 	</style>
 	<div id="handle"></div>
 </template>
-<template id="component-binary-tree">
+<template id="component-tournament-tree">
 	<style>
 		:host {
 			display: block;
-			transform: scale(0.75);
+			/* transform: scale(0.75); */
 			transform-origin: center; /* Optional: adjust origin if centering is needed */
 		}
 		.tournament {
@@ -386,54 +374,17 @@
 			align-items: center;
 			margin-top: 50px;
 			}
-			.round {
-				display: flex;
-				justify-content: center;
+		.round {
+			display: flex;
+			justify-content: center;
 			}
-			.match {
-				display: flex;
-				flex-direction: row;
-				padding: 10px;
-			}
+		.match {
+			display: flex;
+			flex-direction: row;
+			padding: 10px;
+		}
 	</style>
 	<div class="tournament"></div>
-
-
-</template>
-
-
-<template id="component-tournament-tree">
-    <style>
-        .tournament-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .matchup {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: calc(var(--td-avatar-width) / 2);
-        }
-        .vs_line {
-            width: var(--td-border-size);
-            height: calc(var(--td-avatar-height)* 1.25);
-            background-color: var(--td-ui-font-color);
-            margin: 0 auto;
-        }
-
-		.ui {
-			border: var(--td-border-size) solid var(--td-ui-font-color);
-			box-sizing: border-box;
-			display: flex;
-			width: fit-content;
-			/* gap: em; */
-		}
-    </style>
-    <div class="tournament-container">
-    </div>
-	<div class="ui">
-	</div>
 </template>
 
 </html>

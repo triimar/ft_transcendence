@@ -1,88 +1,201 @@
 export default class ComponentTournamentTree extends HTMLElement {
-    constructor() {
-        super();
-        const template = document.getElementById('component-tournament-tree').content;
-        this.attachShadow({ mode: 'open' }).appendChild(template.cloneNode(true));
+	constructor() {
+		super();
+		const template = document.getElementById('component-tournament-tree').content;
+		this.attachShadow({ mode: 'open' }).appendChild(template.cloneNode(true));
 
-        // Avatars for players in matchups
-        this.avatars = [
-            { "avatar-name": "A.A", "avatar-background": "#FF5733" },
-            { "avatar-name": "pip", "avatar-background": "#33FF57" },
-            { "avatar-name": "wmw", "avatar-background": "#3357FF" },
-            { "avatar-name": "0)0", "avatar-background": "#FF33A6" }
-        ];
-        
-        // Audience avatars to be displayed in the UI box
-        this.audience_avatars = [
-            { "avatar-name": "E9E", "avatar-background": "#FFD133" },
-            { "avatar-name": "T.T", "avatar-background": "#A633FF" },
-            { "avatar-name": "$u$", "avatar-background": "#33FFF5" },
-            { "avatar-name": "HuH", "avatar-background": "#FF8333" }
-        ];
+		// Initialize the tournament data correctly
+		// this.tournamentData = {
+		// 	player_count: 8,
+		// 	round1: [
+		// 		{ 
+		// 			match_id: 1, 
+		// 			player1: { "avatar-name": "E9E", "avatar-background": "#FFD133" },
+		// 			player2: { "avatar-name": "T.T", "avatar-background": "#A633FF" },
+		// 			winner: { "avatar-name": "E9E", "avatar-background": "#FFD133" }
+		// 		},
+		// 		{ 
+		// 			match_id: 2, 
+		// 			player1: { "avatar-name": "$u$", "avatar-background": "#33FFF5" },
+		// 			player2: { "avatar-name": "HuH", "avatar-background": "#FF8333" },
+		// 			winner: { "avatar-name": "HuH", "avatar-background": "#FF8333" }
+		// 		},
+		// 		{
+		// 			match_id: 3,
+		// 			player1: { "avatar-name": "0)0", "avatar-background": "#FF33A6" },
+		// 			player2: { "avatar-name": "wmw", "avatar-background": "#3357FF" },
+		// 			winner: { "avatar-name": "0)0", "avatar-background": "#FF33A6" }
+		// 		},
+		// 		{
+		// 			match_id: 4,
+		// 			player1: { "avatar-name": "A.A", "avatar-background": "#FF5733" },
+		// 			player2: { "avatar-name": "pip", "avatar-background": "#33FF57" },
+		// 			winner: { "avatar-name": "pip", "avatar-background": "#33FF57" }
+		// 		}
+		// 	],
+		// 	round2: [
+		// 		{ 
+		// 			match_id: 1, 
+		// 			player1: { "avatar-name": "E9E", "avatar-background": "#FFD133" },
+		// 			player2: { "avatar-name": "HuH", "avatar-background": "#FF8333" },
+		// 			winner: { "avatar-name": "E9E", "avatar-background": "#FFD133" }
+		// 		},
+		// 		{ 
+		// 			match_id: 2, 
+		// 			player1: { "avatar-name": "0)0", "avatar-background": "#FF33A6" },
+		// 			player2: { "avatar-name": "pip", "avatar-background": "#33FF57" },
+		// 			winner: { "avatar-name": "pip", "avatar-background": "#33FF57" }
+		// 		}
+				
+		// 	],
+		// 	round3: [
+		// 		{ 
+		// 			match_id: 4, 
+		// 			player1: { "avatar-name": "E9E", "avatar-background": "#FFD133" },
+		// 			player2: { "avatar-name": "pip", "avatar-background": "#33FF57" },
+		// 			winner: null
+		// 		}
+		// 	]
+		// };
+		this.tournamentData = {
+			player_count: 8,
+			round1: [
+				{ 
+					match_id: 1, 
+					player1: { "avatar-name": "E9E", "avatar-background": "#FFD133" },
+					player2: { "avatar-name": "T.T", "avatar-background": "#A633FF" },
+					winner: { "avatar-name": "E9E", "avatar-background": "#FFD133" }
+				},
+				{ 
+					match_id: 2, 
+					player1: { "avatar-name": "$u$", "avatar-background": "#33FFF5" },
+					player2: { "avatar-name": "HuH", "avatar-background": "#FF8333" },
+					winner: null
+				},
+				{
+					match_id: 3,
+					player1: { "avatar-name": "0)0", "avatar-background": "#FF33A6" },
+					player2: { "avatar-name": "wmw", "avatar-background": "#3357FF" },
+					winner: null
+				},
+				{
+					match_id: 4,
+					player1: { "avatar-name": "A.A", "avatar-background": "#FF5733" },
+					player2: { "avatar-name": "pip", "avatar-background": "#33FF57" },
+					winner: null
+				}
+			],
+			round2: [
+				{ 
+					match_id: 1, 
+					player1: { "avatar-name": "E9E", "avatar-background": "#FFD133" },
+					player2: null,
+					winner: null
+				},
+				{ 
+					match_id: 2, 
+					player1: null,
+					player2: null,
+					winner: null
+				}
+				
+			],
+			round3: [
+				{ 
+					match_id: 4, 
+					player1: null,
+					player2: null,
+					winner: null
+				}
+			]
+		};
+	// 	this.tournamentData = {
+	// 		player_count: 4,
+	// 		round1: [
+	// 			{ 
+	// 				match_id: 1, 
+	// 				player1: { "avatar-name": "E9E", "avatar-background": "#FFD133" },
+	// 				player2: { "avatar-name": "T.T", "avatar-background": "#A633FF" },
+	// 				winner: { "avatar-name": "E9E", "avatar-background": "#FFD133" }
+	// 			},
+	// 			{ 
+	// 				match_id: 2, 
+	// 				player1: { "avatar-name": "$u$", "avatar-background": "#33FFF5" },
+	// 				player2: { "avatar-name": "HuH", "avatar-background": "#FF8333" },
+	// 				winner: { "avatar-name": "HuH", "avatar-background": "#FF8333" }
+	// 			},
+	// 		],
+	// 		round2: [
+	// 			{ 
+	// 				match_id: 1, 
+	// 				player1: { "avatar-name": "E9E", "avatar-background": "#FFD133" },
+	// 				player2: { "avatar-name": "HuH", "avatar-background": "#FF8333" },
+	// 				winner: null
+	// 			},
+	// 		]
+	// 	};
+		
+	}
 
-        // Create matchups for the tournament
-        this.matchups = this.createMatchups(this.avatars);
-    }
+	connectedCallback() {
+		// Pass the tournament data to the renderTree method
+		this.renderTree(this.tournamentData);
+	}
 
-    // Generate pairs of avatars for each matchup
-    createMatchups(avatars) {
-        const matchups = [];
-        for (let i = 0; i < avatars.length; i += 2) {
-            if (avatars[i + 1]) {
-                matchups.push({ player1: avatars[i], player2: avatars[i + 1] });
-            }
-        }
-        return matchups;
-    }
-
-    // Populate the .ui box with audience avatars
-    createAudienceBox() {
-        const uiBox = this.shadowRoot.querySelector('.ui');
-        uiBox.innerHTML = ''; // Clear any existing audience avatars
-
-        this.audience_avatars.forEach(avatar => {
-            const audienceAvatar = document.createElement('td-avatar');
-            audienceAvatar.setAttribute('avatar-name', avatar["avatar-name"]);
-            audienceAvatar.setAttribute('avatar-background', avatar["avatar-background"]);
-            uiBox.appendChild(audienceAvatar);
-        });
-    }
-
-    connectedCallback() {
-        this.render();
-        this.createAudienceBox(); // Populate the UI box with audience avatars
-    }
-
-    render() {
-        const container = this.shadowRoot.querySelector('.tournament-container');
-        container.innerHTML = ''; // Clear existing matchups
-
-        // Iterate over matchups and render each
-        this.matchups.forEach(match => {
-            const matchupDiv = document.createElement('div');
-            matchupDiv.classList.add('matchup');
-
-            // Player 1 Avatar (using <td-avatar> component)
-            const player1 = document.createElement('td-avatar');
-            player1.setAttribute('avatar-name', match.player1["avatar-name"]);
-            player1.setAttribute('avatar-background', match.player1["avatar-background"]);
-
-            // Player 2 Avatar (using <td-avatar> component)
-            const player2 = document.createElement('td-avatar');
-            player2.setAttribute('avatar-name', match.player2["avatar-name"]);
-            player2.setAttribute('avatar-background', match.player2["avatar-background"]);
-
-            // Versus line between avatars
-            const vs_line = document.createElement('div');
-            vs_line.classList.add('vs_line');
-
-            // Append avatars and vs line to the matchup div
-            matchupDiv.appendChild(player1);
-            matchupDiv.appendChild(vs_line);
-            matchupDiv.appendChild(player2);
-
-            // Add the matchup div to the tournament container
-            container.appendChild(matchupDiv);
-        });
-    }
+	renderTree(tournamentData) {
+		const tournamentContainer = this.shadowRoot.querySelector('.tournament');
+		tournamentContainer.innerHTML = ''; // Clear previous tree render
+	
+		// Helper function to create a player avatar
+		const createAvatar = (player, winner) => {
+			const avatar = document.createElement('td-avatar');
+	
+			// Set default values if player doesn't exist
+			const playerName = player ? player["avatar-name"] : "???";
+			const playerBackground = player ? player["avatar-background"] : "#C8C8C8";
+	
+			avatar.setAttribute('avatar-name', playerName);
+			if (winner && winner["avatar-name"] !== playerName) {
+				avatar.setAttribute('avatar-background', "#C8C8C8");
+			} else {
+				avatar.setAttribute('avatar-background', playerBackground);
+			}
+			return avatar;
+		};
+	
+		// Helper function to create a row of matches
+		const createRoundRow = (roundMatches) => {
+			const rowDiv = document.createElement('div');
+			rowDiv.className = 'round';
+	
+			roundMatches.forEach(match => {
+				const matchDiv = document.createElement('div');
+				matchDiv.className = 'match';
+	
+				// Create and append Player avatars
+				const avatar1 = createAvatar(match.player1, match.winner);
+				matchDiv.appendChild(avatar1);
+				const avatar2 = createAvatar(match.player2, match.winner);
+				matchDiv.appendChild(avatar2);
+	
+				rowDiv.appendChild(matchDiv);
+			});
+	
+			return rowDiv;
+		};
+	
+		// Dynamically determine and process rounds
+		const rounds = Object.keys(tournamentData)
+			.filter(key => key.startsWith('round')) // Only include "round" keys
+			.sort((a, b) => b.localeCompare(a)); // Sort rounds in reverse order
+	
+		rounds.forEach(roundKey => {
+			const roundMatches = tournamentData[roundKey];
+			if (roundMatches && roundMatches.length > 0) {
+				const roundRow = createRoundRow(roundMatches);
+				tournamentContainer.appendChild(roundRow);
+			}
+		});
+	}
+	
 }
