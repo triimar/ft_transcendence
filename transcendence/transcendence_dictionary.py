@@ -30,28 +30,31 @@ room_data_sample = [
 player_data_sample = [
     {
         'player_id': 'example_player_id_1',
-        'look': {'color': 'blue', 'avatar': 'Q-Q'},
+        'player_emoji': 'Q-Q',
+        'player_bg_color': 'ffffff',
         'position': 50,
         'size': 15,
         'score': 0
     },
     {
         'player_id': 'example_player_id_2',
-        'look': {'color': 'yellow', 'avatar': 'T-T'},
+        'player_emoji': '-_-',
+        'player_bg_color': 'ff000',
         'position': 50,
         'size': 15,
         'score': 0
     },
     {
         'player_id': 'example_player_id_3',
-        'look':{'color': 'green', 'avatar': 'O_O'},
+        'player_emoji': 'O-O',
+        'player_bg_color': 'ff000',
         'position': 50,
         'size': 15,
         'score': 0
     }
 ]
 
-matches = [
+match_data_sample = [
     {
         'match_id': 'example_match_id_1',
         'ready': 1,
@@ -61,7 +64,7 @@ matches = [
             'velocity': {'vx': 5, 'vy': 5},
             'size': 15
         },
-        'winner':'player1'
+        'winner':'player_id_1'
     },
     {
         'match_id': 'example_match_id_2',
@@ -72,6 +75,6 @@ matches = [
             'velocity': {'vx': 5, 'vy': 5},
             'size': 15
         },
-        'winner':'player1'
+        'winner':'player_id_3'
     }
 ]

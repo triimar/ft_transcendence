@@ -42,6 +42,10 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 await self.add_room_group(owner_id)
             case {"type": "player_ready", "room_id": room_id, "player_id": player_id}:
                 await self.mark_player_ready(room_id, player_id)
+            case {"type": "create_matches", "room_id": room_id}:
+                await self.create_matches(room_id)
+            case {"type": "join_match", "room_id": room_id, "player_id": player_id}:
+                await self.join_match(room_id, player_id) # TODO
 
     async def join_room_group(self, room_id, player_id):
         self.room_group_name = room_id
@@ -85,51 +89,39 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(self.room_group_name, event=event_add_room)
         await self.send(text_data=json.dumps({"type": "ack_add_room", "single_room_data": added_room}))
 
-    async def mark_player_ready(self, room_id, player_id):
-        await data.mark_player_ready(room_id, player_id)
-        room_data = await data.get_one_room_data(room_id)
-        if room_data and all(player['ready'] for player in room_data['players'].values()):
-            await self.create_matches(room_id, room_data['players'])
+    async def mark_player_ready(self):
+        room_data = await data.get_one_room_data(self.room_group_name)
+        room_data['prepared_count'] += 1
+        data.update_room(room_data)
+        if room_data and room_data['prepared_count'] == room_data['max_player']:
+            text_data = json.dumps({'type': 'players_ready', 'room_id':self.room_group_name, 'room_owner':room_data['room_owner']})
+            await self.channel_layer.group_send(self.room_group_name, event=text_data)
    
-    async def create_matches(self, room_id, players):
+    async def create_matches(self, room_id):
+        room_data = data.get_one_room_data(room_id)
+        players = room_data['avatars']
         player_ids = list(players.keys())
-        matches = {}
-        match_groups = []
+        matches = []
         for i in range(0, len(player_ids), 2):
             if i + 1 < len(player_ids):
                 match_id = shortuuid.ShortUUID().random(length=15)
                 match_group_name = f'match_{match_id}'
-                match_groups.append(match_group_name)
-                matches[match_id] = {
-                    'players': {
-                        player_ids[i]: players[player_ids[i]],
-                        player_ids[i + 1]: players[player_ids[i + 1]],
-                    },
+                matches.append({
+                    'match_id': match_id,
+                    'ready': 0,
+                    'players': [player_ids[i], player_ids[i + 1]],
                     'ball': {
                         'position': {'x': 50, 'y': 50},
                         'velocity': {'vx': 5, 'vy': 5},
                         'size': 15
                     },
                     'winner': None
-                }
+                })
 
-        await data.save_matches(room_id, matches)
-
-        # Add players to match groups and notify them
-        for match_id, match_data in matches.items():
-            match_group_name = f'match_{match_id}'
-            for player_id in match_data['players']:
-                # Add the player to the match group
-                await self.channel_layer.group_add(
-                    match_group_name,
-                    self.channel_name
-                )
-                self.joined_group.append(match_group_name)
-            # Notify players in the room about the match creation
-            event_matches = {"type": "matches_created", "matches": {match_id: match_data}}
-            await self.channel_layer.group_send(room_id, event=event_matches)
-            # Also send the match creation event to the match group
-            await self.channel_layer.group_send(match_group_name, event=event_matches)
+        await data.update_full_matches(self.room_group_name, matches)
+        # Notify players in the room about the match creation
+        event_matches = {"type": "matches_created"}
+        await self.channel_layer.group_send(self.room_group_name, event=event_matches)
 
     # Handlers for sending messages to WebSocket
     async def join_room(self, event):
