@@ -1,4 +1,4 @@
-import { myself } from "../myself.js"
+import { myself } from "./myself.js"
 export class PageAiGame {
 	constructor(container) {
 		this.templateId = "page-ai-game";
@@ -127,11 +127,19 @@ export class PageRoom {
 	attachEvents() {
 		let leaveRoomButton = this.container.querySelector("#leave-room-btn");	
 		this.leaveRoomFunc = () => {
-			myself.sendMessageLeaveRoom(myself.roomId);
+			history.back();
 		};
 		leaveRoomButton.addEventListener("click", this.leaveRoomFunc);
+
+		let roomId = myself.roomId;
+		this.preventBackButtonFunc = () => {
+			myself.sendMessageLeaveRoom(roomId);
+			history.pushState(null, document.title, location.href);
+		};
+		window.addEventListener("popstate", this.preventBackButtonFunc);
 	}
 
 	removeEvents() {
+		window.removeEventListener("popstate", this.preventBackButtonFunc);
 	}
 }
