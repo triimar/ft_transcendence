@@ -148,7 +148,7 @@ class Visitor {
 				break;
 			case "ack_add_room":
 				let roomId = message["room_id"];
-				window.location.href = "#room" + roomId;
+				window.location.hash = "#room" + roomId;
 				break;
 			case "ack_leave_room":
 				window.location.href = "#main";
