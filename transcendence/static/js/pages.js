@@ -140,10 +140,17 @@ export class PageRoom {
 			let confirmToLogOutPopup = this.container.querySelector("#confirm-to-logout-popup");
 			confirmToLogOutPopup.classList.remove("show");
 		});
+		this.beforeUnloadFunc = ((e) => {
+			e.preventDefault();
+			e.returnValue = true;
+		});
+		window.addEventListener("beforeunload", this.beforeUnloadFunc);
 	}
 
 	removeEvents() {
-		window.removeEventListener("popstate", this.preventBackButtonFunc);
+		window.removeEventListener("beforeunload", this.beforeUnloadFunc);
+	}
+
 	beforeOnHashChange() {
 		// Note(HeiYiu): if the user is not logged out
 		if (this.displayConfirmPopup && (myself.id != null)) {
