@@ -48,6 +48,16 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 await self.join_match(room_id, player_id) # TODO
             case {"type": "player_match_ready"}:
                 await self.start_game(self)
+            case {"type": "bounce_ball", "ball": ball}:
+                await self.bounce_ball(self, ball)
+            case {"type": "paddle_move", "position": position}:
+                await self.paddle_move(self, position)
+            case {"type": "scored_point"}:
+                await self.score_point(self)
+            case {"type": "ai_score_player"}:
+                await self.ai_score_point(self, self.player_id)
+            case {"type": "ai_score_ai"}:
+                await self.ai_score_point(self, "ai")
 
     async def join_room_group(self, room_id, player_id):
         self.room_group_name = room_id
@@ -151,8 +161,65 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         room = data.get_one_room_data(self.room_group_name)
         game_match = room['matches'][self.match_id]
         game_match['ready'] += 1
+        player = data.get_one_player(self.player_id)
+        player['score'] = 0
         if (game_match['ready'] == 2):
-            message = {"type": "start_game"}
-            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id)
+            message = {"type": "start_game", 'ball': game_match['ball']}
+            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+        await data.update_room(room)
+        await data.update_player(player)
+    
+    async def bounce_ball(self, ball):
+        room = data.get_one_room_data(self.room_group_name)
+        match_data = room['matches'][self.match_id]
+        ball_data = match_data['ball']
+        ball_data = ball
+        await data.update_room(room)
+        message = {"type": "b_bounce_ball", "ball": ball_data}
+        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+    
+    async def paddle_move(self, position):
+        room = data.get_one_room_data(self.room_group_name)
+        match_data = room['matches'][self.match_id]
+        player_data = data.get_one_player(self.player_id)
+        player_side = 0
+        if match_data['players'][1] == self.player_id:
+            player_side = 1
+        player_data['position'] = position
+        message = {"type": "b_paddle_bounce", "position": position, "paddle": player_side}
+        await data.update_player(player_data)
+        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+
+    async def score_point(self):
+        room = data.get_one_room_data(self.room_group_name)
+        match_data = room['matches'][self.match_id]
+        player_data = data.get_one_player(self.player_id)
+        player_data['score'] += 1
+        if (player_data['score'] == 11):
+            message = {"type": "match_win", "winner": player_data['player_emoji']}
+            match_data['winner'] = self.player_id
+            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+            await data.update_room(room)
+        await data.update_player(player_data)
+        player_side = 0
+        if match_data['players'][1] == self.player_id:
+            player_side = 1
+        message = {"type": "b_scored_point", 'player': player_side}
+        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
             
-            
+    async def ai_score_point(self, id):
+        room = data.get_one_room_data(self.room_group_name)
+        match_data = room["matches"][self.match_id]
+        player = room['ai']
+        if id != "ai":
+            player = data.get_one_player(self.player_id)
+            player['score'] += 1
+            await data.update_player(player)
+            message = {"type": "match_win", "winner": player['player_emoji']}
+        else:
+            player['score'] += 1
+            message = {"type": "match_win", "winner": "ai"}
+        if player['score'] == 11:
+            match_data['winner'] = id
+            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+        await data.update_room(room)

@@ -10,15 +10,14 @@ room_data_sample = [
         ], # can be list
         'prepared_count': 1,
         'max_player': 3,
-        'ai': {'x': 50, 'y': 50, 'size': 15},
+        'ai': {'score': 0},
         'matches':[
             {
                 'ready': 1,
                 'players': ['player_id_1', 'player_id_2'],
                 'ball': {
                     'position': {'x': 50, 'y': 50},
-                    'velocity': {'vx': 5, 'vy': 5},
-                    'size': 15
+                    'velocity': {'vx': 5, 'vy': 5}
                 },
                 'winner':'player_id_1'
             },
@@ -27,8 +26,7 @@ room_data_sample = [
                 'players': ['player_id_3', 'player_id_4'],
                 'ball': {
                     'position': {'x': 50, 'y': 50},
-                    'velocity': {'vx': 5, 'vy': 5},
-                    'size': 15
+                    'velocity': {'vx': 5, 'vy': 5}
                 },
                 'winner':'player_id_3'
             }
@@ -45,7 +43,7 @@ room_data_sample = [
         ],
         'prepared_count': 1,
         'max_player': 5,
-        'ai': {'x': 50, 'y': 50, 'size': 15},
+        'ai': {'score': 0},
         'matches':[
             {
                 'match_id': 'example_match_id_1',
