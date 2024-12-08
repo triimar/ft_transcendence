@@ -48,6 +48,8 @@ async function main() {
 		currentPage = new pageClass(contentContainer);
 		myself.page = currentPage;
 		myself.pageName = pageName;
+		myself.roomId = roomId;
+		myself.gameIndex= gameIndex;
 		renderTemplate(contentContainer, currentPage.templateId);
 		currentPage.attachEvents();
 		if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
@@ -70,6 +72,8 @@ async function main() {
 	currentPage = new pageClass(contentContainer);
 	myself.page = currentPage;
 	myself.pageName = pageName;
+	myself.roomId = roomId;
+	myself.gameIndex= gameIndex;
 	renderTemplate(contentContainer, currentPage.templateId);
 	currentPage.attachEvents();
 	if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);

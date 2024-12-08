@@ -2,6 +2,8 @@ class Visitor {
 	constructor() {
 		this.page = null;
 		this.pageName = null;
+		this.roomId = null;
+		this.gameIndex = null;
 		this.pageFinishedRendering = false; // Note(HeiYiu): this is a mutex that make sure the template is rendered before receiving incoming websocket message that will change the UI tree
 		this.id = null;
 		this.avatar_emoji = null;
@@ -148,6 +150,11 @@ class Visitor {
 				let roomId = message["room_id"];
 				window.location.href = "#room" + roomId;
 				break;
+			case "ack_leave_room":
+				window.location.href = "#main";
+				break;
+			case "b_leave_room":
+				break;
 			case "error":
 				this.displayPopupMessage(message.message);
 				if (message["redirect_hash"]) window.location.href = '#' + message["redirect_hash"];
@@ -237,6 +244,15 @@ class Visitor {
 		let message = {
 			type: "add_room",
 			"owner_id": this.id
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageLeaveRoom(roomId) {
+		let message = {
+			type: "leave_room",
+			"room_id": roomId,
+			"player_id": this.id
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
