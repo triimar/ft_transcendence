@@ -122,6 +122,8 @@ export class PageRoom {
 	constructor(container) {
 		this.templateId = "page-room";
 		this.container = container;
+		this.displayConfirmPopup = true;
+		this.confirmPopupRedirectPageHash = null;
 	}
 
 	attachEvents() {
@@ -130,14 +132,26 @@ export class PageRoom {
 			location.hash = "#main";
 		});
 		let roomId = myself.roomId;
-		this.preventBackButtonFunc = () => {
+		this.container.querySelector("#yes-btn").addEventListener("click", () => {
+			this.displayConfirmPopup = false;
 			myself.sendMessageLeaveRoom(roomId);
-			history.pushState(null, document.title, location.href);
-		};
-		window.addEventListener("popstate", this.preventBackButtonFunc);
+		});
+		this.container.querySelector("#no-btn").addEventListener("click", () => {
+			let confirmToLogOutPopup = this.container.querySelector("#confirm-to-logout-popup");
+			confirmToLogOutPopup.classList.remove("show");
+		});
 	}
 
 	removeEvents() {
 		window.removeEventListener("popstate", this.preventBackButtonFunc);
+	beforeOnHashChange() {
+		// Note(HeiYiu): if the user is not logged out
+		if (this.displayConfirmPopup && (myself.id != null)) {
+			history.replaceState(null, document.title, this.previousHref);
+			let confirmToLogOutPopup = this.container.querySelector("#confirm-to-logout-popup");
+			confirmToLogOutPopup.classList.add("show");
+			return true;
+		}
+		return false;
 	}
 }

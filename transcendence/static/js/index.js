@@ -30,6 +30,9 @@ async function main() {
 			isTriggerHashChange = true;
 			return;
 		}
+		if ((currentPage.beforeOnHashChange != null) && (currentPage.beforeOnHashChange() == true)) {
+			return;
+		}
 		currentPage.removeEvents();
 		myself.pageFinishedRendering = false;
 		let pageHash = getPageHashFromURL(location);

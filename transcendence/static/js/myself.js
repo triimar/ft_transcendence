@@ -151,7 +151,8 @@ class Visitor {
 				window.location.hash = "#room" + roomId;
 				break;
 			case "ack_leave_room":
-				window.location.href = "#main";
+				console.assert(this.pageName == "room");
+				window.location.hash = "#main";
 				break;
 			case "b_leave_room":
 				break;
