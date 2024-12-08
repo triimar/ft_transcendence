@@ -152,7 +152,7 @@ class Visitor {
 				break;
 			case "ack_leave_room":
 				console.assert(this.pageName == "room");
-				window.location.hash = "#main";
+				window.location.hash = this.page.confirmPopupRedirectPageHash;
 				break;
 			case "b_leave_room":
 				break;

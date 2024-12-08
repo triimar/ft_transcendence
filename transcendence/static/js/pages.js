@@ -147,6 +147,7 @@ export class PageRoom {
 	beforeOnHashChange() {
 		// Note(HeiYiu): if the user is not logged out
 		if (this.displayConfirmPopup && (myself.id != null)) {
+			this.confirmPopupRedirectPageHash = window.location.hash;
 			history.replaceState(null, document.title, this.previousHref);
 			let confirmToLogOutPopup = this.container.querySelector("#confirm-to-logout-popup");
 			confirmToLogOutPopup.classList.add("show");
