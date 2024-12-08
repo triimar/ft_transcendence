@@ -158,7 +158,13 @@ class Visitor {
 				break;
 			case "error":
 				this.displayPopupMessage(message.message);
-				if (message["redirect_hash"]) window.location.href = '#' + message["redirect_hash"];
+				if (message["redirect_hash"]) {
+					if (this.pageName == "room")
+					{
+						this.page.displayConfirmPopup = false;
+					}
+					window.location.href = '#' + message["redirect_hash"];
+				}
 				break;
 			default:
 				console.error("Received unknown websocket message type");
