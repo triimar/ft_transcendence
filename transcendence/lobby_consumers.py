@@ -91,7 +91,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             case {"type": "leave_room","room_id": room_id,"player_id": player_id}:
                 current_room = await data.get_one_room_data(room_id)
                 await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-                if len(current_room["avatarts"]) != 1:
+                if len(current_room["avatars"]) != 1:
                     if current_room["room_owner"] == player_id:
                         new_room_owner = await data.update_room_owner(room_id, player_id)
                         event_leave_room = {"type": "leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "new_room_onwer": new_room_owner}
@@ -105,8 +105,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_send(self.lobby_group_name, event_leave_room)
                 await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
                 self.join_group = ["lobby"]
-                room_list = await data.get_full_room_data()
-                await self.send(text_data=json.dumps({"type": "ack_leave_room", "rooms": room_list}))
+                await self.send(text_data=json.dumps({"type": "ack_leave_room"}))
 
 
             case {"type": "max_player","room_id": room_id, "max_player_num": max_player_num}:
