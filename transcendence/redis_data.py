@@ -77,8 +77,6 @@ match_data_sample = [
 ]
 redis_instance.set("match_data", json.dumps(match_data_sample))
 
-redis_instance.set('player_channels', json.dumps(player_channels))
-
 async def add_player_channel(player_id, channel_name):
     channels = json.loads(await redis_instance.get("player_channels"))
     channels[player_id] = channel_name
@@ -201,12 +199,12 @@ async def update_full_matches(updated_matches):
 	redis_instance = await get_redis_client()
 	await redis_instance.set('match_data', json.dumps(updated_matches))
 
-async def get_one_match_data(match_id) -> dict|None:
+async def get_one_match_data(room_id, match_id) -> dict|None:
     redis_instance = await get_redis_client()
-    match_data = json.loads(await redis_instance.get("match_data"))
-    one_match = next((match for match in match_data if match["match_id"] == match_id), None)
+    room_data = await get_one_room_data(room_id)
+    match_data = room_data['matches'][match_id]
     
-    return one_match
+    return match_data
 
 # Update playar data with new player data
 async def update_match(updated_match):

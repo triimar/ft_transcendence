@@ -46,6 +46,8 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 await self.create_matches(room_id)
             case {"type": "join_match", "room_id": room_id, "player_id": player_id}:
                 await self.join_match(room_id, player_id) # TODO
+            case {"type": "player_match_ready"}:
+                await self.start_game(self)
 
     async def join_room_group(self, room_id, player_id):
         self.room_group_name = room_id
@@ -144,3 +146,13 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
     async def matches_created(self, event):
         await self.send(text_data=json.dumps(event))
+    
+    async def start_game(self):
+        room = data.get_one_room_data(self.room_group_name)
+        game_match = room['matches'][self.match_id]
+        game_match['ready'] += 1
+        if (game_match['ready'] == 2):
+            message = {"type": "start_game"}
+            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id)
+            
+            

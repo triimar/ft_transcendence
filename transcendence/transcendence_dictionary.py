@@ -10,7 +10,29 @@ room_data_sample = [
         ], # can be list
         'prepared_count': 1,
         'max_player': 3,
-        'matches':['match_id_1', 'match_id_2']
+        'ai': {'x': 50, 'y': 50, 'size': 15},
+        'matches':[
+            {
+                'ready': 1,
+                'players': ['player_id_1', 'player_id_2'],
+                'ball': {
+                    'position': {'x': 50, 'y': 50},
+                    'velocity': {'vx': 5, 'vy': 5},
+                    'size': 15
+                },
+                'winner':'player_id_1'
+            },
+            {
+                'ready': 1,
+                'players': ['player_id_3', 'player_id_4'],
+                'ball': {
+                    'position': {'x': 50, 'y': 50},
+                    'velocity': {'vx': 5, 'vy': 5},
+                    'size': 15
+                },
+                'winner':'player_id_3'
+            }
+        ]
     },
     {
         'room_id': 'example_room_2',
@@ -23,7 +45,31 @@ room_data_sample = [
         ],
         'prepared_count': 1,
         'max_player': 5,
-        'matches':['match_id_3', 'match_id_4']
+        'ai': {'x': 50, 'y': 50, 'size': 15},
+        'matches':[
+            {
+                'match_id': 'example_match_id_1',
+                'ready': 1,
+                'players': ['player_id_1', 'player_id_2'],
+                'ball': {
+                    'position': {'x': 50, 'y': 50},
+                    'velocity': {'vx': 5, 'vy': 5},
+                    'size': 15
+                },
+                'winner':'player_id_1'
+            },
+            {
+                'match_id': 'example_match_id_2',
+                'ready': 1,
+                'players': ['player_id_3', 'player_id_4'],
+                'ball': {
+                    'position': {'x': 50, 'y': 50},
+                    'velocity': {'vx': 5, 'vy': 5},
+                    'size': 15
+                },
+                'winner':'player_id_3'
+            }
+        ]
     },
 ]
 
@@ -51,30 +97,5 @@ player_data_sample = [
         'position': 50,
         'size': 15,
         'score': 0
-    }
-]
-
-match_data_sample = [
-    {
-        'match_id': 'example_match_id_1',
-        'ready': 1,
-        'players': ['player_id_1', 'player_id_2'],
-        'ball': {
-            'position': {'x': 50, 'y': 50},
-            'velocity': {'vx': 5, 'vy': 5},
-            'size': 15
-        },
-        'winner':'player_id_1'
-    },
-    {
-        'match_id': 'example_match_id_2',
-        'ready': 1,
-        'players': ['player_id_3', 'player_id_4'],
-        'ball': {
-            'position': {'x': 50, 'y': 50},
-            'velocity': {'vx': 5, 'vy': 5},
-            'size': 15
-        },
-        'winner':'player_id_3'
     }
 ]
