@@ -125,12 +125,10 @@ export class PageRoom {
 	}
 
 	attachEvents() {
-		let leaveRoomButton = this.container.querySelector("#leave-room-btn");	
-		this.leaveRoomFunc = () => {
-			history.back();
-		};
-		leaveRoomButton.addEventListener("click", this.leaveRoomFunc);
-
+		this.previousHref = location.href;
+		this.container.querySelector("#leave-room-btn").addEventListener("click", () => {
+			location.hash = "#main";
+		});
 		let roomId = myself.roomId;
 		this.preventBackButtonFunc = () => {
 			myself.sendMessageLeaveRoom(roomId);
