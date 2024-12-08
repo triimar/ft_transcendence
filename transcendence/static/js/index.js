@@ -8,13 +8,7 @@ import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
 import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
-
-import PageError from "./pages/PageError.js";
-import PageLogin from "./pages/PageLogin.js";
-import PageGame from "./pages/PageGame.js";
-import PageAiGame from "./pages/PageAiGame.js";
-import PageRoom from "./pages/PageRoom.js";
-import PageMain from "./pages/PageMain.js";
+import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain } from "./pages.js";
 
 import { myself } from "./myself.js";
 
