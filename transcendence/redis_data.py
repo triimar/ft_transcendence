@@ -182,14 +182,11 @@ async def delete_one_player_from_room(room_id, player_id):
 
     room_data = json.loads(await redis_instance.get("room_data"))
 
-
     for room in room_data:
         if room["room_id"] == room_id:
             room["avatars"] = [avatar for avatar in room["avatars"] if avatar["player_id"] != player_id]
             room["prepared_count"] -= 1
-
-
-    redis_instance.set("room_data", json.dumps(room_data))
+    await redis_instance.set("room_data", json.dumps(room_data))
 
 async def update_room_owner(room_id, player_id):
     redis_instance = await get_redis_client()
@@ -203,7 +200,7 @@ async def update_room_owner(room_id, player_id):
             room["room_owner"] = room["avatars"][0]["player_id"]
             room["prepared_count"] -= 1
 
-    redis_instance.set("room_data", json.dumps(room_data))
+    await redis_instance.set("room_data", json.dumps(room_data))
 
 # update room data
 async def update_max_player_num_in_one_room(room_id, max_player_num) -> RedisError:
