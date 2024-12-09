@@ -81,12 +81,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                         self.channel_name
                 )
                 self.joined_group = ["room"]
-                owner_avatar = await data.get_one_player(owner_id)
-                if owner_avatar is not None:
-                    event_add_room = {"type": "add.room", "room_id": room_id, "avatar": owner_avatar}
-                else:
-                    event_add_room = {"type": "add.room", "room_id": room_id}
-                await self.channel_layer.group_send(self.room_group_name, event_add_room)
                 await self.send(text_data=json.dumps({"type": "ack_add_room", "room_id": room_id}))
             case {"type": "leave_room","room_id": room_id,"player_id": player_id}:
                 current_room = await data.get_one_room_data(room_id)
@@ -141,8 +135,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     case data.RedisError.NOPLAYERFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
 
-
-
 	# functions for dealing with events
     async def join_room(self, event):
         room_id = event["room_id"]
@@ -151,15 +143,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             text_data = json.dumps({"type": "b_join_room", "room_id": room_id, "avatar": avatar})
         except KeyError as e:
             text_data = json.dumps({"type": "b_join_room", "room_id": room_id, "avatar": "Cannot get the certain player who joined the room!"})
-        await self.send(text_data=text_data)
-
-    async def add_room(self, event):
-        room_id = event["room_id"]
-        try:
-            owner_avatar = event["avatar"]
-            text_data = json.dumps({"type": "b_add_room", "room_id": room_id, "owner_avatar": owner_avatar })
-        except KeyError as e:
-            text_data = json.dumps({"type": "b_add_room", "room_id": room_id, "owner_avatar": "Cannot get room owner's avatar!" })
         await self.send(text_data=text_data)
 
     async def leave_room(self, event):
@@ -174,12 +157,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             except KeyError as e:
                 text_data = json.dumps({"type":"b_leave_room", "room_id": room_id, "player_id": player_id})
         await self.send(text_data=text_data)
-
-
-
-
-
-
 
     async def update_maxplayernum(self, event):
         room_id = event["room_id"]
@@ -205,10 +182,3 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         else:
             text_data = json.dumps({"type": "b_prepare_game", "room_id": room_id, "player_id":player_id})
         await self.send(text_data=text_data)
-
-
-
-
-
-
-

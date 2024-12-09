@@ -168,9 +168,6 @@ class Visitor {
 				let settingSizeElement = this.page.container.querySelector("td-room-setting-size");
 				settingSizeElement.size = room.avatars.length;
 				break;
-			case "b_add_room":
-				// TODO(HeiYiu): Append a room to lobby page
-				break;
 			case "ack_add_room":
 				let roomId = message["room_id"];
 				window.location.hash = "#room" + roomId;
