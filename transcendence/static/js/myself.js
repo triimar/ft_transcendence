@@ -120,11 +120,36 @@ class Visitor {
 				}
 				this.page.container.appendChild(fragment);
 				break;
-			case "b_join_room":
-				if (this.pageName == "main") {
-
-				} else if (this.pageName == "room") {
-
+			case "b_join_room": {
+				let avatar = message["avatar"];
+				if (avatar["player_id"] != this.id) {
+					let roomId = message["room_id"];
+					if (this.pageName == "main") {
+						let rooms = this.page.container.querySelectorAll("td-lobby-room");
+						let roomExisted = false;
+						for (let room of rooms) {
+							if (room.getAttribute("room-id") == roomId) {
+								roomExisted = true;
+								room.addParticipant(avatar["player_emoji"], '#' + avatar["player_bg_color"], avatar["player_id"]);
+								break;
+							}
+						}
+						if (!roomExisted) {
+							let roomElement = document.createElement("td-lobby-room");
+							let avatarElement = document.createElement("td-avatar");
+							avatarElement.setAttribute("avatar-name", avatar["player_emoji"]);
+							avatarElement.setAttribute("avatar-background", '#' + avatar["player_bg_color"]);
+							avatarElement.setAttribute("avatar-id", avatar["player_id"]);
+							roomElement.appendChild(avatarElement);
+							roomElement.setAttribute("room-max", "2");
+							roomElement.setAttribute("room-id", roomId);
+							roomElement.classList.add("ui");
+							this.page.container.appendChild(roomElement);
+						}
+					} else if (this.pageName == "room") {
+						let roomElement = this.page.container.querySelector("td-lobby-room");
+						roomElement.addParticipant(avatar["player_emoji"], '#' + avatar["player_bg_color"], avatar["player_id"]);
+					}
 				}
 				break;
 			case "ack_join_room":
