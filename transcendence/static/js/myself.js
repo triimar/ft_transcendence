@@ -100,7 +100,7 @@ class Visitor {
 			const message = JSON.parse(event.data);
 			console.log("Incoming message:", message);
 			switch (message.type) {
-			case "ack_init":
+			case "ack_init": {
 				await this.waitForPageToRender();
 				// Note(HeiYiu): get list of rooms and render them
 				let fragment = document.createDocumentFragment();
@@ -119,7 +119,7 @@ class Visitor {
 					fragment.appendChild(roomElement);
 				}
 				this.page.container.appendChild(fragment);
-				break;
+			} break;
 			case "b_join_room": {
 				let avatar = message["avatar"];
 				if (avatar["player_id"] != this.id) {
@@ -151,8 +151,8 @@ class Visitor {
 						roomElement.addParticipant(avatar["player_emoji"], '#' + avatar["player_bg_color"], avatar["player_id"]);
 					}
 				}
-				break;
-			case "ack_join_room":
+			} break;
+			case "ack_join_room": {
 				await this.waitForPageToRender();
 				let roomElement = this.page.container.querySelector("td-lobby-room");
 				let room = message["single_room_data"];
@@ -167,17 +167,15 @@ class Visitor {
 				roomElement.setAttribute("room-max", room["max_player"]);
 				let settingSizeElement = this.page.container.querySelector("td-room-setting-size");
 				settingSizeElement.size = room.avatars.length;
-				break;
-			case "ack_add_room":
+			} break;
+			case "ack_add_room": {
 				let roomId = message["room_id"];
 				window.location.hash = "#room" + roomId;
-				break;
-			case "ack_leave_room":
+			} break;
+			case "ack_leave_room": {
 				console.assert(this.pageName == "room", `ack_leave_room should only be received in room page, but has pageName ${this.pageName}`);
 				window.location.hash = this.page.confirmPopupRedirectPageHash;
-				break;
-			case "b_leave_room":
-				break;
+			} break;
 			case "b_leave_room": {
 				if (message["player_id"] != this.id) {
 					let roomId = message["room_id"];
@@ -204,9 +202,10 @@ class Visitor {
 					}
 					window.location.href = '#' + message["redirect_hash"];
 				}
-				break;
-			default:
+			} break;
+			default: {
 				console.error("Received unknown websocket message type");
+			}
 			}
 		});
 		this.ws.addEventListener("close", function (event) {
