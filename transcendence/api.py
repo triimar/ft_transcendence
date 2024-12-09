@@ -66,7 +66,7 @@ async def guest_login(request):
         key='jwt', 
         value=jwt_token, 
         httponly=False,  # make the cookie inaccessible to js
-        secure=True,  # ensure the cookie is sent over HTTPS
+        secure=False,  # TODO: make it True in production to ensure the cookie is sent over HTTPS
         samesite='Lax'  # define when to allow the cookie to be sent
     )
     return response
@@ -143,7 +143,7 @@ async def oauth_callback(request):
         key='jwt', 
         value=jwt_token, 
         httponly=False,  # make the cookie inaccessible to js
-        secure=True,  # ensure the cookie is sent over HTTPS
+        secure=False, # TODO: make it True in production to ensure the cookie is sent over HTTPS
         samesite='Lax'  # define when to allow the cookie to be sent
     )
     return response
