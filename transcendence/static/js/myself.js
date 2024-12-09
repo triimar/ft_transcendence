@@ -181,7 +181,24 @@ class Visitor {
 				break;
 			case "b_leave_room":
 				break;
-			case "error":
+			case "b_leave_room": {
+				if (message["player_id"] != this.id) {
+					let roomId = message["room_id"];
+					if (this.pageName == "main") {
+						let rooms = this.page.container.querySelectorAll("td-lobby-room");
+						for (let room of rooms) {
+							if (room.getAttribute("room-id") == roomId) {
+								room.removeParticipant(message["player_id"]);
+								break;
+							}
+						}
+					} else if (this.pageName == "room") {
+						let roomElement = this.page.container.querySelector("td-lobby-room");
+						roomElement.removeParticipant(message["player_id"]);
+					}
+				}
+			} break;
+			case "error": {
 				this.displayPopupMessage(message.message);
 				if (message["redirect_hash"]) {
 					if (this.pageName == "room")
