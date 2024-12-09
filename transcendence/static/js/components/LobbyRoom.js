@@ -8,13 +8,13 @@ export default class ComponentLobbyRoom extends HTMLElement {
 		this.shadow.appendChild(template.content.cloneNode(true));
 	}
 
-		connectedCallback() {
-				let id = this.shadow.querySelector("#lobby-room-id");
-				id.addEventListener("click", () => {
-						navigator.clipboard.writeText(location.origin + "/#room" + id.textContent);
-						myself.displayPopupMessage("Invitation link copied to clipboard");
-				});
-		}
+	connectedCallback() {
+		let id = this.shadow.querySelector("#lobby-room-id");
+		id.addEventListener("click", () => {
+			navigator.clipboard.writeText(location.origin + "/#room" + id.textContent);
+			myself.displayPopupMessage("Invitation link copied to clipboard");
+		});
+	}
 
 	attributeChangedCallback(name, oldValue, newValue) {
 		switch (name)
@@ -35,14 +35,14 @@ export default class ComponentLobbyRoom extends HTMLElement {
 		}
 		case "room-max": {
 			let participants = this.querySelectorAll("td-avatar");
-			let join_buttons = this.querySelectorAll(".join-button");
-			for (let join_button of join_buttons)
+			let joinButtons = this.querySelectorAll(".join-button");
+			for (let joinButton of joinButtons)
 			{
-				this.removeChild(join_button);
+				this.removeChild(joinButton);
 			}
-			let participants_max = parseInt(newValue);
-			if (participants_max > participants.length) {
-				for (let i = participants_max - participants.length; i > 0; i--)
+			let participantsMax = parseInt(newValue);
+			if (participantsMax > participants.length) {
+				for (let i = participantsMax - participants.length; i > 0; i--)
 				{
 					let button = document.createElement("td-button");
 					button.classList.add("ui");
@@ -52,10 +52,10 @@ export default class ComponentLobbyRoom extends HTMLElement {
 					button.style.position = "relative";
 					button.style.padding = "0.5em em";
 					button.style.display = "block";
-										button.addEventListener("click", () => {
-												let id = this.shadow.querySelector("#lobby-room-id");
-												window.location.href = "#room" + id.textContent;
-										});
+					button.addEventListener("click", () => {
+						let id = this.shadow.querySelector("#lobby-room-id");
+						window.location.href = "#room" + id.textContent;
+					});
 					if (this.joinDisabled) button.setAttribute("disabled", "");
 
 					this.appendChild(button);
