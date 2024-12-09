@@ -73,4 +73,41 @@ export default class ComponentLobbyRoom extends HTMLElement {
 		}
 		}
 	}
+
+	addParticipant(avatarName, avatarBackground, avatarId) {
+		let participants = this.querySelectorAll("td-avatar");
+		let joinButtons = this.querySelectorAll(".join-button");
+		if (participants.length >= parseInt(this.getAttribute("room-max"))) {
+			console.error("LobbyRoom component cannot add more participant");
+			return;
+		}
+		let avatarElement = document.createElement("td-avatar");
+		avatarElement.setAttribute("avatar-name", avatarName);
+		avatarElement.setAttribute("avatar-background", avatarBackground);
+		avatarElement.setAttribute("avatar-id", avatarId);
+		this.replaceChild(avatarElement, joinButtons[0]);
+	}
+
+	removeParticipant(avatarId) {
+		let participants = this.querySelectorAll("td-avatar");
+		let joinButtons = this.querySelectorAll(".join-button");
+		if (participants == 0) {
+			console.error("LobbyRoom component cannot remove participants because it is already zero");
+			return;
+		}
+		for (let participant of participants)
+		{
+			if (participant.getAttribute("avatar-id") == avatarId) {
+				this.removeChild(participant);
+				break;
+			}
+		}
+		let button = joinButtons[0].cloneNode(true);
+		button.addEventListener("click", () => {
+			let id = this.shadow.querySelector("#lobby-room-id");
+			window.location.href = "#room" + id.textContent;
+		});
+		if (this.joinDisabled) button.setAttribute("disabled", "");
+		this.appendChild(button);
+	}
 }
