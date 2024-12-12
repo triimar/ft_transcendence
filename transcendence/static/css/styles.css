@@ -102,10 +102,16 @@ main {
 	pointer-events: auto;
 }
 
+* {
+	animation: wiggle .6s infinite;
+}
+
 @keyframes wiggle {
-	0% {transform: rotate(3deg);}
-	25% {transform: rotate(-3deg);}
-	50% {transform: rotate(3deg);}
-	75% {transform: rotate(-3deg);}
+	0% {transform: rotate(0deg);}
+	14% {transform: rotate(3deg);}
+	28% {transform: rotate(-3deg);}
+	42% {transform: rotate(3deg);}
+	60% {transform: rotate(-3deg);}
+	86% {transform: rotate(3deg);}
 	100% {transform: rotate(0deg);}
 }
