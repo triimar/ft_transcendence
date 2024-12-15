@@ -1,6 +1,7 @@
 from enum import Enum
 import json
 import redis
+import random
 from .redis_client import get_redis_client
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -59,6 +60,9 @@ class RedisError(Enum):
     MAXROOMPLAYERSREACHED = 3
     MODENOTSUPPORTED = 4
     PLAYERALLPREPARED = 5
+
+BALL_VELOCITY_X = [-1, 1]
+BALL_VELOCITY_Y = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
 
 async def get_full_room_data() -> list:
     redis_instance = await get_redis_client()
@@ -257,3 +261,42 @@ async def get_owner_id(room_id) -> str:
         if room["room_id"] == room_id:
             return room["room_ownder"]
     return ""
+
+def init_ball() -> dict:
+    ball = dict()
+    ball.update({"position": {"x": 50, "y": 50}})
+    ball.update({"velocity": {"vx": random.choice(BALL_VELOCITY_X), "vy":random.choice(BALL_VELOCITY_Y)}})
+    ball.update({"size": 15})
+    return {"ball": ball}
+
+async def generate_matches(room_id, self_player_id) -> list[str]:
+    room_data = json.loads(await redis_instance.get("room_data"))
+    match_id = -1
+
+    for room in room_data:
+        if room["room_id"] == room_id:
+            players = room["avatars"]
+            player_nums = len(players)
+            match_nums = (player_nums + 1) // 2
+            temp_player_list = [p["player_id"] for p in players]
+            if (player_nums % 2 != 0):
+                temp_player_list.append("ai")
+            first_layer_player_id = random.shuffle(temp_player_list)
+            matches = []
+            for idx in range(match_nums):
+                match = dict()
+                match["ready"] == 0
+                if (idx <= match_nums//2):
+                    match["players"] == [first_layer_player_id[2*idx], first_layer_player_id[2*idx+1]]
+                else:
+                    match["players"] == []
+                if self_player_id in match["players"]:
+                    match_id = idx
+                match.update(init_ball())
+                match["winner"] = ""
+                matches.append(match)
+            room["matches"] = matches
+            room["ai"] = {"score": 0}
+
+    await redis_instance.set("room_data", json.dumps(room_data))
+    return first_layer_player_id, match_id
