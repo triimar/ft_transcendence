@@ -134,6 +134,21 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                         await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
                     case data.RedisError.NOPLAYERFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
+            case {"type": "start_game", "room_id": room_id}:
+                first_layer_player_id, self.match_id = await data.generate_matches(room_id)
+                await self.channel_layer.group_add(self.lobby_group_name + "_" + self.match_id, self.channel_name)
+                first_layer_player  = []
+                for id in first_layer_player_id:
+                    if id == "ai":
+                        first_layer_player.append({"player_id": "ai"})
+                    else:
+                        first_layer_player.append(data.get_one_player(id))
+                event_start_game = {"type":"start.game", "players": first_layer_player}
+                await self.channel_layer.group_send(self.room_group_name, event_start_game)
+
+
+
+
 
 	# functions for dealing with events
     async def join_room(self, event):
@@ -181,4 +196,9 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             text_data = json.dumps({"type": "b_prepare_game", "room_id": room_id, "player_id":player_id, "ready_to_start": event["room_owner"]})
         else:
             text_data = json.dumps({"type": "b_prepare_game", "room_id": room_id, "player_id":player_id})
+        await self.send(text_data=text_data)
+
+    async def start_game(self, event):
+        players = event["players"]
+        text_data = json.dumps({"type": "b_start_game", "players": players})
         await self.send(text_data=text_data)
