@@ -136,7 +136,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                         await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
             case {"type": "start_game", "room_id": room_id}:
                 self.first_layer_player_id, self.match_id = await data.generate_matches(room_id, self.player_id)
-                await self.channel_layer.group_add(self.room_group_name + "_" + self.match_id, self.channel_name)
                 first_layer_player  = []
                 for id in self.first_layer_player_id:
                     if id == "ai":
@@ -146,6 +145,9 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 event_start_game = {"type":"start.game", "players": first_layer_player}
                 await self.channel_layer.group_send(self.room_group_name, event_start_game)
             case {"type": "start_game_countdown"}:
+                await self.channel_layer.group_add(self.room_group_name + "_" + self.match_id, self.channel_name)
+                await self.channel_layer.group_discard(self.room_group_name, event_start_game)
+                self.joined_group = ["match"]
                 match = data.get_one_match(self.room_group_name, self.match_id)
                 player_one = data.get_one_player(match["players"][0]) if match["players"][0] != "ai" else {"player_id": "ai"}
                 player_two = data.get_one_player(match["players"][1]) if match["players"][1] != "ai" else {"player_id": "ai"}
