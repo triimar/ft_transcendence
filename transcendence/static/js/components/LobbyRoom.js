@@ -8,13 +8,13 @@ export default class ComponentLobbyRoom extends HTMLElement {
 		this.shadow.appendChild(template.content.cloneNode(true));
 	}
 
-		connectedCallback() {
-				let id = this.shadow.querySelector("#lobby-room-id");
-				id.addEventListener("click", () => {
-						navigator.clipboard.writeText(location.origin + "/#room" + id.textContent);
-						myself.displayPopupMessage("Invitation link copied to clipboard");
-				});
-		}
+	connectedCallback() {
+		let id = this.shadow.querySelector("#lobby-room-id");
+		id.addEventListener("click", () => {
+			navigator.clipboard.writeText(location.origin + "/#room" + id.textContent);
+			myself.displayPopupMessage("Invitation link copied to clipboard");
+		});
+	}
 
 	attributeChangedCallback(name, oldValue, newValue) {
 		switch (name)
@@ -35,14 +35,14 @@ export default class ComponentLobbyRoom extends HTMLElement {
 		}
 		case "room-max": {
 			let participants = this.querySelectorAll("td-avatar");
-			let join_buttons = this.querySelectorAll(".join-button");
-			for (let join_button of join_buttons)
+			let joinButtons = this.querySelectorAll(".join-button");
+			for (let joinButton of joinButtons)
 			{
-				this.removeChild(join_button);
+				this.removeChild(joinButton);
 			}
-			let participants_max = parseInt(newValue);
-			if (participants_max > participants.length) {
-				for (let i = participants_max - participants.length; i > 0; i--)
+			let participantsMax = parseInt(newValue);
+			if (participantsMax > participants.length) {
+				for (let i = participantsMax - participants.length; i > 0; i--)
 				{
 					let button = document.createElement("td-button");
 					button.classList.add("ui");
@@ -52,10 +52,10 @@ export default class ComponentLobbyRoom extends HTMLElement {
 					button.style.position = "relative";
 					button.style.padding = "0.5em em";
 					button.style.display = "block";
-										button.addEventListener("click", () => {
-												let id = this.shadow.querySelector("#lobby-room-id");
-												window.location.href = "#room" + id.textContent;
-										});
+					button.addEventListener("click", () => {
+						let id = this.shadow.querySelector("#lobby-room-id");
+						window.location.href = "#room" + id.textContent;
+					});
 					if (this.joinDisabled) button.setAttribute("disabled", "");
 
 					this.appendChild(button);
@@ -72,5 +72,42 @@ export default class ComponentLobbyRoom extends HTMLElement {
 			break;
 		}
 		}
+	}
+
+	addParticipant(avatarName, avatarBackground, avatarId) {
+		let participants = this.querySelectorAll("td-avatar");
+		let joinButtons = this.querySelectorAll(".join-button");
+		if (participants.length >= parseInt(this.getAttribute("room-max"))) {
+			console.error("LobbyRoom component cannot add more participant");
+			return;
+		}
+		let avatarElement = document.createElement("td-avatar");
+		avatarElement.setAttribute("avatar-name", avatarName);
+		avatarElement.setAttribute("avatar-background", avatarBackground);
+		avatarElement.setAttribute("avatar-id", avatarId);
+		this.replaceChild(avatarElement, joinButtons[0]);
+	}
+
+	removeParticipant(avatarId) {
+		let participants = this.querySelectorAll("td-avatar");
+		let joinButtons = this.querySelectorAll(".join-button");
+		if (participants == 0) {
+			console.error("LobbyRoom component cannot remove participants because it is already zero");
+			return;
+		}
+		for (let participant of participants)
+		{
+			if (participant.getAttribute("avatar-id") == avatarId) {
+				this.removeChild(participant);
+				break;
+			}
+		}
+		let button = joinButtons[0].cloneNode(true);
+		button.addEventListener("click", () => {
+			let id = this.shadow.querySelector("#lobby-room-id");
+			window.location.href = "#room" + id.textContent;
+		});
+		if (this.joinDisabled) button.setAttribute("disabled", "");
+		this.appendChild(button);
 	}
 }

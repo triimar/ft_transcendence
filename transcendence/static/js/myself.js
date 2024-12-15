@@ -2,6 +2,8 @@ class Visitor {
 	constructor() {
 		this.page = null;
 		this.pageName = null;
+		this.roomId = null;
+		this.gameIndex = null;
 		this.pageFinishedRendering = false; // Note(HeiYiu): this is a mutex that make sure the template is rendered before receiving incoming websocket message that will change the UI tree
 		this.id = null;
 		this.avatar_emoji = null;
@@ -98,7 +100,7 @@ class Visitor {
 			const message = JSON.parse(event.data);
 			console.log("Incoming message:", message);
 			switch (message.type) {
-			case "ack_init":
+			case "ack_init": {
 				await this.waitForPageToRender();
 				// Note(HeiYiu): get list of rooms and render them
 				let fragment = document.createDocumentFragment();
@@ -117,15 +119,40 @@ class Visitor {
 					fragment.appendChild(roomElement);
 				}
 				this.page.container.appendChild(fragment);
-				break;
-			case "b_join_room":
-				if (this.pageName == "main") {
-
-				} else if (this.pageName == "room") {
-
+			} break;
+			case "b_join_room": {
+				let avatar = message["avatar"];
+				if (avatar["player_id"] != this.id) {
+					let roomId = message["room_id"];
+					if (this.pageName == "main") {
+						let rooms = this.page.container.querySelectorAll("td-lobby-room");
+						let roomExisted = false;
+						for (let room of rooms) {
+							if (room.getAttribute("room-id") == roomId) {
+								roomExisted = true;
+								room.addParticipant(avatar["player_emoji"], '#' + avatar["player_bg_color"], avatar["player_id"]);
+								break;
+							}
+						}
+						if (!roomExisted) {
+							let roomElement = document.createElement("td-lobby-room");
+							let avatarElement = document.createElement("td-avatar");
+							avatarElement.setAttribute("avatar-name", avatar["player_emoji"]);
+							avatarElement.setAttribute("avatar-background", '#' + avatar["player_bg_color"]);
+							avatarElement.setAttribute("avatar-id", avatar["player_id"]);
+							roomElement.appendChild(avatarElement);
+							roomElement.setAttribute("room-max", "2");
+							roomElement.setAttribute("room-id", roomId);
+							roomElement.classList.add("ui");
+							this.page.container.appendChild(roomElement);
+						}
+					} else if (this.pageName == "room") {
+						let roomElement = this.page.container.querySelector("td-lobby-room");
+						roomElement.addParticipant(avatar["player_emoji"], '#' + avatar["player_bg_color"], avatar["player_id"]);
+					}
 				}
-				break;
-			case "ack_join_room":
+			} break;
+			case "ack_join_room": {
 				await this.waitForPageToRender();
 				let roomElement = this.page.container.querySelector("td-lobby-room");
 				let room = message["single_room_data"];
@@ -140,20 +167,45 @@ class Visitor {
 				roomElement.setAttribute("room-max", room["max_player"]);
 				let settingSizeElement = this.page.container.querySelector("td-room-setting-size");
 				settingSizeElement.size = room.avatars.length;
-				break;
-			case "b_add_room":
-				// TODO(HeiYiu): Append a room to lobby page
-				break;
-			case "ack_add_room":
+			} break;
+			case "ack_add_room": {
 				let roomId = message["room_id"];
-				window.location.href = "#room" + roomId;
-				break;
-			case "error":
+				window.location.hash = "#room" + roomId;
+			} break;
+			case "ack_leave_room": {
+				console.assert(this.pageName == "room", `ack_leave_room should only be received in room page, but has pageName ${this.pageName}`);
+				window.location.hash = this.page.confirmPopupRedirectPageHash;
+			} break;
+			case "b_leave_room": {
+				if (message["player_id"] != this.id) {
+					let roomId = message["room_id"];
+					if (this.pageName == "main") {
+						let rooms = this.page.container.querySelectorAll("td-lobby-room");
+						for (let room of rooms) {
+							if (room.getAttribute("room-id") == roomId) {
+								room.removeParticipant(message["player_id"]);
+								break;
+							}
+						}
+					} else if (this.pageName == "room") {
+						let roomElement = this.page.container.querySelector("td-lobby-room");
+						roomElement.removeParticipant(message["player_id"]);
+					}
+				}
+			} break;
+			case "error": {
 				this.displayPopupMessage(message.message);
-				if (message["redirect_hash"]) window.location.href = '#' + message["redirect_hash"];
-				break;
-			default:
+				if (message["redirect_hash"]) {
+					if (this.pageName == "room")
+					{
+						this.page.displayConfirmPopup = false;
+					}
+					window.location.href = '#' + message["redirect_hash"];
+				}
+			} break;
+			default: {
 				console.error("Received unknown websocket message type");
+			}
 			}
 		});
 		this.ws.addEventListener("close", function (event) {
@@ -237,6 +289,15 @@ class Visitor {
 		let message = {
 			type: "add_room",
 			"owner_id": this.id
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageLeaveRoom(roomId) {
+		let message = {
+			type: "leave_room",
+			"room_id": roomId,
+			"player_id": this.id
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
