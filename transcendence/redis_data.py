@@ -21,7 +21,7 @@ room_data_sample = [
             {"player_id": "example_player_id_1", "prepared": True},
             {"player_id": "example_player_id_2", "prepared": False},
             {"player_id": "example_player_id_3", "prepared": False},
-        ]
+        ],
         "max_player": 3
     },
     {
