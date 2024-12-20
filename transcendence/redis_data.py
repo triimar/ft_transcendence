@@ -192,15 +192,18 @@ async def update_room_owner(room_id, player_id):
     redis_instance = await get_redis_client()
 
     room_data = json.loads(await redis_instance.get("room_data"))
-
+    room_owner = None
 
     for room in room_data:
         if room["room_id"] == room_id:
             room["avatars"] = [avatar for avatar in room["avatars"] if avatar["player_id"] != player_id]
             room["room_owner"] = room["avatars"][0]["player_id"]
+            room_owner = room["room_owner"]
             room["avatars"][0]["prepared"] == True
+            break
 
     await redis_instance.set("room_data", json.dumps(room_data))
+    return room_owner
 
 async def is_all_prepared(room_id):
     redis_instance = await get_redis_client()
