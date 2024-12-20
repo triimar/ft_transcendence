@@ -212,6 +212,7 @@ class Visitor {
 						roomElement.removeParticipant(message["player_id"]);
 						if (this.roomOwnerIsMyself) {
 							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
+							roomSizeButtons.style.display = "flex";
 							let avatars = roomElement.shadowRoot.querySelectorAll("td-avatar");
 							if (avatars != null) {
 								roomSizeButtons.changeMinSize(avatars.length > 2 ? avatars.length : 2);
