@@ -36,16 +36,31 @@ export default class ComponentLobbyRoom extends HTMLElement {
 		case "room-max": {
 			let participants = this.querySelectorAll("td-avatar");
 			let joinButtons = this.querySelectorAll(".join-button");
-			for (let joinButton of joinButtons)
-			{
-				this.removeChild(joinButton);
-			}
 			let participantsMax = parseInt(newValue);
-			if (participantsMax > participants.length) {
+			if (oldValue == null) {
 				for (let i = participantsMax - participants.length; i > 0; i--)
 				{
 					let button = this.#createJoinButton();
 					this.appendChild(button);
+				}
+			} else {
+				let participantsMaxPrevious = parseInt(oldValue);
+				if (participantsMax > participantsMaxPrevious) {
+					let amount = participantsMax - participantsMaxPrevious;
+					while (amount > 0) {
+						let button = this.#createJoinButton();
+						this.appendChild(button);
+						amount--;
+					}
+				} else {
+					let amount = participantsMaxPrevious - participantsMax;
+					if (joinButtons.length >= amount) {
+						for (let joinButton of joinButtons) {
+							this.removeChild(joinButton);
+							amount--;
+							if (amount <= 0) break;
+						}
+					}
 				}
 			}
 			// TODO(HeiYiu): Might introduce join buttons that allow user to add themselves even if the room max is reached. User can simply change the attribute in this component in the html
