@@ -165,8 +165,8 @@ class Visitor {
 					roomElement.appendChild(avatarElement);
 				}
 				roomElement.setAttribute("room-max", room["max_player"]);
-				let settingSizeElement = this.page.container.querySelector("td-room-setting-size");
-				settingSizeElement.size = room.avatars.length;
+				let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
+				roomSizeButtons.changeSize(room["max_player"]);
 			} break;
 			case "ack_add_room": {
 				let roomId = message["room_id"];
