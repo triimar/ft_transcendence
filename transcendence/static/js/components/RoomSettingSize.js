@@ -41,4 +41,13 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		if (this.size == this.maxSize) incButton.setAttribute("disabled", "");
 		this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
 	}
+
+	changeSize(newSize) {
+		this.size = newSize;
+		const incButton = this.shadow.querySelector("#inc-button");
+		const decButton = this.shadow.querySelector("#dec-button");
+		if (this.size == 2) decButton.setAttribute("disabled", "");
+		if (this.size == this.maxSize) incButton.setAttribute("disabled", "");
+		this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
+	}
 }
