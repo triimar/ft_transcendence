@@ -106,7 +106,7 @@ async def add_player_to_room(room_id, player_id) -> RedisError:
                         return RedisError.NONE
                 if room["max_player"] <= len(room["avatars"]):
                     return RedisError.MAXROOMPLAYERSREACHED
-                room["avatars"].append({"player_id": new_player["player_id"], "prepard": False})
+                room["avatars"].append({"player_id": new_player["player_id"], "prepared": False})
                 print(f"Player {player_id} added to {room['room_id']}.")
                 await redis_instance.set("room_data", json.dumps(room_data))
                 return RedisError.NONE
