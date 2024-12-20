@@ -178,7 +178,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         room_id = event["room_id"]
         player_id = event["player_id"]
         if event["delete_room"] == True:
-            text_data = json.dumps({"type": "b_leave_room", "room_id": room_id})
+            text_data = json.dumps({"type": "b_remove_room", "room_id": room_id})
         else:
             msg = {"type":"b_leave_room", "room_id": room_id, "player_id": player_id}
             try:
