@@ -176,6 +176,15 @@ class Visitor {
 				console.assert(this.pageName == "room", `ack_leave_room should only be received in room page, but has pageName ${this.pageName}`);
 				window.location.hash = this.page.confirmPopupRedirectPageHash;
 			} break;
+			case "b_remove_room": {
+				let rooms = this.page.container.querySelectorAll("td-lobby-room");
+				for (let room of rooms) {
+					if (room.getAttribute("room-id") == message["room_id"]) {
+						room.parentNode.removeChild(room);
+						break;
+					}
+				}
+			} break;
 			case "b_leave_room": {
 				if (message["player_id"] != this.id) {
 					let roomId = message["room_id"];
