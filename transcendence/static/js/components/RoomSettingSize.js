@@ -5,6 +5,7 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		const template = document.getElementById("component-room-setting-size");
 		this.shadow.appendChild(template.content.cloneNode(true));
 		this.size = 2;
+		this.minSize = 2;
 		this.maxSize = 8;
 	}
 
@@ -25,10 +26,10 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 			}
 		});
 		decButton.addEventListener("click", () => {
-			if (this.size > 2) {
+			if (this.size > this.minSize) {
 				this.size--;
 				this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
-				if (this.size == 2) {
+				if (this.size == this.minSize) {
 					decButton.setAttribute("disabled", "");
 				}
 				else {
@@ -37,7 +38,7 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 				}
 			}
 		});
-		if (this.size == 2) decButton.setAttribute("disabled", "");
+		if (this.size == this.minSize) decButton.setAttribute("disabled", "");
 		if (this.size == this.maxSize) incButton.setAttribute("disabled", "");
 		this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
 	}
@@ -46,7 +47,16 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		this.size = newSize;
 		const incButton = this.shadow.querySelector("#inc-button");
 		const decButton = this.shadow.querySelector("#dec-button");
-		if (this.size == 2) decButton.setAttribute("disabled", "");
+		if (this.size == this.minSize) decButton.setAttribute("disabled", "");
+		if (this.size == this.maxSize) incButton.setAttribute("disabled", "");
+		this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
+	}
+
+	changeMinSize(newMinSize) {
+		this.minSize = newMinSize;
+		const incButton = this.shadow.querySelector("#inc-button");
+		const decButton = this.shadow.querySelector("#dec-button");
+		if (this.size == this.minSize) decButton.setAttribute("disabled", "");
 		if (this.size == this.maxSize) incButton.setAttribute("disabled", "");
 		this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
 	}
