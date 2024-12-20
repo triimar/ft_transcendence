@@ -210,6 +210,10 @@ class Visitor {
 					} else if (this.pageName == "room") {
 						let roomElement = this.page.container.querySelector("td-lobby-room");
 						roomElement.removeParticipant(message["player_id"]);
+						if (("new_room_owner" in message) && (message["new_room_owner"] == this.id)) {
+							this.roomOwnerIsMyself = true;
+							this.displayPopupMessage("Room owner has left. You become the new owner");
+						}
 						if (this.roomOwnerIsMyself) {
 							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 							roomSizeButtons.style.display = "flex";
