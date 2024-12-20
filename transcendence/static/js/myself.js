@@ -3,6 +3,7 @@ class Visitor {
 		this.page = null;
 		this.pageName = null;
 		this.roomId = null;
+		this.roomOwnerIsMyself = false;
 		this.gameIndex = null;
 		this.pageFinishedRendering = false; // Note(HeiYiu): this is a mutex that make sure the template is rendered before receiving incoming websocket message that will change the UI tree
 		this.id = null;
@@ -149,6 +150,11 @@ class Visitor {
 					} else if (this.pageName == "room") {
 						let roomElement = this.page.container.querySelector("td-lobby-room");
 						roomElement.addParticipant(avatar["player_emoji"], '#' + avatar["player_bg_color"], avatar["player_id"]);
+						if (this.roomOwnerIsMyself) {
+							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
+							let avatars = roomElement.querySelectorAll("td-avatar");
+							roomSizeButtons.changeMinSize(avatars.length > 2 ? avatars.length : 2);
+						}
 					}
 				}
 			} break;
@@ -165,8 +171,12 @@ class Visitor {
 					roomElement.appendChild(avatarElement);
 				}
 				roomElement.setAttribute("room-max", room["max_player"]);
-				let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
-				roomSizeButtons.changeSize(room["max_player"]);
+				if (this.id == room["room_owner"]) {
+					this.roomOwnerIsMyself = true;
+					let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
+					roomSizeButtons.style.display = "flex";
+					roomSizeButtons.changeSize(room["max_player"]);
+				}
 			} break;
 			case "ack_add_room": {
 				let roomId = message["room_id"];
@@ -174,6 +184,7 @@ class Visitor {
 			} break;
 			case "ack_leave_room": {
 				console.assert(this.pageName == "room", `ack_leave_room should only be received in room page, but has pageName ${this.pageName}`);
+				this.roomOwnerIsMyself = false;
 				window.location.hash = this.page.confirmPopupRedirectPageHash;
 			} break;
 			case "b_remove_room": {
@@ -199,6 +210,13 @@ class Visitor {
 					} else if (this.pageName == "room") {
 						let roomElement = this.page.container.querySelector("td-lobby-room");
 						roomElement.removeParticipant(message["player_id"]);
+						if (this.roomOwnerIsMyself) {
+							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
+							let avatars = roomElement.shadowRoot.querySelectorAll("td-avatar");
+							if (avatars != null) {
+								roomSizeButtons.changeMinSize(avatars.length > 2 ? avatars.length : 2);
+							}
+						}
 					}
 				}
 			} break;
