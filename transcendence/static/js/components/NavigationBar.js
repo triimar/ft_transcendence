@@ -21,10 +21,17 @@ export default class ComponentNavigationBar extends HTMLElement {
 		}).bind(this);
 		this.shadow.querySelector("#avatar").addEventListener("click", this.toggleAvatarInfoFunc, true);
 		this.shadow.querySelector("#close-btn").addEventListener("click", this.toggleAvatarInfoFunc, true);
-		this.logoutFunc = (() => {
+		this.logoutFunc = () => {
+			if (myself.roomId == null) {
 				myself.logout();
 				window.location.hash = "#login";
-		}).bind(this);
+			} else {
+				// Note(HeiYiu): this will redirect there after ack_leave_room is received
+				myself.page.confirmPopupRedirectPageHash = "#login";
+				myself.sendMessageLeaveRoom(myself.roomId);
+				myself.logout();
+			}
+		};
 		this.shadow.querySelector("#logout-btn").addEventListener("click", this.logoutFunc, true);
 			// Note(HeiYiu): Change avatar
 			let avatarElement = document.createElement("td-avatar");
