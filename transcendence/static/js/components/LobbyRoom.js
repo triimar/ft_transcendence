@@ -44,23 +44,8 @@ export default class ComponentLobbyRoom extends HTMLElement {
 			if (participantsMax > participants.length) {
 				for (let i = participantsMax - participants.length; i > 0; i--)
 				{
-					let button = document.createElement("td-button");
-					button.classList.add("ui");
-					button.classList.add("join-button");
-					button.style.width = "var(--td-avatar-width)";
-					button.style.height = "var(--td-avatar-height)";
-					button.style.position = "relative";
-					button.style.padding = "0.5em em";
-					button.style.display = "block";
-					button.addEventListener("click", () => {
-						let id = this.shadow.querySelector("#lobby-room-id");
-						window.location.href = "#room" + id.textContent;
-					});
-					if (this.joinDisabled) button.setAttribute("disabled", "");
-
+					let button = this.#createJoinButton();
 					this.appendChild(button);
-					const template = document.getElementById("icon-lobby-room-join");
-					button.appendChild(template.content.cloneNode(true));
 				}
 			}
 			// TODO(HeiYiu): Might introduce join buttons that allow user to add themselves even if the room max is reached. User can simply change the attribute in this component in the html
@@ -72,6 +57,25 @@ export default class ComponentLobbyRoom extends HTMLElement {
 			break;
 		}
 		}
+	}
+
+	#createJoinButton() {
+		let button = document.createElement("td-button");
+		button.classList.add("ui");
+		button.classList.add("join-button");
+		button.style.width = "var(--td-avatar-width)";
+		button.style.height = "var(--td-avatar-height)";
+		button.style.position = "relative";
+		button.style.padding = "0.5em em";
+		button.style.display = "block";
+		button.addEventListener("click", () => {
+			let id = this.shadow.querySelector("#lobby-room-id");
+			window.location.href = "#room" + id.textContent;
+		});
+		if (this.joinDisabled) button.setAttribute("disabled", "");
+		const template = document.getElementById("icon-lobby-room-join");
+		button.appendChild(template.content.cloneNode(true));
+		return button;
 	}
 
 	addParticipant(avatarName, avatarBackground, avatarId) {
@@ -90,7 +94,6 @@ export default class ComponentLobbyRoom extends HTMLElement {
 
 	removeParticipant(avatarId) {
 		let participants = this.querySelectorAll("td-avatar");
-		let joinButtons = this.querySelectorAll(".join-button");
 		if (participants == 0) {
 			console.error("LobbyRoom component cannot remove participants because it is already zero");
 			return;
@@ -98,16 +101,10 @@ export default class ComponentLobbyRoom extends HTMLElement {
 		for (let participant of participants)
 		{
 			if (participant.getAttribute("avatar-id") == avatarId) {
-				this.removeChild(participant);
+				let button = this.#createJoinButton();
+				this.replaceChild(button, participant);
 				break;
 			}
 		}
-		let button = joinButtons[0].cloneNode(true);
-		button.addEventListener("click", () => {
-			let id = this.shadow.querySelector("#lobby-room-id");
-			window.location.href = "#room" + id.textContent;
-		});
-		if (this.joinDisabled) button.setAttribute("disabled", "");
-		this.appendChild(button);
 	}
 }
