@@ -202,6 +202,22 @@ class Visitor {
 					}
 				}
 			} break;
+			case "b_max_player": {
+				let maxPlayerNumber = message["max_player_num"];
+				if (this.pageName == "main") {
+					let roomId = message["room_id"];
+					let rooms = this.page.container.querySelectorAll("td-lobby-room");
+					for (let room of rooms) {
+						if (room.getAttribute("room-id") == roomId) {
+							room.setAttribute("room-max", maxPlayerNumber);
+							break;
+						}
+					}
+				} else if (this.pageName == "room") {
+					let roomElement = this.page.container.querySelector("td-lobby-room");
+					roomElement.setAttribute("room-max", maxPlayerNumber);
+				}
+			} break;
 			case "error": {
 				this.displayPopupMessage(message.message);
 				if (message["redirect_hash"]) {
@@ -307,6 +323,15 @@ class Visitor {
 			type: "leave_room",
 			"room_id": roomId,
 			"player_id": this.id
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageChangeMaxPlayer(roomId, maxPlayer) {
+		let message = {
+			type: "max_player",
+			"room_id": roomId,
+			"max_player_num": maxPlayer
 		};
 		this.sendMessage(JSON.stringify(message));
 	}

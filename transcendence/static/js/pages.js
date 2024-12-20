@@ -145,6 +145,14 @@ export class PageRoom {
 			e.returnValue = true;
 		});
 		window.addEventListener("beforeunload", this.beforeUnloadFunc);
+
+		let roomSizeSetting = this.container.querySelector("#room-size-buttons");
+		roomSizeSetting.shadowRoot.querySelector("#inc-button").addEventListener("click", () => {
+			myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
+		});
+		roomSizeSetting.shadowRoot.querySelector("#dec-button").addEventListener("click", () => {
+			myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
+		});
 	}
 
 	removeEvents() {
