@@ -109,3 +109,34 @@ main {
 	75% {transform: rotate(-3deg);}
 	100% {transform: rotate(0deg);}
 }
+
+.speech-bubble {
+	--triangle-position: 20%;
+	border: calc(var(--td-border-size) / 2) solid var(--td-ui-font-color);
+	box-sizing: border-box;
+	z-index: 3;
+}
+
+.speech-bubble::before {
+	content: '';
+	position: absolute;
+	top: 100%;
+	left: calc(var(--triangle-position) - (var(--td-border-size) / 2));
+	width: 0;
+	height: 0;
+	border: 0.75em solid transparent;
+	border-top-color: var(--td-ui-font-color);
+	border-left: 0;
+}
+
+.speech-bubble::after {
+	content: '';
+	position: absolute;
+	top: 99%;
+	left: var(--triangle-position);
+	width: 0;
+	height: 0;
+	border: 0.4em solid transparent;
+	border-top-color: var(--td-ui-background-color);
+	border-left: 0;
+}

@@ -98,7 +98,8 @@
 		td-navigation-bar {
 			position: sticky;
 			top: 0;
-			z-index: 1;
+			margin-bottom: 1em;
+			z-index: 10;
 		}
 	</style>
 	<td-navigation-bar>
@@ -218,6 +219,7 @@
 <template id="component-avatar">
 	<style>
 		:host {
+			position: relative;
 			width: var(--td-avatar-width);
 			height: var(--td-avatar-height);
 			padding: 0.5em 0.5em;
@@ -235,6 +237,7 @@
 		}
 	</style>
 	<p id="avatar-name"></p>
+	<slot></slot>
 </template>
 <template id="component-navigation-bar">
 	<style>

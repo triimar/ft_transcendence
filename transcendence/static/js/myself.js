@@ -168,6 +168,24 @@ class Visitor {
 					avatarElement.setAttribute("avatar-name", avatar["player_emoji"]);
 					avatarElement.setAttribute("avatar-background", '#' + avatar["player_bg_color"]);
 					avatarElement.setAttribute("avatar-id", avatar["player_id"]);
+					{
+						let readySpeechBubble = document.createElement("div");
+						readySpeechBubble.classList.add("speech-bubble");
+						readySpeechBubble.style.background = "var(--td-ui-background-color)";
+						readySpeechBubble.style.position = "absolute";
+						readySpeechBubble.style.bottom = "84%";
+						readySpeechBubble.style.left = "50%";
+						readySpeechBubble.style.width = "fit-content";
+						readySpeechBubble.style.height = "fit-content";
+						{
+							let text = document.createElement("p");
+							text.style.width = "max-content";
+							text.style.padding = "0 0.5em";
+							text.textContent = "Ready!";
+							readySpeechBubble.appendChild(text);
+						}
+						avatarElement.appendChild(readySpeechBubble);
+					}
 					roomElement.appendChild(avatarElement);
 				}
 				roomElement.setAttribute("room-max", room["max_player"]);
