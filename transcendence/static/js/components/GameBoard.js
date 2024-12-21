@@ -1,3 +1,4 @@
+import { myself } from "../myself.js";
 export default class ComponentGameBoard extends HTMLElement {
 	constructor() {
 		super();
@@ -121,6 +122,11 @@ export default class ComponentGameBoard extends HTMLElement {
 				ball.y + ball.vy <= 0)
 			{
 				ball.vy = -ball.vy;
+				myself.sendMessage(JSON.stringify({
+					'message_type': 'move_paddle',
+					'player': player,
+					'direction': direction
+				}))
 			}
 			//Right wall collision
 			if (ball.x + ball.vx > canvas.width - ball.size)

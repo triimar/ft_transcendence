@@ -22,7 +22,8 @@ room_data_sample = [
             {"player_id": "example_player_id_2", "prepared": False},
             {"player_id": "example_player_id_3", "prepared": False},
         ],
-        "max_player": 3
+        "max_player": 3,
+        'matches':['match_id_1', 'match_id_2']
     },
     {
         "room_id": "example_room_2",
@@ -33,8 +34,9 @@ room_data_sample = [
             {"player_id": "example_player_id_5", "prepared": False},
             {"player_id": "example_player_id_6", "prepared": False}
         ],
-        "max_player": 5
-    }
+        'max_player': 5,
+        'matches':['match_id_3', 'match_id_4']
+    },
 ]
 
 # Convert the room data to JSON and store it under a specific key in Redis
@@ -50,6 +52,33 @@ player_data_sample = [
     {"player_id": "example_player_id_6", "player_emoji": "238", "player_bg_color": "00ffff"}
 ] # can be dict of dict
 redis_instance.set("player_data", json.dumps(player_data_sample))
+
+# The match data
+match_data_sample = [
+    {
+        'match_id': 'example_match_id_1',
+        'ready': 1,
+        'players': ['player_id_1', 'player_id_2'],
+        'ball': {
+            'position': {'x': 50, 'y': 50},
+            'velocity': {'vx': 5, 'vy': 5},
+            'size': 15
+        },
+        'winner':'player1'
+    },
+    {
+        'match_id': 'example_match_id_2',
+        'ready': 1,
+        'players': ['player_id_3', 'player_id_4'],
+        'ball': {
+            'position': {'x': 50, 'y': 50},
+            'velocity': {'vx': 5, 'vy': 5},
+            'size': 15
+        },
+        'winner':'player1'
+    }
+]
+redis_instance.set("match_data", json.dumps(match_data_sample))
 
 class RedisError(Enum):
     NONE = 0
@@ -131,6 +160,13 @@ async def get_one_room_data(room_id):
             avatar.update(player_data_dict[player_id])
     return room
 
+# Update room data with new room data
+async def update_room(updated_room):
+	redis_instance = await get_redis_client()
+	player_data = json.loads(await redis_instance.get('room_data'))
+	player_data[updated_room['room_id']] = updated_room
+	await redis_instance.set('room_data', json.dumps(player_data))
+
 async def add_new_room(room_id, owner_id) -> dict:
     redis_instance = await get_redis_client()
 
@@ -140,6 +176,10 @@ async def add_new_room(room_id, owner_id) -> dict:
     new_room = {
         "room_id": room_id,
         "room_owner": owner_id,
+		# TODO: add default room setting
+        # "room_setting": {
+        #     "default_setting": "value"
+        # },
         "mode": "",
         "avatars": [
             {"player_id": owner_id, "prepared": True}
@@ -160,6 +200,36 @@ async def get_one_player(player_id) -> dict|None:
     one_player = next((player for player in player_data if player["player_id"] == player_id), None)
 
     return one_player
+
+# Update playar data with new player data
+async def update_player(updated_player):
+	redis_instance = await get_redis_client()
+	player_data = json.loads(await redis_instance.get('player_data'))
+	player_data[updated_player['player_id']] = updated_player
+	await redis_instance.set('player_data', json.dumps(player_data))
+
+async def get_full_match_data() -> list:
+    redis_instance = await get_redis_client()
+    match_data = json.loads(await redis_instance.get("match_data"))
+
+    return match_data
+
+async def update_full_matches(updated_matches):
+	redis_instance = await get_redis_client()
+	await redis_instance.set('match_data', json.dumps(updated_matches))
+
+async def get_one_match_data(room_id, match_id) -> dict|None:
+    redis_instance = await get_redis_client()
+    room_data = await get_one_room_data(room_id)
+    match_data = room_data['matches'][match_id]
+    return match_data
+
+# Update playar data with new player data
+async def update_match(updated_match):
+	redis_instance = await get_redis_client()
+	match_data = json.loads(await redis_instance.get('match_data'))
+	match_data[updated_match['match_id']] = updated_match
+	await redis_instance.set('match_data', json.dumps(match_data))
 
 async def add_one_player(player_id, player_emoji, player_bg_color):
     redis_instance = await get_redis_client()
