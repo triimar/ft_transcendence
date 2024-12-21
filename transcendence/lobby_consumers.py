@@ -36,12 +36,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 if player_id:
                     room_list = await data.get_full_room_data()
                     await self.send(text_data=json.dumps({"type": "ack_init", "rooms": room_list}))
-            case {"type": "join_room", "room_id": room_id, "player_id": player_id}:
-                await self.join_room_group(room_id, player_id)
-            case {"type": "add_room", "owner_id": owner_id}:
-                await self.add_room_group(owner_id)
-            case {"type": "player_ready", "room_id": room_id, "player_id": player_id}:
-                await self.mark_player_ready(room_id, player_id)
             case {"type": "create_matches", "room_id": room_id}:
                 await self.create_matches(room_id)
             case {"type": "join_match", "room_id": room_id, "player_id": player_id}:
@@ -174,56 +168,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 player_two = data.get_one_player(match["players"][1]) if match["players"][1] != "ai" else {"player_id": "ai"}
                 event_start_game_countdown = {"type": "startgame.countdown", "match": match, "opponents": [player_one, player_two]}
                 await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event_start_game_countdown)
-
-    async def join_room_group(self, room_id, player_id):
-        self.room_group_name = room_id
-
-        # Remove this consumer from the lobby group
-        await self.channel_layer.group_discard(
-            self.lobby_group_name,
-            self.channel_name
-        )
-
-        if await data.add_player_to_room(room_id=room_id, player_id=player_id):
-            avatar = await data.get_one_player(player_id=player_id)
-            event_join_room = {"type": "join_room", "room_id": room_id, "avatar": avatar}
-            await self.channel_layer.group_send(self.lobby_group_name, event=event_join_room)
-            await self.channel_layer.group_add(
-                self.room_group_name,
-                self.channel_name
-            )
-            self.joined_group = [room_id]
-            await self.channel_layer.group_send(self.room_group_name, event=event_join_room)
-            joined_room = await data.get_one_room_data(room_id=room_id)
-            if joined_room is not None:
-                await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": joined_room}))
-            else:
-                await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": "Cannot find the room to join!"}))
-
-    async def add_room_group(self, owner_id):
-        self.room_group_name = shortuuid.ShortUUID().random(length=15)
-        await self.channel_layer.group_discard(
-            self.lobby_group_name,
-            self.channel_name
-        )
-        added_room = await data.add_new_room(room_id=self.room_group_name, owner_id=owner_id)
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
-        self.joined_group = [self.room_group_name]
-        owner_avatar = await data.get_one_player(player_id=owner_id)
-        event_add_room = {"type": "add_room", "room_id": self.room_group_name, "owner_avatar": owner_avatar}
-        await self.channel_layer.group_send(self.room_group_name, event=event_add_room)
-        await self.send(text_data=json.dumps({"type": "ack_add_room", "single_room_data": added_room}))
-
-    async def mark_player_ready(self):
-        room_data = await data.get_one_room_data(self.room_group_name)
-        room_data['prepared_count'] += 1
-        data.update_room(room_data)
-        if room_data and room_data['prepared_count'] == room_data['max_player']:
-            text_data = json.dumps({'type': 'players_ready', 'room_id':self.room_group_name, 'room_owner':room_data['room_owner']})
-            await self.channel_layer.group_send(self.room_group_name, event=text_data)
 
     async def create_matches(self, room_id):
         room_data = data.get_one_room_data(room_id)
