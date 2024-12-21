@@ -131,8 +131,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                         event_update_mode = {"type": "update.preparegame", "room_id": room_id, "player_id": player_id, "all_prepared": False}
                         await self.channel_layer.group_send(self.room_group_name, event_update_mode)
                     case data.RedisError.PLAYERALLPREPARED:
-                        owner_id = await data.get_onwer_id(room_id)
-                        event_update_mode = {"type": "update.preparegame", "room_id": room_id, "player_id": player_id, "all_prepared": True, "room_owner":owner_id}
+                        event_update_mode = {"type": "update.preparegame", "room_id": room_id, "player_id": player_id, "all_prepared": True}
                         await self.channel_layer.group_send(self.room_group_name, event_update_mode)
                     case data.RedisError.NOROOMFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
@@ -158,9 +157,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 event_start_game_countdown = {"type": "startgame.countdown", "match": match, "opponents": [player_one, player_two]}
                 await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event_start_game_countdown)
 
-
-
-
 	# functions for dealing with events
     async def join_room(self, event):
         room_id = event["room_id"]
@@ -174,15 +170,10 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         if event["delete_room"] == True:
             text_data = json.dumps({"type": "b_remove_room", "room_id": room_id})
         else:
-            msg = {"type":"b_leave_room", "room_id": room_id, "player_id": player_id}
-            try:
+            msg = {"type":"b_leave_room", "room_id": room_id, "player_id": player_id, "all_prepared": event["all_prepared"]}
+            if "new_room_owner" in event:
                 new_room_owner = event["new_room_owner"]
                 msg.update({"new_room_owner": new_room_owner})
-                if event["all_prepared"]:
-                    msg.update({"ready_to_start": new_room_owner})
-            except KeyError as e:
-                if event["all_prepared"]:
-                    msg.update({"ready_to_start": event["room_owner"]})
             text_data = json.dumps(msg)
 
         await self.send(text_data=text_data)
@@ -205,11 +196,8 @@ class LobbyConsumer(AsyncWebsocketConsumer):
     async def update_preparegame(self, event):
         room_id = event["room_id"]
         player_id = event["player_id"]
-
-        if event["all_prepared"]:
-            text_data = json.dumps({"type": "b_prepare_game", "room_id": room_id, "player_id":player_id, "ready_to_start": event["room_owner"]})
-        else:
-            text_data = json.dumps({"type": "b_prepare_game", "room_id": room_id, "player_id":player_id})
+        all_prepared = event["all_prepared"]
+        text_data = json.dumps({"type": "b_prepare_game", "room_id": room_id, "player_id": player_id, "all_prepared": all_prepared})
         await self.send(text_data=text_data)
 
     async def start_game(self, event):
