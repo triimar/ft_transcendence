@@ -192,6 +192,9 @@ class Visitor {
 				roomElement.setAttribute("room-max", room["max_player"]);
 				if (this.id == room["room_owner"]) {
 					this.roomOwnerIsMyself = true;
+					let prepareButton = this.page.container.querySelector("#prepare-btn");
+					prepareButton.children[0].textContent = "Wait for other players";
+					prepareButton.setAttribute("disabled", "");
 					let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 					roomSizeButtons.style.display = "flex";
 					roomSizeButtons.changeSize(room["max_player"]);
@@ -234,6 +237,18 @@ class Visitor {
 							this.displayPopupMessage("Room owner has left. You become the new owner");
 						}
 						if (this.roomOwnerIsMyself) {
+							// Note(HeiYiu): Change the prepare button
+							let prepareButton = this.page.container.querySelector("#prepare-btn");
+							if (message["all_prepared"]) {
+								prepareButton.children[0].textContent = "Start game";
+								prepareButton.removeAttribute("disabled");
+								prepareButton.addEventListener("click", () => {
+									this.sendMessageStartGame(this.roomId);
+								}, {once: true});
+							} else {
+								prepareButton.children[0].textContent = "Wait for other players";
+								prepareButton.setAttribute("disabled", "");
+							}
 							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 							roomSizeButtons.style.display = "flex";
 							let avatars = roomElement.querySelectorAll("td-avatar");
@@ -287,6 +302,17 @@ class Visitor {
 						break;
 					}
 				}
+				if (this.roomOwnerIsMyself && message["all_prepared"]) {
+					let prepareButton = this.page.container.querySelector("#prepare-btn");
+					prepareButton.children[0].textContent = "Start game";
+					prepareButton.removeAttribute("disabled");
+					prepareButton.addEventListener("click", () => {
+						this.sendMessageStartGame(this.roomId);
+					}, {once: true});
+				}
+			} break;
+			case "start_game": {
+				// TODO
 			} break;
 			case "error": {
 				this.displayPopupMessage(message.message);
@@ -411,6 +437,14 @@ class Visitor {
 			type: "prepare_game",
 			"room_id": roomId,
 			"player_id": this.id
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageStartGame(roomId) {
+		let message = {
+			type: "start_game",
+			"room_id": roomId,
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
