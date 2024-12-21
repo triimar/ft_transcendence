@@ -4,7 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from . import redis_data as data
 import shortuuid
 
-class LobbyConsumer(AsyncWebsocketConsumer):
+class WebsiteConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.lobby_group_name = 'lobby_group'
 
