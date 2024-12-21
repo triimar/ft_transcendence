@@ -8,13 +8,7 @@ import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
 import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
-
-import PageError from "./pages/PageError.js";
-import PageLogin from "./pages/PageLogin.js";
-import PageGame from "./pages/PageGame.js";
-import PageAiGame from "./pages/PageAiGame.js";
-import PageRoom from "./pages/PageRoom.js";
-import PageMain from "./pages/PageMain.js";
+import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain } from "./pages.js";
 
 import { myself } from "./myself.js";
 
@@ -32,43 +26,60 @@ async function main() {
 	const contentContainer = document.getElementsByClassName("content-container")[0];
 	let currentPage = null;
 	window.addEventListener("hashchange", async (event) => {
-        if (!isTriggerHashChange) {
-            isTriggerHashChange = true;
-            return;
-        }
+		if (!isTriggerHashChange) {
+			isTriggerHashChange = true;
+			return;
+		}
+		if ((currentPage.beforeOnHashChange != null) && (currentPage.beforeOnHashChange() == true)) {
+			return;
+		}
 		currentPage.removeEvents();
 		myself.pageFinishedRendering = false;
 		let pageHash = getPageHashFromURL(location);
-		if (!pageMapping[pageHash]) pageHash = "error";
-		if (pageHash != "error") {
-            let [isAuthenticated, newPageHash] = await authenticateVisitor(pageHash);
-            pageHash = newPageHash;
-            if (pageHash != "login" && isAuthenticated && !myself.ws) myself.connectWs();
-        }
-		let pageClass = pageMapping[pageHash];
+		if (analysisPageHash(pageHash)[0] != "error") {
+			let [isAuthenticated, newPageHash] = await authenticateVisitor(pageHash);
+			pageHash = newPageHash;
+			if (isAuthenticated) {
+				if (pageHash != "login" && !myself.ws) myself.connectWs();
+				if ((myself.avatar_emoji == null) || (myself.avatar_bg_color == null)) {
+					await myself.fetchAvatarInfo();
+				}
+			}
+		}
+		let [pageName, roomId, gameIndex] = analysisPageHash(pageHash);
+		let pageClass = pageMapping[pageName];
 		currentPage = new pageClass(contentContainer);
 		myself.page = currentPage;
-		myself.pageHash = pageHash;
+		myself.pageName = pageName;
+		myself.roomId = roomId;
+		myself.gameIndex= gameIndex;
 		renderTemplate(contentContainer, currentPage.templateId);
 		currentPage.attachEvents();
-		if (myself.ws) sendInitMessage(pageHash);
+		if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
 		myself.pageFinishedRendering = true;
 	});
 	myself.pageFinishedRendering = false;
 	let pageHash = getPageHashFromURL(location);
-	if (!pageMapping[pageHash]) pageHash = "error";
-    if (pageHash != "error") {
-        let [isAuthenticated, newPageHash] = await authenticateVisitor(pageHash);
-        pageHash = newPageHash;
-        if (pageHash != "login" && isAuthenticated && !myself.ws) myself.connectWs();
-    }
-	let pageClass = pageMapping[pageHash];
+	if (analysisPageHash(pageHash)[0] != "error") {
+		let [isAuthenticated, newPageHash] = await authenticateVisitor(pageHash);
+		pageHash = newPageHash;
+		if (isAuthenticated) {
+			if (pageHash != "login" && !myself.ws) myself.connectWs();
+			if ((myself.avatar_emoji == null) || (myself.avatar_bg_color == null)) {
+				await myself.fetchAvatarInfo();
+			}
+		}
+	}
+	let [pageName, roomId, gameIndex] = analysisPageHash(pageHash);
+	let pageClass = pageMapping[pageName];
 	currentPage = new pageClass(contentContainer);
 	myself.page = currentPage;
-	myself.pageHash = pageHash;
+	myself.pageName = pageName;
+	myself.roomId = roomId;
+	myself.gameIndex= gameIndex;
 	renderTemplate(contentContainer, currentPage.templateId);
 	currentPage.attachEvents();
-	if (myself.ws) sendInitMessage(pageHash);
+	if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
 	myself.pageFinishedRendering = true;
 }
 
@@ -76,39 +87,41 @@ async function main() {
 // returns a pageHash of which page the website should render depending on the
 // result of the authentication
 async function authenticateVisitor(pageHash) {
-    let isAuthenticated = false;
-    switch (myself.getLoginMethod()) {
-        case "guest":
-        case "intra": {
-            if (myself.jwt == null) {
-                isAuthenticated = await myself.verifyJWT();
-            }
-            else {
-                isAuthenticated = true;
-            }
-            // NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
-            if (!isAuthenticated) {
-                // Note(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
-                if (pageHash && pageHash != "login") localStorage.setItem("last_page_hash", pageHash);
-                pageHash = "login";
-            } else {
-                let lastPageHash = localStorage.getItem("last_page_hash");
-                if (pageHash == "login") {
-                    pageHash = lastPageHash ? lastPageHash : "main";
-                } else if (lastPageHash) {
-                    pageHash = lastPageHash;
-                }
-                isTriggerHashChange = false;
-                window.location.hash = '#' + pageHash;
-                localStorage.removeItem("last_page_hash");
-            }
-        } break;
-        default: {
-            if (pageHash && pageHash != "login") localStorage.setItem("last_page_hash", pageHash);
-            pageHash = "login";
-        }
-    }
-    return [isAuthenticated, pageHash];
+	let isAuthenticated = false;
+	switch (myself.getLoginMethod()) {
+	case "guest":
+	case "intra": {
+		if (myself.jwt == null) {
+			isAuthenticated = await myself.verifyJWT();
+		}
+		else {
+			isAuthenticated = true;
+		}
+		// NOTE(Anthony): Check JWT is expired? Probably we dont need that here ???
+		if (!isAuthenticated) {
+			// Note(HeiYiu): save the pageHash that the client wants to visit originally, and after login is successful, change the hash to that hash directly
+			if (pageHash && pageHash != "login") localStorage.setItem("last_page_hash", pageHash);
+			pageHash = "login";
+		} else {
+			let lastPageHash = localStorage.getItem("last_page_hash");
+			if (pageHash == "login") {
+				pageHash = lastPageHash ? lastPageHash : "main";
+			} else if (lastPageHash) {
+				pageHash = lastPageHash;
+			}
+			if (getPageHashFromURL(window.location) != pageHash) {
+				isTriggerHashChange = false;
+				window.location.hash = '#' + pageHash;
+			}
+			localStorage.removeItem("last_page_hash");
+		}
+	} break;
+	default: {
+		if (pageHash && pageHash != "login") localStorage.setItem("last_page_hash", pageHash);
+		pageHash = "login";
+	}
+	}
+	return [isAuthenticated, pageHash];
 }
 
 function getPageHashFromURL(url) {
@@ -116,6 +129,45 @@ function getPageHashFromURL(url) {
 	if (hash == '')
 		hash = "main";
 	return hash;
+}
+
+function analysisPageHash(pageHash) {
+	let pageName = "error";
+	let roomId = null;
+	let gameIndex = null;
+	switch (pageHash) {
+	case "error":
+	case "login":
+	case "main":
+		pageName = pageHash; break;
+	default: {
+		if (pageHash.startsWith("room")) {
+			let index = pageHash.indexOf("-");
+			if (index == -1) {
+				pageName = "room";
+				roomId = pageHash.substring(4);
+			} else if (pageHash.startsWith("ai-game", index + 1)) {
+				pageName = "ai-game";
+				roomId = pageHash.substring(4, index);
+				gameIndex = pageHash.substring(index + 8);
+			} else if (pageHash.startsWith("game", index + 1)) {
+				pageName = "game";
+				roomId = pageHash.substring(4, index);
+				gameIndex = pageHash.substring(index + 5);
+			}
+			// TODO(HeiYiu): More precise syntax checking
+			if (roomId == "") {
+				pageName = "error";
+				roomId = null;
+			}
+			if (gameIndex == "") {
+				pageName = "error";
+				gameIndex = null;
+			}
+		}
+	}
+	}
+	return [pageName, roomId, gameIndex];
 }
 
 function renderTemplate(container, templateId) {
@@ -132,20 +184,19 @@ function renderTemplate(container, templateId) {
 	container.prepend(clone);
 }
 
-function sendInitMessage(pageHash) {
-	switch (pageHash) {
-		case "error":
-		case "login":
-		case "game":
-		case "ai-game":
-			break;
-		case "room":
-			let roomId = 1314;
-			myself.sendMessageJoinRoom(roomId);
-			break;
-		case "main":
-			myself.sendMessageInit();
-			break;
+function sendInitMessage(pageName, roomId, gameIndex) {
+	switch (pageName) {
+	case "error":
+	case "login":
+	case "game":
+	case "ai-game":
+		break;
+	case "room":
+		myself.sendMessageJoinRoom(roomId);
+		break;
+	case "main":
+		myself.sendMessageInit();
+		break;
 	}
 }
 

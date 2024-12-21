@@ -1,11 +1,13 @@
 import requests
-import shortuuid
+import uuid
 import jwt
 import time
+from random import random
 from django.conf import settings
 from .user import assign_random_avatar, assign_random_background_color, check_if_new_user, create_new_user, save_user_cache
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
+from .redis_data import add_one_player, get_one_player
 
 # TODO: borrow a new api
 
@@ -26,8 +28,22 @@ from django.http import HttpResponseRedirect, JsonResponse
 def logout(request):
     pass
 
-def guest_login(request):
-    guest_id = shortuuid.ShortUUID().random(length=22)
+async def avatar_information(request):
+    jwt_token = request.COOKIES.get('jwt')
+    try:
+        payload = jwt.decode(jwt_token, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
+    except jwt.InvalidTokenError:
+        return JsonResponse({'error': 'Invalid token'}, status=404)
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({'error': 'Token has expired'}, status=404)
+    player = await get_one_player(payload['id'])
+    if player is not None:
+        return JsonResponse(player)
+    else:
+        return JsonResponse({'error': 'Cannot find player'}, status=404)
+
+async def guest_login(request):
+    guest_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, str(random())))
     now = int(time.time())
     
     payload = {
@@ -41,6 +57,7 @@ def guest_login(request):
 
     avatar = assign_random_avatar()
     color = assign_random_background_color()
+    await add_one_player(guest_id, avatar, color)
     # save_user_cache(guest_id, avatar, color, guest=True)
 
     # redirect to the main page with jwt token as cookie set
@@ -49,7 +66,7 @@ def guest_login(request):
         key='jwt', 
         value=jwt_token, 
         httponly=False,  # make the cookie inaccessible to js
-        secure=True,  # ensure the cookie is sent over HTTPS
+        secure=False,  # TODO: make it True in production to ensure the cookie is sent over HTTPS
         samesite='Lax'  # define when to allow the cookie to be sent
     )
     return response
@@ -60,13 +77,13 @@ def check_auth(request):
     try:
         payload = jwt.decode(jwt_token, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
     except jwt.InvalidTokenError:
-        return JsonResponse({'error': 'Invalid token'})
+        return JsonResponse({'error': 'Invalid token'}, status=404)
     except jwt.ExpiredSignatureError:
-        return JsonResponse({'error': 'Token has expired'})
+        return JsonResponse({'error': 'Token has expired'}, status=404)
     return JsonResponse(payload)
 
 # OAuth callback view
-def oauth_callback(request):
+async def oauth_callback(request):
     code = request.GET.get('code')
     if not code:
         return JsonResponse({'error': 'No code provided from OAuth'}, status=400)
@@ -103,7 +120,13 @@ def oauth_callback(request):
 #    if check_if_new_user(user_login):
 #        create_new_user(user_login)
 
-    intra_user_uuid = shortuuid.ShortUUID().random(length=22)
+    # TODO(HeiYiu): Check if user exists
+    intra_user_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, access_token_response.json().get('access_token')))
+    player = await get_one_player(intra_user_uuid)
+    if player is None:
+        avatar = assign_random_avatar()
+        color = assign_random_background_color()
+        await add_one_player(intra_user_uuid, avatar, color)
 
     payload = {
         'id': intra_user_uuid,
@@ -120,7 +143,7 @@ def oauth_callback(request):
         key='jwt', 
         value=jwt_token, 
         httponly=False,  # make the cookie inaccessible to js
-        secure=True,  # ensure the cookie is sent over HTTPS
+        secure=False, # TODO: make it True in production to ensure the cookie is sent over HTTPS
         samesite='Lax'  # define when to allow the cookie to be sent
     )
     return response

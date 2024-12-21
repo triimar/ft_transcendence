@@ -33,21 +33,21 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		}
 
 		const ball = {
-		  x: canvas.width / 2,
-		  y: canvas.height / 2,
-		  vx: BALL_SPEED,
-		  vy: BALL_SPEED,
-		  size: 50,
-		  isReset: true,
-		  isSpeedingUp: true,
-		  color: "blue",
-		  draw()
-		  {
+			x: canvas.width / 2,
+			y: canvas.height / 2,
+			vx: BALL_SPEED,
+			vy: BALL_SPEED,
+			size: 50,
+			isReset: true,
+			isSpeedingUp: true,
+			color: "blue",
+			draw()
+			{
 			ctx.fillStyle = this.color;
 			ctx.fillRect(this.x, this.y, this.size, this.size);
-		  },
-		  reset(side)
-		  {
+			},
+			reset(side)
+			{
 			this.x = canvas.width / 2;
 			this.y = canvas.height / 2;
 			this.vx = BALL_SPEED * side;
@@ -55,7 +55,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			this.isReset = true;
 			this.isSpeedingUp = false;
 			this.vx = 1 * side;
-		  }
+			}
 		};
 
 		const paddleLeft = {
@@ -141,7 +141,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 			ball.x += ball.vx;
 			ball.y += ball.vy;
-		  
+			
 			//Bounce off the ceiling/floor
 			if (
 				ball.y + ball.vy > canvas.height - ball.size ||
@@ -283,11 +283,11 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		document.addEventListener("keydown", this.keydownEventListener, true);
 
 		/*canvas.addEventListener("mouseover", (e) => {
-		  raf = window.requestAnimationFrame(draw);
+			raf = window.requestAnimationFrame(draw);
 		});
 
 		canvas.addEventListener("mouseout", (e) => {
-		  window.cancelAnimationFrame(raf);
+			window.cancelAnimationFrame(raf);
 		});
 		*/
 

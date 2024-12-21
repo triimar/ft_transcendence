@@ -16,16 +16,33 @@ export default class ComponentNavigationBar extends HTMLElement {
 		}).bind(this);
 		this.shadow.querySelector("#mode").addEventListener("click", this.modeSwitcherFunc, true);
 
-        this.toggleAvatarInfoFunc = (() => {
-            this.shadow.querySelector("#avatar-info-container").classList.toggle("hide");
-        }).bind(this);
+		this.toggleAvatarInfoFunc = (() => {
+				this.shadow.querySelector("#avatar-info-container").classList.toggle("hide");
+		}).bind(this);
 		this.shadow.querySelector("#avatar").addEventListener("click", this.toggleAvatarInfoFunc, true);
 		this.shadow.querySelector("#close-btn").addEventListener("click", this.toggleAvatarInfoFunc, true);
-        this.logoutFunc = (() => {
-            myself.logout();
-            window.location.hash = "#login";
-        }).bind(this);
+		this.logoutFunc = () => {
+			if (myself.roomId == null) {
+				myself.logout();
+				window.location.hash = "#login";
+			} else {
+				// Note(HeiYiu): this will redirect there after ack_leave_room is received
+				myself.page.confirmPopupRedirectPageHash = "#login";
+				myself.sendMessageLeaveRoom(myself.roomId);
+				myself.logout();
+			}
+		};
 		this.shadow.querySelector("#logout-btn").addEventListener("click", this.logoutFunc, true);
+			// Note(HeiYiu): Change avatar
+			let avatarElement = document.createElement("td-avatar");
+			avatarElement.setAttribute("avatar-name", myself.avatar_emoji);
+			avatarElement.setAttribute("avatar-background", myself.avatar_bg_color);
+			avatarElement.setAttribute("avatar-id", myself.id);
+			avatarElement.setAttribute("slot", "avatar");
+			let dummyAvatars = this.shadow.querySelectorAll(".dummy-avatar");
+			for (let dummyAvatar of dummyAvatars) {
+				dummyAvatar.parentNode.replaceChild(avatarElement.cloneNode(), dummyAvatar);
+			}
 	}
 
 	disconnectedCallback() {
