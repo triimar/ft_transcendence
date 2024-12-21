@@ -311,7 +311,7 @@ class Visitor {
 					}, {once: true});
 				}
 			} break;
-			case "start_game": {
+			case "b_start_game": {
 				// TODO
 			} break;
 			case "error": {
