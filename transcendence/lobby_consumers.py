@@ -144,7 +144,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     if id == "ai":
                         first_layer_player.append({"player_id": "ai"})
                     else:
-                        first_layer_player.append(data.get_one_player(id))
+                        first_layer_player.append(await data.get_one_player(id))
                 event_start_game = {"type":"start.game", "players": first_layer_player}
                 await self.channel_layer.group_send(self.room_group_name, event_start_game)
             case {"type": "start_game_countdown"}:

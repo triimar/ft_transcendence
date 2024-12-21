@@ -283,8 +283,10 @@ def init_ball() -> dict:
     return {"ball": ball}
 
 async def generate_matches(room_id, self_player_id) -> list[str]:
+    redis_instance = await get_redis_client()
     room_data = json.loads(await redis_instance.get("room_data"))
     match_id = -1
+    first_layer_player_id = None
 
     for room in room_data:
         if room["room_id"] == room_id:
@@ -294,22 +296,24 @@ async def generate_matches(room_id, self_player_id) -> list[str]:
             temp_player_list = [p["player_id"] for p in players]
             if (player_nums % 2 != 0):
                 temp_player_list.append("ai")
-            first_layer_player_id = random.shuffle(temp_player_list)
+            random.shuffle(temp_player_list)
             matches = []
             for idx in range(match_nums):
                 match = dict()
-                match["ready"] == 0
+                match["ready"] = 0
                 if (idx <= match_nums//2):
-                    match["players"] == [first_layer_player_id[2*idx], first_layer_player_id[2*idx+1]]
+                    match["players"] = [temp_player_list[2*idx], temp_player_list[2*idx+1]]
                 else:
-                    match["players"] == []
+                    match["players"] = []
                 if self_player_id in match["players"]:
                     match_id = idx
                 match.update(init_ball())
                 match["winner"] = ""
                 matches.append(match)
+            first_layer_player_id = temp_player_list
             room["matches"] = matches
             room["ai"] = {"score": 0}
+            break
 
     await redis_instance.set("room_data", json.dumps(room_data))
     return first_layer_player_id, match_id
