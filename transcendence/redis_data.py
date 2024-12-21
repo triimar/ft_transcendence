@@ -198,8 +198,8 @@ async def update_room_owner(room_id, player_id):
         if room["room_id"] == room_id:
             room["avatars"] = [avatar for avatar in room["avatars"] if avatar["player_id"] != player_id]
             room["room_owner"] = room["avatars"][0]["player_id"]
+            room["avatars"][0]["prepared"] = True
             room_owner = room["room_owner"]
-            room["avatars"][0]["prepared"] == True
             break
 
     await redis_instance.set("room_data", json.dumps(room_data))
