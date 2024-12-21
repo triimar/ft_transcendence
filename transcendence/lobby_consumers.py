@@ -36,22 +36,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 if player_id:
                     room_list = await data.get_full_room_data()
                     await self.send(text_data=json.dumps({"type": "ack_init", "rooms": room_list}))
-            case {"type": "create_matches", "room_id": room_id}:
-                await self.create_matches(room_id)
-            case {"type": "join_match", "room_id": room_id, "player_id": player_id}:
-                await self.join_match(room_id, player_id) # TODO
-            case {"type": "player_match_ready"}:
-                await self.start_match(self)
-            case {"type": "bounce_ball", "ball": ball}:
-                await self.bounce_ball(self, ball)
-            case {"type": "paddle_move", "position": position}:
-                await self.paddle_move(self, position)
-            case {"type": "scored_point"}:
-                await self.score_point(self)
-            case {"type": "ai_score_player"}:
-                await self.ai_score_point(self, self.player_id)
-            case {"type": "ai_score_ai"}:
-                await self.ai_score_point(self, "ai")
             case {"type": "join_room",  "room_id": room_id, "player_id": player_id}:
                 self.room_group_name = room_id
                 # Remove this consumer from lobby group
@@ -168,6 +152,22 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 player_two = data.get_one_player(match["players"][1]) if match["players"][1] != "ai" else {"player_id": "ai"}
                 event_start_game_countdown = {"type": "startgame.countdown", "match": match, "opponents": [player_one, player_two]}
                 await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event_start_game_countdown)
+            case {"type": "create_matches", "room_id": room_id}:
+                await self.create_matches(room_id)
+            case {"type": "join_match", "room_id": room_id, "player_id": player_id}:
+                await self.join_match(room_id, player_id) # TODO
+            case {"type": "player_match_ready"}:
+                await self.start_match(self)
+            case {"type": "bounce_ball", "ball": ball}:
+                await self.bounce_ball(self, ball)
+            case {"type": "paddle_move", "position": position}:
+                await self.paddle_move(self, position)
+            case {"type": "scored_point"}:
+                await self.score_point(self)
+            case {"type": "ai_score_player"}:
+                await self.ai_score_point(self, self.player_id)
+            case {"type": "ai_score_ai"}:
+                await self.ai_score_point(self, "ai")
 
     async def create_matches(self, room_id):
         room_data = data.get_one_room_data(room_id)
