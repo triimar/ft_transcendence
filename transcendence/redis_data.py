@@ -254,16 +254,15 @@ async def update_prepared_one_player_in_one_room(room_id, player_id):
 
     for room in room_data:
         if room["room_id"] == room_id:
-            if all(player_id != elem["player_id"] for elem in room["avatars"]):
-                return RedisError.NOPLAYERFOUND
             for player in room["avatars"]:
                 if player["player_id"] == player_id:
-                    player["prepared"] == True
-            await redis_instance.set("room_data", json.dumps(room_data))
-            if all(elem["prepared"] for elem in room["avatars"]):
-                return RedisError.PLAYERALLPREPARED
-            else:
-                return RedisError.NONE
+                    player["prepared"] = True
+                    await redis_instance.set("room_data", json.dumps(room_data))
+                    if all(elem["prepared"] for elem in room["avatars"]):
+                        return RedisError.PLAYERALLPREPARED
+                    else:
+                        return RedisError.NONE
+            return RedisError.NOPLAYERFOUND
     return RedisError.NOROOMFOUND
 
 async def get_owner_id(room_id) -> str:
