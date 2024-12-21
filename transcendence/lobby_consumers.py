@@ -45,10 +45,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 match (await data.add_player_to_room(room_id=room_id, player_id=player_id)):
                     case data.RedisError.NONE:
                         avatar = await data.get_one_player(player_id=player_id)
-                        if avatar is not None:
-                            event_join_room = {"type": "join.room", "room_id": room_id, "avatar": avatar}
-                        else:
-                            event_join_room = {"type": "join.room", "room_id": room_id}
+                        event_join_room = {"type": "join.room", "room_id": room_id, "avatar": avatar}
                         await self.channel_layer.group_send(self.lobby_group_name, event_join_room)
                         # Add this consumer to a group identified by 'room_id'
                         await self.channel_layer.group_add(
@@ -167,11 +164,8 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 	# functions for dealing with events
     async def join_room(self, event):
         room_id = event["room_id"]
-        try:
-            avatar = event["avatar"]
-            text_data = json.dumps({"type": "b_join_room", "room_id": room_id, "avatar": avatar})
-        except KeyError as e:
-            text_data = json.dumps({"type": "b_join_room", "room_id": room_id, "avatar": "Cannot get the certain player who joined the room!"})
+        avatar = event["avatar"]
+        text_data = json.dumps({"type": "b_join_room", "room_id": room_id, "avatar": avatar})
         await self.send(text_data=text_data)
 
     async def leave_room(self, event):
