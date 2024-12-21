@@ -132,6 +132,11 @@ export class PageRoom {
 			location.hash = "#main";
 		});
 		let roomId = myself.roomId;
+		this.container.querySelector("#prepare-btn").addEventListener("click", e => {
+			myself.sendMessagePrepareGame(roomId);
+			e.currentTarget.children[0].textContent = "PREPARED";
+			e.currentTarget.setAttribute("disabled", "");
+		}, {once: true});
 		this.container.querySelector("#yes-btn").addEventListener("click", () => {
 			this.displayConfirmPopup = false;
 			myself.sendMessageLeaveRoom(roomId);

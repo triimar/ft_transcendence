@@ -168,6 +168,7 @@ class Visitor {
 					avatarElement.setAttribute("avatar-name", avatar["player_emoji"]);
 					avatarElement.setAttribute("avatar-background", '#' + avatar["player_bg_color"]);
 					avatarElement.setAttribute("avatar-id", avatar["player_id"]);
+					if (avatar["prepared"])
 					{
 						let readySpeechBubble = document.createElement("div");
 						readySpeechBubble.classList.add("speech-bubble");
@@ -235,7 +236,7 @@ class Visitor {
 						if (this.roomOwnerIsMyself) {
 							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 							roomSizeButtons.style.display = "flex";
-							let avatars = roomElement.shadowRoot.querySelectorAll("td-avatar");
+							let avatars = roomElement.querySelectorAll("td-avatar");
 							if (avatars != null) {
 								roomSizeButtons.changeMinSize(avatars.length > 2 ? avatars.length : 2);
 							}
@@ -257,6 +258,34 @@ class Visitor {
 				} else if (this.pageName == "room") {
 					let roomElement = this.page.container.querySelector("td-lobby-room");
 					roomElement.setAttribute("room-max", maxPlayerNumber);
+				}
+			} break;
+			case "b_prepare_game": {
+				console.assert(message["room_id"] == this.roomId, `Only room ${message["room_id"]} should receive b_prepare_game message. But player is in ${this.roomId == null ? "lobby" : "room " + this.roomId}`);
+				let roomElement = this.page.container.querySelector("td-lobby-room");
+				let avatarElements = roomElement.querySelectorAll("td-avatar");
+				for (let avatarElement of avatarElements)
+				{
+					if (avatarElement.getAttribute("avatar-id") == message["player_id"])
+					{
+						let readySpeechBubble = document.createElement("div");
+						readySpeechBubble.classList.add("speech-bubble");
+						readySpeechBubble.style.background = "var(--td-ui-background-color)";
+						readySpeechBubble.style.position = "absolute";
+						readySpeechBubble.style.bottom = "84%";
+						readySpeechBubble.style.left = "50%";
+						readySpeechBubble.style.width = "fit-content";
+						readySpeechBubble.style.height = "fit-content";
+						{
+							let text = document.createElement("p");
+							text.style.width = "max-content";
+							text.style.padding = "0 0.5em";
+							text.textContent = "Ready!";
+							readySpeechBubble.appendChild(text);
+						}
+						avatarElement.appendChild(readySpeechBubble);
+						break;
+					}
 				}
 			} break;
 			case "error": {
@@ -373,6 +402,15 @@ class Visitor {
 			type: "max_player",
 			"room_id": roomId,
 			"max_player_num": maxPlayer
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessagePrepareGame(roomId) {
+		let message = {
+			type: "prepare_game",
+			"room_id": roomId,
+			"player_id": this.id
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
