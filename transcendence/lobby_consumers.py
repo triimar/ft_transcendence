@@ -45,7 +45,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 match (await data.add_player_to_room(room_id=room_id, player_id=player_id)):
                     case data.RedisError.NONE:
                         avatar = await data.get_one_player(player_id=player_id)
-                        event_join_room = {"type": "join.room", "room_id": room_id, "avatar": avatar}
+                        event_join_room = {"type": "broadcast.join.room", "room_id": room_id, "avatar": avatar}
                         await self.channel_layer.group_send(self.lobby_group_name, event_join_room)
                         # Add this consumer to a group identified by 'room_id'
                         await self.channel_layer.group_add(
@@ -83,10 +83,10 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 if len(current_room["avatars"]) != 1:
                     if current_room["room_owner"] == player_id:
                         new_room_owner = await data.update_room_owner(room_id, player_id)
-                        event_leave_room = {"type": "leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "new_room_owner": new_room_owner}
+                        event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "new_room_owner": new_room_owner}
                     else:
                         await data.delete_one_player_from_room(room_id,player_id)
-                        event_leave_room = {"type": "leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "room_owner": current_room["room_owner"]}
+                        event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "room_owner": current_room["room_owner"]}
                     match(await data.is_all_prepared(room_id)):
                         case data.RedisError.PLAYERALLPREPARED:
                             event_leave_room.update({"all_prepared": True})
@@ -97,7 +97,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                     await self.channel_layer.group_send(self.room_group_name, event_leave_room)
                 else:
                     await data.delete_one_room(room_id)
-                    event_leave_room = {"type": "leave.room", "delete_room": True, "room_id": room_id, "player_id": player_id}
+                    event_leave_room = {"type": "broadcast.leave.room", "delete_room": True, "room_id": room_id, "player_id": player_id}
                 await self.channel_layer.group_send(self.lobby_group_name, event_leave_room)
                 await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
                 self.join_group = ["lobby"]
@@ -105,7 +105,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             case {"type": "max_player","room_id": room_id, "max_player_num": max_player_num}:
                 match (await data.update_max_player_num_in_one_room(room_id, max_player_num)):
                     case data.RedisError.NONE:
-                        event_update_max_num =  {"type": "update.maxplayernum", "room_id": room_id, "max_player_num": max_player_num}
+                        event_update_max_num =  {"type": "broadcast.update.maxplayernum", "room_id": room_id, "max_player_num": max_player_num}
                         await self.channel_layer.group_send(self.room_group_name, event_update_max_num)
                         await self.channel_layer.group_send(self.lobby_group_name, event_update_max_num)
                     case data.RedisError.NOROOMFOUND:
@@ -115,7 +115,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             case {"type": "update_mode", "room_id": room_id, "mode": mode}:
                 match(await data.update_game_mode_in_one_room(room_id, mode)):
                     case data.RedisError.NONE:
-                        event_update_mode = {"type":"update.mode", "room_id":room_id, "mode": mode}
+                        event_update_mode = {"type":"broadcast.update.mode", "room_id":room_id, "mode": mode}
                         await self.channel_layer.group_send(self.room_group_name, event_update_mode)
                     case data.RedisError.NOROOMFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
@@ -124,10 +124,10 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             case {"type": "prepare_game", "room_id": room_id, "player_id": player_id}:
                 match(await data.update_prepared_one_player_in_one_room(room_id, player_id)):
                     case data.RedisError.NONE:
-                        event_update_mode = {"type": "update.preparegame", "room_id": room_id, "player_id": player_id, "all_prepared": False}
+                        event_update_mode = {"type": "broadcast.update.preparegame", "room_id": room_id, "player_id": player_id, "all_prepared": False}
                         await self.channel_layer.group_send(self.room_group_name, event_update_mode)
                     case data.RedisError.PLAYERALLPREPARED:
-                        event_update_mode = {"type": "update.preparegame", "room_id": room_id, "player_id": player_id, "all_prepared": True}
+                        event_update_mode = {"type": "broadcast.update.preparegame", "room_id": room_id, "player_id": player_id, "all_prepared": True}
                         await self.channel_layer.group_send(self.room_group_name, event_update_mode)
                     case data.RedisError.NOROOMFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
@@ -141,7 +141,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                         first_layer_player.append({"player_id": "ai"})
                     else:
                         first_layer_player.append(await data.get_one_player(id))
-                event_start_game = {"type":"start.game", "players": first_layer_player}
+                event_start_game = {"type":"broadcast.start.game", "players": first_layer_player}
                 await self.channel_layer.group_send(self.room_group_name, event_start_game)
             case {"type": "start_game_countdown"}:
                 await self.channel_layer.group_add(self.room_group_name + "_" + self.match_id, self.channel_name)
@@ -150,7 +150,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                 match = data.get_one_match(self.room_group_name, self.match_id)
                 player_one = data.get_one_player(match["players"][0]) if match["players"][0] != "ai" else {"player_id": "ai"}
                 player_two = data.get_one_player(match["players"][1]) if match["players"][1] != "ai" else {"player_id": "ai"}
-                event_start_game_countdown = {"type": "startgame.countdown", "match": match, "opponents": [player_one, player_two]}
+                event_start_game_countdown = {"type": "broadcast.startgame.countdown", "match": match, "opponents": [player_one, player_two]}
                 await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event_start_game_countdown)
             case {"type": "create_matches", "room_id": room_id}:
                 await self.create_matches(room_id)
@@ -266,13 +266,13 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         await data.update_room(room)
 
 # functions for dealing with events
-    async def join_room(self, event):
+    async def broadcast_join_room(self, event):
         room_id = event["room_id"]
         avatar = event["avatar"]
         text_data = json.dumps({"type": "b_join_room", "room_id": room_id, "avatar": avatar})
         await self.send(text_data=text_data)
 
-    async def leave_room(self, event):
+    async def broadcast_leave_room(self, event):
         room_id = event["room_id"]
         player_id = event["player_id"]
         if event["delete_room"] == True:
@@ -285,7 +285,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             text_data = json.dumps(msg)
         await self.send(text_data=text_data)
 
-    async def update_maxplayernum(self, event):
+    async def broadcast_update_maxplayernum(self, event):
         room_id = event["room_id"]
         max_player_num = event["max_player_num"]
 
@@ -293,26 +293,26 @@ class LobbyConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=text_data)
 
-    async def update_mode(self, event):
+    async def broadcast_update_mode(self, event):
         room_id = event["room_id"]
         updated_mode = event["mode"]
 
         text_data = json.dumps({"type": "b_update_mode", "room_id": room_id, "mode": updated_mode})
         await self.send(text_data=text_data)
 
-    async def update_preparegame(self, event):
+    async def broadcast_update_preparegame(self, event):
         room_id = event["room_id"]
         player_id = event["player_id"]
         all_prepared = event["all_prepared"]
         text_data = json.dumps({"type": "b_prepare_game", "room_id": room_id, "player_id": player_id, "all_prepared": all_prepared})
         await self.send(text_data=text_data)
 
-    async def start_game(self, event):
+    async def broadcast_start_game(self, event):
         players = event["players"]
         text_data = json.dumps({"type": "b_start_game", "players": players})
         await self.send(text_data=text_data)
 
-    async def startgame_countdown(self, event):
+    async def broadcast_startgame_countdown(self, event):
         match = event["match"]
         opponents = event["opponets"]
 
