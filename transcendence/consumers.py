@@ -147,9 +147,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_add(self.room_group_name + "_" + self.match_id, self.channel_name)
                 await self.channel_layer.group_discard(self.room_group_name, event_start_game)
                 self.joined_group = ["match"]
-                match = data.get_one_match(self.room_group_name, self.match_id)
-                player_one = data.get_one_player(match["players"][0]) if match["players"][0] != "ai" else {"player_id": "ai"}
-                player_two = data.get_one_player(match["players"][1]) if match["players"][1] != "ai" else {"player_id": "ai"}
+                match = await data.get_one_match(self.room_group_name, self.match_id)
+                player_one = await data.get_one_player(match["players"][0]) if match["players"][0] != "ai" else {"player_id": "ai"}
+                player_two = await data.get_one_player(match["players"][1]) if match["players"][1] != "ai" else {"player_id": "ai"}
                 event_start_game_countdown = {"type": "broadcast.startgame.countdown", "match": match, "opponents": [player_one, player_two]}
                 await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event_start_game_countdown)
             case {"type": "create_matches", "room_id": room_id}:
@@ -170,7 +170,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.ai_score_point(self, "ai")
 
     async def create_matches(self, room_id):
-        room_data = data.get_one_room_data(room_id)
+        room_data = await data.get_one_room_data(room_id)
         players = room_data['avatars']
         player_ids = list(players.keys())
         matches = []
@@ -200,10 +200,10 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def start_match(self):
-        room = data.get_one_room_data(self.room_group_name)
+        room = await data.get_one_room_data(self.room_group_name)
         game_match = room['matches'][self.match_id]
         game_match['ready'] += 1
-        player = data.get_one_player(self.player_id)
+        player = await data.get_one_player(self.player_id)
         player['score'] = 0
         if (game_match['ready'] == 2):
             event = {"type": "broadcast.start.match", 'ball': game_match['ball']}
@@ -217,7 +217,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def bounce_ball(self, ball):
-        room = data.get_one_room_data(self.room_group_name)
+        room = await data.get_one_room_data(self.room_group_name)
         match_data = room['matches'][self.match_id]
         ball_data = match_data['ball']
         ball_data = ball
@@ -231,9 +231,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def paddle_move(self, position):
-        room = data.get_one_room_data(self.room_group_name)
+        room = await data.get_one_room_data(self.room_group_name)
         match_data = room['matches'][self.match_id]
-        player_data = data.get_one_player(self.player_id)
+        player_data = await data.get_one_player(self.player_id)
         player_side = 0
         if match_data['players'][1] == self.player_id:
             player_side = 1
@@ -249,9 +249,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def score_point(self):
-        room = data.get_one_room_data(self.room_group_name)
+        room = await data.get_one_room_data(self.room_group_name)
         match_data = room['matches'][self.match_id]
-        player_data = data.get_one_player(self.player_id)
+        player_data = await data.get_one_player(self.player_id)
         # player_data does not have score field
         player_data['score'] += 1
         if (player_data['score'] == 11):
@@ -277,11 +277,11 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def ai_score_point(self, id):
-        room = data.get_one_room_data(self.room_group_name)
+        room = await data.get_one_room_data(self.room_group_name)
         match_data = room["matches"][self.match_id]
         player = room['ai']
         if id != "ai":
-            player = data.get_one_player(self.player_id)
+            player = await data.get_one_player(self.player_id)
             player['score'] += 1
             await data.update_player(player)
             event = {"type": "broadcast.match.win", "winner": player};
