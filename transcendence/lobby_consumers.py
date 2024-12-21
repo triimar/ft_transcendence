@@ -195,26 +195,6 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         event_matches = {"type": "matches_created"}
         await self.channel_layer.group_send(self.room_group_name, event=event_matches)
 
-# functions for dealing with events
-    async def join_room(self, event):
-        room_id = event["room_id"]
-        avatar = event["avatar"]
-        text_data = json.dumps({"type": "b_join_room", "room_id": room_id, "avatar": avatar})
-        await self.send(text_data=text_data)
-
-    async def leave_room(self, event):
-        room_id = event["room_id"]
-        player_id = event["player_id"]
-        if event["delete_room"] == True:
-            text_data = json.dumps({"type": "b_remove_room", "room_id": room_id})
-        else:
-            msg = {"type":"b_leave_room", "room_id": room_id, "player_id": player_id, "all_prepared": event["all_prepared"]}
-            if "new_room_owner" in event:
-                new_room_owner = event["new_room_owner"]
-                msg.update({"new_room_owner": new_room_owner})
-            text_data = json.dumps(msg)
-        await self.send(text_data=text_data)
-
     async def matches_created(self, event):
         await self.send(text_data=json.dumps(event))
 
@@ -284,6 +264,26 @@ class LobbyConsumer(AsyncWebsocketConsumer):
             match_data['winner'] = id
             await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
         await data.update_room(room)
+
+# functions for dealing with events
+    async def join_room(self, event):
+        room_id = event["room_id"]
+        avatar = event["avatar"]
+        text_data = json.dumps({"type": "b_join_room", "room_id": room_id, "avatar": avatar})
+        await self.send(text_data=text_data)
+
+    async def leave_room(self, event):
+        room_id = event["room_id"]
+        player_id = event["player_id"]
+        if event["delete_room"] == True:
+            text_data = json.dumps({"type": "b_remove_room", "room_id": room_id})
+        else:
+            msg = {"type":"b_leave_room", "room_id": room_id, "player_id": player_id, "all_prepared": event["all_prepared"]}
+            if "new_room_owner" in event:
+                new_room_owner = event["new_room_owner"]
+                msg.update({"new_room_owner": new_room_owner})
+            text_data = json.dumps(msg)
+        await self.send(text_data=text_data)
 
     async def update_maxplayernum(self, event):
         room_id = event["room_id"]
