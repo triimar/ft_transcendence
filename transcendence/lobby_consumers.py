@@ -61,7 +61,7 @@ class LobbyConsumer(AsyncWebsocketConsumer):
                         if joined_room is not None:
                             await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": joined_room}))
                         else:
-                            await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": "Cannot find the room to join!"}))
+                            await self.send(text_data=json.dumps({"type": "error", "message": "Cannot find the room to join!"}))
                     case data.RedisError.NOPLAYERFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
                     case data.RedisError.NOROOMFOUND:
