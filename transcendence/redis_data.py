@@ -212,7 +212,7 @@ async def is_all_prepared(room_id):
 
     for room in room_data:
         if room["room_id"] == room_id:
-            if all(elem["prepared"] for elem in room["avatars"]):
+            if (len(room["avatars"]) > 1) and all(elem["prepared"] for elem in room["avatars"]):
                 return RedisError.PLAYERALLPREPARED
             else:
                 return RedisError.NONE
