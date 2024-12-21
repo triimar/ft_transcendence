@@ -192,11 +192,12 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
         await data.update_full_matches(self.room_group_name, matches)
         # Notify players in the room about the match creation
-        event_matches = {"type": "matches_created"}
+        event_matches = {"type": "broadcast.matches.created"}
         await self.channel_layer.group_send(self.room_group_name, event=event_matches)
 
-    async def matches_created(self, event):
-        await self.send(text_data=json.dumps(event))
+    async def broadcast_matches_created(self, event):
+        text_data = json.dumps({"type": "b_matches_created"})
+        await self.send(text_data=text_data)
 
     async def start_match(self):
         room = data.get_one_room_data(self.room_group_name)
@@ -205,10 +206,15 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         player = data.get_one_player(self.player_id)
         player['score'] = 0
         if (game_match['ready'] == 2):
-            message = {"type": "start_game", 'ball': game_match['ball']}
-            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+            event = {"type": "broadcast.start.match", 'ball': game_match['ball']}
+            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
         await data.update_room(room)
         await data.update_player(player)
+
+    async def broadcast_start_match(self, event):
+        ball = event["ball"]
+        text_data = json.dumps({"type": "b_start_match", "ball": ball})
+        await self.send(text_data=text_data)
 
     async def bounce_ball(self, ball):
         room = data.get_one_room_data(self.room_group_name)
@@ -216,8 +222,13 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         ball_data = match_data['ball']
         ball_data = ball
         await data.update_room(room)
-        message = {"type": "b_bounce_ball", "ball": ball_data}
-        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+        event = {"type": "broadcast.bounce.ball", 'ball': game_match['ball']}
+        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
+
+    async def broadcast_bounce_ball(self, event):
+        ball = event["ball"]
+        text_data = json.dumps({"type": "b_bounce_ball", "ball": ball})
+        await self.send(text_data=text_data)
 
     async def paddle_move(self, position):
         room = data.get_one_room_data(self.room_group_name)
@@ -227,26 +238,43 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         if match_data['players'][1] == self.player_id:
             player_side = 1
         player_data['position'] = position
-        message = {"type": "b_paddle_bounce", "position": position, "paddle": player_side}
         await data.update_player(player_data)
-        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+        event = {"type": "broadcast.paddle.bounce", "position": position, "player_side": player_side}
+        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
+
+    async def broadcast_paddle_bounce(self, event):
+        position = event["position"]
+        player_side = event["player_side"]
+        text_data = json.dumps({"type": "b_paddle_bounce", "position": position, "paddle": player_side})
+        await self.send(text_data=text_data)
 
     async def score_point(self):
         room = data.get_one_room_data(self.room_group_name)
         match_data = room['matches'][self.match_id]
         player_data = data.get_one_player(self.player_id)
+        # player_data does not have score field
         player_data['score'] += 1
         if (player_data['score'] == 11):
-            message = {"type": "match_win", "winner": player_data['player_emoji']}
             match_data['winner'] = self.player_id
-            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+            event = {"type": "broadcast.match.win", "winner": player_data};
+            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
             await data.update_room(room)
         await data.update_player(player_data)
         player_side = 0
         if match_data['players'][1] == self.player_id:
             player_side = 1
-        message = {"type": "b_scored_point", 'player': player_side}
-        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+        event = {"type": "broadcast.scored.point", "player_side": player_side}
+        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
+
+    async def broadcast_match_win(self, event):
+        player_data = event["player_data"]
+        text_data = json.dumps({"type": "b_match_win", "winner": player_data})
+        await self.send(text_data=text_data)
+
+    async def broadcast_scored_point(self, event):
+        player_side = event["player_side"]
+        text_data = json.dumps({"type": "b_scored_point", 'player': player_side})
+        await self.send(text_data=text_data)
 
     async def ai_score_point(self, id):
         room = data.get_one_room_data(self.room_group_name)
@@ -256,13 +284,13 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             player = data.get_one_player(self.player_id)
             player['score'] += 1
             await data.update_player(player)
-            message = {"type": "match_win", "winner": player['player_emoji']}
+            event = {"type": "broadcast.match.win", "winner": player};
         else:
             player['score'] += 1
-            message = {"type": "match_win", "winner": "ai"}
+            event = {"type": "broadcast.match.win", "winner": "ai"};
         if player['score'] == 11:
             match_data['winner'] = id
-            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, message)
+            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
         await data.update_room(room)
 
 # functions for dealing with events
