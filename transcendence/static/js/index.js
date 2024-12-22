@@ -8,13 +8,13 @@ import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
 import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
+import ComponentProgressBar from "./components/ProgressBar.js";
 import PageError from "./pages/PageError.js";
 import PageLogin from "./pages/PageLogin.js";
 import PageGame from "./pages/PageGame.js";
 import PageAiGame from "./pages/PageAiGame.js";
 import PageRoom from "./pages/PageRoom.js";
 import PageMain from "./pages/PageMain.js";
-
 import { myself } from "./myself.js";
 
 const pageMapping = {
@@ -158,4 +158,5 @@ window.customElements.define("td-game-board", ComponentGameBoard);
 window.customElements.define("td-ai-game-board", ComponentAIGameBoard);
 window.customElements.define("td-button", ComponentButton);
 window.customElements.define("td-lever", ComponentLever);
-window.customElements.define("td-tournament-tree", ComponentTournamentTree)
+window.customElements.define("td-tournament-tree", ComponentTournamentTree);
+window.customElements.define("td-progress-bar", ComponentProgressBar);
