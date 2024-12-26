@@ -160,15 +160,15 @@ export class PageRoom {
 		window.removeEventListener("beforeunload", this.beforeUnloadFunc);
 	}
 
-	beforeOnHashChange() {
-		// Note(HeiYiu): if the user is not logged out
-		if (this.displayConfirmPopup && (myself.id != null)) {
+	beforeOnHashChange([newPageName, newRoomId, newGameIndex]) {
+		let userNotLoggedOut = myself.id != null;
+		if (this.displayConfirmPopup && userNotLoggedOut) {
 			this.confirmPopupRedirectPageHash = window.location.hash;
 			history.replaceState(null, document.title, this.previousHref);
-			let confirmToLogOutPopup = this.container.querySelector("#confirm-to-logout-popup");
+			let confirmToLogOutPopup = document.querySelector("#confirm-to-logout-popup");
 			confirmToLogOutPopup.classList.add("show");
-			return true;
+			return false;
 		}
-		return false;
+		return true;
 	}
 }

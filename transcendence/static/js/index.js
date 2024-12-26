@@ -30,7 +30,7 @@ async function main() {
 			isTriggerHashChange = true;
 			return;
 		}
-		if ((currentPage.beforeOnHashChange != null) && (currentPage.beforeOnHashChange() == true)) {
+		if ((currentPage.beforeOnHashChange != null) && !currentPage.beforeOnHashChange(analysisPageHash(getPageHashFromURL(URL.parse(event.newURL))))) {
 			return;
 		}
 		currentPage.removeEvents();
