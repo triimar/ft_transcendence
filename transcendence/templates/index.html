@@ -13,6 +13,15 @@
 		<div id="notification-popup" class="ui">
 			<p id="notification-popup-text">Error</p>
 		</div>
+		<div id="confirm-to-logout-popup">
+			<div class="ui" style="width: fit-content; background: var(--td-ui-background-color); padding: 1em; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5em;">
+				<p>Are you sure you want to leave?</p>
+				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 1em;">
+					<td-button id="logout-yes-btn" class="ui" onclick="document.querySelector('#confirm-to-logout-popup').classList.remove('show');"><p style="padding: 0 0.5em;">YES</p></td-button>
+					<td-button id="logout-no-btn" class="ui" onclick="document.querySelector('#confirm-to-logout-popup').classList.remove('show');"><p style="padding: 0 0.5em;">NO</p></td-button>
+				</div>
+			</div>
+		</div>
 		<footer style="width: 70%; margin-top: auto; display: flex; flex-direction: column; align-items: center;" class="ui">
 			<p>:PONG © 2024</p>
 			<p style="font-size: 0.5em;">Made by Hei Yiu, Maria, Sangyao, Sol and Triin</p>
@@ -52,21 +61,6 @@
 </template>
 <template id="page-room">
 	<style>
-		#confirm-to-logout-popup {
-			opacity: 0;
-			transition: opacity 1s ease-out;
-			pointer-events: none;
-		}
-
-		#confirm-to-logout-popup.show {
-			opacity: 1;
-			pointer-events: auto;
-		}
-
-		#confirm-to-logout-popup.show > div {
-			animation: wiggle .6s;
-		}
-
 		.speech-bubble {
 			animation: wiggle .6s;
 		}
@@ -86,15 +80,6 @@
 	align-items: center;
 	gap: 0.4em;">
 	</td-tournament-tree>
-	<div id="confirm-to-logout-popup" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 3; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center;">
-		<div class="ui" style="width: fit-content; background: var(--td-ui-background-color); padding: 1em; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5em;">
-			<p>Are you sure you want to leave?</p>
-			<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 1em;">
-				<td-button id="yes-btn" class="ui"><p style="padding: 0 0.5em;">YES</p></td-button>
-				<td-button id="no-btn" class="ui"><p style="padding: 0 0.5em;">NO</p></td-button>
-			</div>
-		</div>
-	</div>
 </template>
 
 <template id="page-main">

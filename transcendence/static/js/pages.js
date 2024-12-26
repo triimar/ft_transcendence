@@ -137,14 +137,10 @@ export class PageRoom {
 			e.currentTarget.children[0].textContent = "PREPARED";
 			e.currentTarget.setAttribute("disabled", "");
 		}, {once: true});
-		this.container.querySelector("#yes-btn").addEventListener("click", () => {
+		document.querySelector("#logout-yes-btn").addEventListener("click", () => {
 			this.displayConfirmPopup = false;
 			myself.sendMessageLeaveRoom(roomId);
-		});
-		this.container.querySelector("#no-btn").addEventListener("click", () => {
-			let confirmToLogOutPopup = this.container.querySelector("#confirm-to-logout-popup");
-			confirmToLogOutPopup.classList.remove("show");
-		});
+		}, {once: true});
 		this.beforeUnloadFunc = ((e) => {
 			e.preventDefault();
 			e.returnValue = true;

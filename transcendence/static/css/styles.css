@@ -110,6 +110,32 @@ main {
 	100% {transform: rotate(0deg);}
 }
 
+#confirm-to-logout-popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 3;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5em;
+	opacity: 0;
+	transition: opacity 1s ease-out;
+	pointer-events: none;
+}
+
+#confirm-to-logout-popup.show {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+#confirm-to-logout-popup.show > div {
+	animation: wiggle .6s;
+}
+
 .speech-bubble {
 	--triangle-position: 20%;
 	border: calc(var(--td-border-size) / 2) solid var(--td-ui-font-color);
