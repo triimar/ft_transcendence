@@ -132,11 +132,12 @@ export class PageRoom {
 			location.hash = "#main";
 		});
 		let roomId = myself.roomId;
-		this.container.querySelector("#prepare-btn").addEventListener("click", e => {
+		this.prepareButtonFunc = (e) => {
 			myself.sendMessagePrepareGame(roomId);
 			e.currentTarget.children[0].textContent = "PREPARED";
 			e.currentTarget.setAttribute("disabled", "");
-		}, {once: true});
+		};
+		this.container.querySelector("#prepare-btn").addEventListener("click", this.prepareButtonFunc, {once: true});
 		document.querySelector("#logout-yes-btn").addEventListener("click", () => {
 			this.displayConfirmPopup = false;
 			myself.sendMessageLeaveRoom(roomId);

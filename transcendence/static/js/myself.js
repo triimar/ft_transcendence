@@ -242,6 +242,7 @@ class Visitor {
 							if (message["all_prepared"]) {
 								prepareButton.children[0].textContent = "Start game";
 								prepareButton.removeAttribute("disabled");
+								prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 								prepareButton.addEventListener("click", () => {
 									this.sendMessageStartGame(this.roomId);
 								}, {once: true});
@@ -306,6 +307,7 @@ class Visitor {
 					let prepareButton = this.page.container.querySelector("#prepare-btn");
 					prepareButton.children[0].textContent = "Start game";
 					prepareButton.removeAttribute("disabled");
+					prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 					prepareButton.addEventListener("click", () => {
 						this.sendMessageStartGame(this.roomId);
 					}, {once: true});
