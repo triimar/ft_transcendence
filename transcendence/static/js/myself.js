@@ -314,7 +314,7 @@ class Visitor {
 				}
 			} break;
 			case "b_start_game": {
-				// TODO
+				window.location.href += "-tree";
 			} break;
 			case "error": {
 				this.displayPopupMessage(message.message);

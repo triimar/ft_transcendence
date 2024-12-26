@@ -73,13 +73,6 @@
 	</td-lobby-room>
 	<td-room-setting-size id="room-size-buttons" class="ui" style="display: none"></td-room-setting-size>
 	<div class="ui ui-text"><p>More game options coming soon</p></div>
-	<td-tournament-tree style="
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: center;
-	gap: 0.4em;">
-	</td-tournament-tree>
 </template>
 
 <template id="page-main">
@@ -94,6 +87,17 @@
 	<td-navigation-bar>
 		<td-button id="add-room-btn" class="ui"><p class="ui-text">ADD ROOM</p></td-button>
 	</td-navigation-bar>
+</template>
+<template id="page-tree">
+	<td-navigation-bar>
+	</td-navigation-bar>
+	<td-tournament-tree style="
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 0.4em;">
+	</td-tournament-tree>
 </template>
 <template id="component-lobby-room">
 	<style>

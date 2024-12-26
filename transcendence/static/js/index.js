@@ -8,7 +8,7 @@ import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
 import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
-import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain } from "./pages.js";
+import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain, PageTree } from "./pages.js";
 
 import { myself } from "./myself.js";
 
@@ -18,6 +18,7 @@ const pageMapping = {
 	game: PageGame,
 	"ai-game": PageAiGame,
 	room: PageRoom,
+	tree: PageTree,
 	main: PageMain
 };
 
@@ -146,6 +147,9 @@ function analysisPageHash(pageHash) {
 			if (index == -1) {
 				pageName = "room";
 				roomId = pageHash.substring(4);
+			} else if (pageHash.startsWith("tree", index + 1)) {
+				pageName = "tree";
+				roomId = pageHash.substring(4, index);
 			} else if (pageHash.startsWith("ai-game", index + 1)) {
 				pageName = "ai-game";
 				roomId = pageHash.substring(4, index);
@@ -190,6 +194,9 @@ function sendInitMessage(pageName, roomId, gameIndex) {
 	case "login":
 	case "game":
 	case "ai-game":
+		break;
+	case "tree":
+		// myself.sendMessageGetTree(roomId);
 		break;
 	case "room":
 		myself.sendMessageJoinRoom(roomId);

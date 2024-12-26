@@ -162,6 +162,9 @@ export class PageRoom {
 	}
 
 	beforeOnHashChange([newPageName, newRoomId, newGameIndex]) {
+		if ((newPageName == "tree") && (newRoomId != null) && (newRoomId == myself.roomId)) {
+			return true;
+		}
 		let userNotLoggedOut = myself.id != null;
 		if (this.displayConfirmPopup && userNotLoggedOut) {
 			this.confirmPopupRedirectPageHash = window.location.hash;
@@ -171,5 +174,22 @@ export class PageRoom {
 			return false;
 		}
 		return true;
+	}
+}
+
+export class PageTree {
+	constructor(container) {
+		this.templateId = "page-tree";
+		this.container = container;
+		this.displayConfirmPopup = true;
+		this.confirmPopupRedirectPageHash = null;
+	}
+
+	attachEvents() {
+
+	}
+
+	removeEvents() {
+
 	}
 }
