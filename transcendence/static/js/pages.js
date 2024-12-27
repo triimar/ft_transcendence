@@ -31,7 +31,12 @@ class PageConfirmLeave {
 	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
 		let userNotLoggedOut = myself.id != null;
 		if (this.displayConfirmPopup && userNotLoggedOut) {
-			this.confirmPopupRedirectPageHash = window.location.hash;
+			if (newRoomId == myself.roomId) {
+				this.confirmPopupRedirectPageHash = "#main";
+			} else {
+				// Note(HeiYiu): So that one can leave a room and join another room directly
+				this.confirmPopupRedirectPageHash = window.location.hash;
+			}
 			history.replaceState(null, document.title, this.previousHref);
 			let confirmToLogOutPopup = document.querySelector("#confirm-to-logout-popup");
 			confirmToLogOutPopup.classList.add("show");
