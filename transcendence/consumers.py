@@ -7,6 +7,7 @@ import shortuuid
 class WebsiteConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.lobby_group_name = 'lobby_group'
+        self.room_group_name = None
 
         # Join the lobby group
         await self.channel_layer.group_add(
@@ -19,6 +20,28 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
+        if self.room_group_name is not None:
+            room_id = self.room_group_name
+            player_id = self.player_id
+            current_room = await data.get_one_room_data(room_id)
+            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+            if len(current_room["avatars"]) != 1:
+                if current_room["room_owner"] == player_id:
+                    new_room_owner = await data.update_room_owner(room_id, player_id)
+                    event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "new_room_owner": new_room_owner}
+                else:
+                    await data.delete_one_player_from_room(room_id,player_id)
+                    event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "room_owner": current_room["room_owner"]}
+                match(await data.is_all_prepared(room_id)):
+                    case data.RedisError.PLAYERALLPREPARED:
+                        event_leave_room.update({"all_prepared": True})
+                    case data.RedisError.NONE:
+                        event_leave_room.update({"all_prepared": False})
+                await self.channel_layer.group_send(self.room_group_name, event_leave_room)
+            else:
+                await data.delete_one_room(room_id)
+                event_leave_room = {"type": "broadcast.leave.room", "delete_room": True, "room_id": room_id, "player_id": player_id}
+            await self.channel_layer.group_send(self.lobby_group_name, event_leave_room)
         # Leave the current group(s)
         for group in self.joined_group:
             await self.channel_layer.group_discard(
@@ -80,6 +103,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             case {"type": "leave_room","room_id": room_id,"player_id": player_id}:
                 current_room = await data.get_one_room_data(room_id)
                 await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+                self.room_group_name = None
                 if len(current_room["avatars"]) != 1:
                     if current_room["room_owner"] == player_id:
                         new_room_owner = await data.update_room_owner(room_id, player_id)
