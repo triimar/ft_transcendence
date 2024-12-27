@@ -8,6 +8,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.lobby_group_name = 'lobby_group'
         self.room_group_name = None
+        self.match_group_name = None
 
         # Join the lobby group
         await self.channel_layer.group_add(
@@ -168,14 +169,14 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 event_start_game = {"type":"broadcast.start.game", "players": first_layer_player}
                 await self.channel_layer.group_send(self.room_group_name, event_start_game)
             case {"type": "start_game_countdown"}:
-                await self.channel_layer.group_add(self.room_group_name + "_" + self.match_id, self.channel_name)
-                await self.channel_layer.group_discard(self.room_group_name, event_start_game)
-                self.joined_group = ["match"]
+                self.match_group_name = self.room_group_name + "_" + str(self.match_id)
+                await self.channel_layer.group_add(self.match_group_name, self.channel_name)
+                self.joined_group += ["match"]
                 match = await data.get_one_match(self.room_group_name, self.match_id)
                 player_one = await data.get_one_player(match["players"][0]) if match["players"][0] != "ai" else {"player_id": "ai"}
                 player_two = await data.get_one_player(match["players"][1]) if match["players"][1] != "ai" else {"player_id": "ai"}
                 event_start_game_countdown = {"type": "broadcast.startgame.countdown", "match": match, "opponents": [player_one, player_two]}
-                await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event_start_game_countdown)
+                await self.channel_layer.group_send(self.match_group_name, event_start_game_countdown)
             case {"type": "create_matches", "room_id": room_id}:
                 await self.create_matches(room_id)
             case {"type": "join_match", "room_id": room_id, "player_id": player_id}:
