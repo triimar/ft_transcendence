@@ -87,7 +87,7 @@ main {
 	min-width: 12rem;
 	margin-bottom: 0.4rem;
 	background: var(--td-ui-background-color);
-	z-index: 100;
+	z-index: 101;
 	opacity: 0;
 	transition: opacity 1s ease-out;
 	pointer-events: none;
@@ -116,7 +116,7 @@ main {
 	left: 0;
 	width: 100vw;
 	height: 100vh;
-	z-index: 3;
+	z-index: 100;
 	background: rgba(0, 0, 0, 0.5);
 	display: flex;
 	justify-content: center;
