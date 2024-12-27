@@ -218,7 +218,7 @@ async def update_full_matches(updated_matches):
 	redis_instance = await get_redis_client()
 	await redis_instance.set('match_data', json.dumps(updated_matches))
 
-async def get_one_match_data(room_id, match_id) -> dict|None:
+async def get_one_match(room_id, match_id) -> dict|None:
     redis_instance = await get_redis_client()
     room_data = await get_one_room_data(room_id)
     match_data = room_data['matches'][match_id]

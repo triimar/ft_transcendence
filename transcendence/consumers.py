@@ -366,7 +366,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
     async def broadcast_startgame_countdown(self, event):
         match = event["match"]
-        opponents = event["opponets"]
+        opponents = event["opponents"]
 
         text_data = json.dumps({"type": "b_startgame_countdown", "match": match, "avatars": opponents})
         await self.send(text_data=text_data)
