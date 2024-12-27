@@ -205,7 +205,6 @@ class Visitor {
 				window.location.hash = "#room" + roomId;
 			} break;
 			case "ack_leave_room": {
-				console.assert(this.pageName == "room", `ack_leave_room should only be received in room page, but has pageName ${this.pageName}`);
 				this.roomOwnerIsMyself = false;
 				window.location.hash = this.page.confirmPopupRedirectPageHash;
 			} break;
