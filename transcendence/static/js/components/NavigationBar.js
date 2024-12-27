@@ -8,6 +8,7 @@ export default class ComponentNavigationBar extends HTMLElement {
 	}
 
 	connectedCallback() {
+		this.shadow.querySelector("td-logo").addEventListener("click", () => {window.location.hash = "#main"});
 		this.modeSwitcherFunc = (() => {
 			let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');
 			let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');
