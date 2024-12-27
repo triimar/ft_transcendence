@@ -313,7 +313,16 @@ class Visitor {
 				}
 			} break;
 			case "b_start_game": {
+				this.pageFinishedRendering = false;
 				window.location.href += "-tree";
+				await this.waitForPageToRender();
+				console.log(`page is ${this.pageName}`);
+				if (this.roomOwnerIsMyself) {
+					this.sendMessageStartGameCountDown();
+				}
+			} break;
+			case "b_startgame_countdown": {
+				console.log("Recevied countdown");
 			} break;
 			case "error": {
 				this.displayPopupMessage(message.message);
@@ -446,6 +455,13 @@ class Visitor {
 		let message = {
 			type: "start_game",
 			"room_id": roomId,
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageStartGameCountDown() {
+		let message = {
+			type: "start_game_countdown"
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
