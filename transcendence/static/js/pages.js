@@ -1,16 +1,66 @@
 import { myself } from "./myself.js"
-export class PageAiGame {
+
+class PageConfirmLeave {
+	constructor() {
+		this.previousHref = null;
+		this.displayConfirmPopup = true;
+		this.confirmPopupRedirectPageHash = null;
+	}
+
+	attachEvents() {
+		// Note(HeiYiu): Events for leaving room confirmation
+		this.previousHref = location.href;
+		let roomId = myself.roomId;
+		this.logoutYesButtonFunc = () => {
+			this.displayConfirmPopup = false;
+			myself.sendMessageLeaveRoom(roomId);
+		};
+		document.querySelector("#logout-yes-btn").addEventListener("click", this.logoutYesButtonFunc, {once: true});
+		this.beforeUnloadFunc = ((e) => {
+			e.preventDefault();
+			e.returnValue = true;
+		});
+		window.addEventListener("beforeunload", this.beforeUnloadFunc);
+	}
+
+	removeEvents() {
+		document.querySelector("#logout-yes-btn").removeEventListener("click", this.logoutYesButtonFunc, {once: true});
+		window.removeEventListener("beforeunload", this.beforeUnloadFunc);
+	}
+
+	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
+		let userNotLoggedOut = myself.id != null;
+		if (this.displayConfirmPopup && userNotLoggedOut) {
+			this.confirmPopupRedirectPageHash = window.location.hash;
+			history.replaceState(null, document.title, this.previousHref);
+			let confirmToLogOutPopup = document.querySelector("#confirm-to-logout-popup");
+			confirmToLogOutPopup.classList.add("show");
+			return false;
+		}
+		return true;
+	}
+}
+
+export class PageAiGame extends PageConfirmLeave {
 	constructor(container) {
+		super();
 		this.templateId = "page-ai-game";
 		this.container = container;
 	}
 
 	attachEvents() {
-
+		super.attachEvents();
 	}
 
 	removeEvents() {
+		super.removeEvents();
+	}
 
+	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
+		if ((newPageName == "tree") && (newRoomId != null) && (newRoomId == myself.roomId)) {
+			return true;
+		}
+		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);
 	}
 }
 
@@ -29,25 +79,33 @@ export class PageError {
 	}
 }
 
-export class PageGame {
+export class PageGame extends PageConfirmLeave {
 	constructor(container) {
+		super();
 		this.templateId = "page-game";
 		this.container = container;
 	}
 
 	attachEvents() {
-
+		super.attachEvents();
 	}
 
 	removeEvents() {
+		super.removeEvents();
+	}
 
+	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
+		if ((newPageName == "tree") && (newRoomId != null) && (newRoomId == myself.roomId)) {
+			return true;
+		}
+		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);
 	}
 }
 
 export class PageLogin {
 	constructor(container) {
-	this.templateId = "page-login";
-	this.container = container;
+		this.templateId = "page-login";
+		this.container = container;
 	}
 
 	attachEvents() {
@@ -89,8 +147,8 @@ export class PageLogin {
 
 export class PageMain {
 	constructor(container) {
-	this.templateId = "page-main";
-	this.container = container;
+		this.templateId = "page-main";
+		this.container = container;
 	}
 
 	attachEvents() {
@@ -118,16 +176,16 @@ export class PageMain {
 	}
 }
 
-export class PageRoom {
+export class PageRoom extends PageConfirmLeave{
 	constructor(container) {
+		super();
 		this.templateId = "page-room";
 		this.container = container;
-		this.displayConfirmPopup = true;
-		this.confirmPopupRedirectPageHash = null;
 	}
 
 	attachEvents() {
-		this.previousHref = location.href;
+		super.attachEvents();
+		// Note(HeiYiu): Other events
 		this.container.querySelector("#leave-room-btn").addEventListener("click", () => {
 			location.hash = "#main";
 		});
@@ -138,15 +196,6 @@ export class PageRoom {
 			e.currentTarget.setAttribute("disabled", "");
 		};
 		this.container.querySelector("#prepare-btn").addEventListener("click", this.prepareButtonFunc, {once: true});
-		document.querySelector("#logout-yes-btn").addEventListener("click", () => {
-			this.displayConfirmPopup = false;
-			myself.sendMessageLeaveRoom(roomId);
-		}, {once: true});
-		this.beforeUnloadFunc = ((e) => {
-			e.preventDefault();
-			e.returnValue = true;
-		});
-		window.addEventListener("beforeunload", this.beforeUnloadFunc);
 
 		let roomSizeSetting = this.container.querySelector("#room-size-buttons");
 		roomSizeSetting.shadowRoot.querySelector("#inc-button").addEventListener("click", () => {
@@ -158,38 +207,36 @@ export class PageRoom {
 	}
 
 	removeEvents() {
-		window.removeEventListener("beforeunload", this.beforeUnloadFunc);
+		super.removeEvents();
 	}
 
-	beforeOnHashChange([newPageName, newRoomId, newGameIndex]) {
+	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
 		if ((newPageName == "tree") && (newRoomId != null) && (newRoomId == myself.roomId)) {
 			return true;
 		}
-		let userNotLoggedOut = myself.id != null;
-		if (this.displayConfirmPopup && userNotLoggedOut) {
-			this.confirmPopupRedirectPageHash = window.location.hash;
-			history.replaceState(null, document.title, this.previousHref);
-			let confirmToLogOutPopup = document.querySelector("#confirm-to-logout-popup");
-			confirmToLogOutPopup.classList.add("show");
-			return false;
-		}
-		return true;
+		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);
 	}
 }
 
-export class PageTree {
+export class PageTree extends PageConfirmLeave{
 	constructor(container) {
+		super();
 		this.templateId = "page-tree";
 		this.container = container;
-		this.displayConfirmPopup = true;
-		this.confirmPopupRedirectPageHash = null;
 	}
 
 	attachEvents() {
-
+		super.attachEvents();
 	}
 
 	removeEvents() {
+		super.removeEvents();
+	}
 
+	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
+		if (((newPageName == "game") || (newPageName == "ai-game")) && (newRoomId != null) && (newRoomId == myself.roomId)) {
+			return true;
+		}
+		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);
 	}
 }
