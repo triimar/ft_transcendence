@@ -31,8 +31,13 @@ async function main() {
 			isTriggerHashChange = true;
 			return;
 		}
-		if ((currentPage.beforeOnHashChange != null) && !currentPage.beforeOnHashChange(analysisPageHash(getPageHashFromURL(URL.parse(event.newURL))))) {
-			return;
+		if (currentPage.beforeOnHashChange != null) {
+			let url = URL.parse(event.newURL);
+			let pageHash = getPageHashFromURL(url);
+			let result = analysisPageHash(pageHash);
+			if (!currentPage.beforeOnHashChange(...result)) {
+				return;
+			}
 		}
 		currentPage.removeEvents();
 		myself.pageFinishedRendering = false;
