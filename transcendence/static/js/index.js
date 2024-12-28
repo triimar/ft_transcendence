@@ -24,6 +24,7 @@ const pageMapping = {
 
 let isTriggerHashChange = true;
 async function main() {
+	document.myself = myself; // only for debugging
 	const contentContainer = document.getElementsByClassName("content-container")[0];
 	let currentPage = null;
 	window.addEventListener("hashchange", async (event) => {
