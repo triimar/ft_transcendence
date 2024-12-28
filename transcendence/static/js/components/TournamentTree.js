@@ -11,38 +11,36 @@ export default class ComponentTournamentTree extends HTMLElement {
         };		
 	}
 
-	
-
-	connectedCallback() {
-		// Pass the tournament data to the renderTree method
-		this.addFirstRound([{player_id: "c701ab9c-252b-5f4f-9a68-fc7f03a5502a", player_emoji: "VDV", player_bg_color: "F53948"}, 
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "zmz", player_bg_color: "158FDA"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "E9E", player_bg_color: "FFD133"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "T.T", player_bg_color: "A633FF"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "$u$", player_bg_color: "33FFF5"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "HuH", player_bg_color: "FF8333"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "0(0", player_bg_color: "FF33A6"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "wmw", player_bg_color: "3357FF"}])
-		console.log(this.tournamentData)
-		this.addWinners([-1, -1, 4, -1, -1, -1, -1])
-		console.log(this.tournamentData)
-		this.renderTree(this.tournamentData);
-	}
-
-
 	// connectedCallback() {
 	// 	// Pass the tournament data to the renderTree method
 	// 	this.addFirstRound([{player_id: "c701ab9c-252b-5f4f-9a68-fc7f03a5502a", player_emoji: "VDV", player_bg_color: "F53948"}, 
 	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "zmz", player_bg_color: "158FDA"},
 	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "E9E", player_bg_color: "FFD133"},
 	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "T.T", player_bg_color: "A633FF"},
+	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "$u$", player_bg_color: "33FFF5"},
+	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "HuH", player_bg_color: "FF8333"},
 	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "0(0", player_bg_color: "FF33A6"},
 	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "wmw", player_bg_color: "3357FF"}])
 	// 	console.log(this.tournamentData)
-	// 	this.addWinners([-1, -1, 4, -1, -1])
+	// 	this.addWinners([1, 2, 4, 6, 2, 6, 6])
 	// 	console.log(this.tournamentData)
 	// 	this.renderTree(this.tournamentData);
 	// }
+
+
+	connectedCallback() {
+		// Pass the tournament data to the renderTree method
+		this.addFirstRound([{player_id: "c701ab9c-252b-5f4f-9a68-fc7f03a5502a", player_emoji: "VDV", player_bg_color: "F53948"}, 
+			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "E9E", player_bg_color: "FFD133"},
+			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "zmz", player_bg_color: "158FDA"},
+			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "0(0", player_bg_color: "FF33A6"},
+			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "T.T", player_bg_color: "A633FF"},
+			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "wmw", player_bg_color: "3357FF"}])
+		console.log(this.tournamentData)
+		this.addWinners([0, 2, 4, 2, -1])
+		console.log(this.tournamentData)
+		this.renderTree(this.tournamentData);
+	}
 
 	addFirstRound(players_array) {
 		// Transform backend player data to match the expected format
@@ -93,17 +91,23 @@ export default class ComponentTournamentTree extends HTMLElement {
 					i++;
 					return;
 				}
-	
 				// Update the current round's match with the winner
 				match.winner = winnerIdx % 2 === 0 ? match.player1 : match.player2;
-	
 				// Populate the next round's match
 				if (nextRound) {
 					const nextMatchIndex = Math.floor(matchIndex / 2);
 	
-					// Assign the winner to the correct slot in the next round
+					// Assign the winner to the correct slot in the next round					
 					if (matchIndex % 2 === 0) {
-						if (!nextRound[nextMatchIndex].player1) {
+						console.log(matchIndex, this.tournamentData.player_count)
+						if (this.tournamentData.player_count === 6 && matchIndex === 2) {
+								console.log("why are we not here");
+								nextRound[nextMatchIndex].player1 = match.winner;
+								nextRound[nextMatchIndex].player2 = { "avatar-name": "", "avatar-background": null };
+								nextRound[nextMatchIndex].winner = match.winner;
+								i--;
+							}
+						else if (!nextRound[nextMatchIndex].player1) {
 							nextRound[nextMatchIndex].player1 = match.winner;
 						}
 					} else {
@@ -153,8 +157,10 @@ export default class ComponentTournamentTree extends HTMLElement {
 				// Create and append Player avatars
 				const avatar1 = createAvatar(match.player1, match.winner);
 				matchDiv.appendChild(avatar1);
-				const avatar2 = createAvatar(match.player2, match.winner);
-				matchDiv.appendChild(avatar2);
+				if (match.player2 && match.player2["avatar-name"] !== "") {
+					const avatar2 = createAvatar(match.player2, match.winner);
+					matchDiv.appendChild(avatar2);
+				}
 	
 				rowDiv.appendChild(matchDiv);
 			});
