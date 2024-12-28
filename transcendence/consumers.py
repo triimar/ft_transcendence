@@ -124,6 +124,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     event_leave_room = {"type": "broadcast.leave.room", "delete_room": True, "room_id": room_id, "player_id": player_id}
                 await self.channel_layer.group_send(self.lobby_group_name, event_leave_room)
                 await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
+                self.room_group_name = None
                 self.join_group = ["lobby"]
                 self.room_group_name = None
                 await self.send(text_data=json.dumps({"type": "ack_leave_room"}))
@@ -159,7 +160,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     case data.RedisError.NOPLAYERFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
             case {"type": "start_game", "room_id": room_id}:
-                self.first_layer_player_id, self.match_id = await data.generate_matches(room_id, self.player_id)
+                self.first_layer_player_id = await data.generate_matches(room_id, self.player_id)
                 first_layer_player  = []
                 for id in self.first_layer_player_id:
                     if id == "ai":
@@ -168,21 +169,18 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         first_layer_player.append(await data.get_one_player(id))
                 event_start_game = {"type":"broadcast.start.game", "players": first_layer_player}
                 await self.channel_layer.group_send(self.room_group_name, event_start_game)
-            case {"type": "start_game_countdown"}:
-                self.match_group_name = self.room_group_name + "_" + str(self.match_id)
-                await self.channel_layer.group_add(self.match_group_name, self.channel_name)
-                self.joined_group += ["match"]
+            case {"type": "start_match_countdown"}:
                 match = await data.get_one_match(self.room_group_name, self.match_id)
                 player_one = await data.get_one_player(match["players"][0]) if match["players"][0] != "ai" else {"player_id": "ai"}
                 player_two = await data.get_one_player(match["players"][1]) if match["players"][1] != "ai" else {"player_id": "ai"}
-                event_start_game_countdown = {"type": "broadcast.startgame.countdown", "match": match, "opponents": [player_one, player_two]}
-                await self.channel_layer.group_send(self.match_group_name, event_start_game_countdown)
+                event_start_match_countdown = {"type": "broadcast.startgame.countdown", "match": match, "opponents": [player_one, player_two]}
+                await self.channel_layer.group_send(self.match_group_name, event_start_match_countdown)
             case {"type": "create_matches", "room_id": room_id}:
                 await self.create_matches(room_id)
             case {"type": "join_match", "room_id": room_id, "player_id": player_id}:
                 await self.join_match(room_id, player_id) # TODO
             case {"type": "player_match_ready"}:
-                await self.start_match(self)
+                await self.start_match()
             case {"type": "bounce_ball", "ball": ball}:
                 await self.bounce_ball(self, ball)
             case {"type": "paddle_move", "position": position}:
@@ -214,7 +212,6 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     },
                     'winner': None
                 })
-
         await data.update_full_matches(self.room_group_name, matches)
         # Notify players in the room about the match creation
         event_matches = {"type": "broadcast.matches.created"}
@@ -232,7 +229,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         player['score'] = 0
         if (game_match['ready'] == 2):
             event = {"type": "broadcast.start.match", 'ball': game_match['ball']}
-            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
+            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
         await data.update_room(room)
         await data.update_player(player)
 
@@ -244,11 +241,10 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def bounce_ball(self, ball):
         room = await data.get_one_room_data(self.room_group_name)
         match_data = room['matches'][self.match_id]
-        ball_data = match_data['ball']
-        ball_data = ball
+        match_data['ball'] = ball
         await data.update_room(room)
-        event = {"type": "broadcast.bounce.ball", 'ball': game_match['ball']}
-        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
+        event = {"type": "broadcast.bounce.ball", 'ball': match_data['ball']}
+        await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
 
     async def broadcast_bounce_ball(self, event):
         ball = event["ball"]
@@ -265,7 +261,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         player_data['position'] = position
         await data.update_player(player_data)
         event = {"type": "broadcast.paddle.bounce", "position": position, "player_side": player_side}
-        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
+        await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
 
     async def broadcast_paddle_bounce(self, event):
         position = event["position"]
@@ -281,15 +277,15 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         player_data['score'] += 1
         if (player_data['score'] == 11):
             match_data['winner'] = self.player_id
-            event = {"type": "broadcast.match.win", "winner": player_data};
-            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
+            event = {"type": "broadcast.match.win", "winner": player_data}
+            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
             await data.update_room(room)
         await data.update_player(player_data)
         player_side = 0
         if match_data['players'][1] == self.player_id:
             player_side = 1
         event = {"type": "broadcast.scored.point", "player_side": player_side}
-        await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
+        await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
 
     async def broadcast_match_win(self, event):
         player_data = event["player_data"]
@@ -309,13 +305,13 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             player = await data.get_one_player(self.player_id)
             player['score'] += 1
             await data.update_player(player)
-            event = {"type": "broadcast.match.win", "winner": player};
+            event = {"type": "broadcast.match.win", "winner": player}
         else:
             player['score'] += 1
-            event = {"type": "broadcast.match.win", "winner": "ai"};
+            event = {"type": "broadcast.match.win", "winner": "ai"}
         if player['score'] == 11:
             match_data['winner'] = id
-            await self.channel_layer.group_send(self.room_group_name + "_" + self.match_id, event)
+            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
         await data.update_room(room)
 
 # functions for dealing with events
@@ -362,6 +358,13 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
     async def broadcast_start_game(self, event):
         players = event["players"]
+        for i, player in enumerate(players):
+            if player['player_id'] == self.player_id:
+                self.match_id = i // 2
+                self.match_group_name = self.room_group_name + "_" + str(self.match_id)
+                await self.channel_layer.group_add(self.match_group_name, self.channel_name)
+                self.joined_group += ["match"]
+                break
         text_data = json.dumps({"type": "b_start_game", "players": players})
         await self.send(text_data=text_data)
 
