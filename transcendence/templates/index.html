@@ -2,14 +2,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Transcendence!</title>
+	<title>Transcendence!</title>
 	<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
-    <script type="module" src="{% static 'js/index.js' %}"></script>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+	<script type="module" src="{% static 'js/index.js' %}"></script>
 </head>
 <body>
 	<main>
 		<div class="content-container"></div>
+		<div id="notification-popup" class="ui">
+			<p id="notification-popup-text">Error</p>
+		</div>
+		<div id="confirm-to-logout-popup">
+			<div class="ui" style="width: fit-content; background: var(--td-ui-background-color); padding: 1em; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5em;">
+				<p>Are you sure you want to leave?</p>
+				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 1em;">
+					<td-button id="logout-yes-btn" class="ui" onclick="document.querySelector('#confirm-to-logout-popup').classList.remove('show');"><p style="padding: 0 0.5em;">YES</p></td-button>
+					<td-button id="logout-no-btn" class="ui" onclick="document.querySelector('#confirm-to-logout-popup').classList.remove('show');"><p style="padding: 0 0.5em;">NO</p></td-button>
+				</div>
+			</div>
+		</div>
 		<footer style="width: 70%; margin-top: auto; display: flex; flex-direction: column; align-items: center;" class="ui">
 			<p>:PONG © 2024</p>
 			<p style="font-size: 0.5em;">Made by Hei Yiu, Maria, Sangyao, Sol and Triin</p>
@@ -48,15 +60,18 @@
 	<td-ai-game-board></td-ai-game-board>
 </template>
 <template id="page-room">
+	<style>
+		.speech-bubble {
+			animation: wiggle .6s;
+		}
+	</style>
 	<td-navigation-bar>
-		<td-button class="ui"><p class="ui-text">EXIT ROOM</p></td-button>
+		<td-button id="leave-room-btn" class="ui"><p class="ui-text">EXIT ROOM</p></td-button>
 	</td-navigation-bar>
-	<td-lobby-room room-join-disabled room-max="8" room-id="EFGHUY12KJ23" class="ui">
-		<td-avatar avatar-name=":3:" avatar-background="rgb(255, 100, 3)"></td-avatar>
-		<td-avatar avatar-name=".0." avatar-background="rgb(10, 100, 3)"></td-avatar>
-		<td-button class="ui" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button"><p>PREPARE?</p></td-button>
+	<td-lobby-room room-join-disabled class="ui">
+		<td-button id="prepare-btn" class="ui" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button"><p>PREPARE?</p></td-button>
 	</td-lobby-room>
-	<td-room-setting-size class="ui"></td-room-setting-size>
+	<td-room-setting-size id="room-size-buttons" class="ui" style="display: none"></td-room-setting-size>
 	<div class="ui ui-text"><p>More game options coming soon</p></div>
 	<div class="ui"><td-tournament-tree></td-tournament-tree></div>
 </template>
@@ -68,12 +83,24 @@
 		td-navigation-bar {
 			position: sticky;
 			top: 0;
-			z-index: 1;
+			margin-bottom: 1em;
+			z-index: 10;
 		}
 	</style>
 	<td-navigation-bar>
-		<td-button class="ui"><p class="ui-text">ADD ROOM</p></td-button>
+		<td-button id="add-room-btn" class="ui"><p class="ui-text">ADD ROOM</p></td-button>
 	</td-navigation-bar>
+</template>
+<template id="page-tree">
+	<td-navigation-bar>
+	</td-navigation-bar>
+	<td-tournament-tree style="
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 0.4em;">
+	</td-tournament-tree>
 </template>
 <template id="component-lobby-room">
 	<style>
@@ -97,7 +124,16 @@
 			margin: 0 0.4em;
 			text-align: center;
 			font-size: 1.5em;
+            cursor: pointer;
+            transition: all .2s ease-in-out;
+            background: var(--td-ui-background-color);
+            color: var(--td-ui-font-color);
 		}
+
+		#lobby-room-id:hover {
+            background: var(--td-ui-font-color);
+            color: var(--td-ui-background-color);
+        }
 
 		#lobby-room-info {
 			display: flex;
@@ -149,8 +185,8 @@
 		}
 	</style>
 	<div style="display: flex; flex-direction: row;">
-		<td-button class="ui" id="inc-button"><p style="user-select: none;">+</p></td-button>
 		<td-button class="ui" id="dec-button"><p style="user-select: none;">-</p></td-button>
+		<td-button class="ui" id="inc-button"><p style="user-select: none;">+</p></td-button>
 	</div>
 	<p style="margin-right: 0.4em; user-select: none;" id="label"></p>
 </template>
@@ -179,6 +215,7 @@
 <template id="component-avatar">
 	<style>
 		:host {
+			position: relative;
 			width: var(--td-avatar-width);
 			height: var(--td-avatar-height);
 			padding: 0.5em 0.5em;
@@ -196,6 +233,7 @@
 		}
 	</style>
 	<p id="avatar-name"></p>
+	<slot></slot>
 </template>
 <template id="component-navigation-bar">
 	<style>
@@ -206,6 +244,14 @@
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
+		}
+
+		td-logo {
+			cursor: pointer;
+		}
+
+		td-logo:hover {
+			animation: wiggle .6s;
 		}
 
 		#buttons-container {
@@ -227,35 +273,47 @@
 			margin: 0;
 		}
 
-        #avatar-info-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 10;
+		#avatar-info-container {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			background: rgba(0, 0, 0, 0.4);
+			z-index: 10;
 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
 
-        #avatar-info {
-            width: 50%;
-            height: 80%;
-            background: var(--td-ui-background-color);
-        }
+		#avatar:hover {
+			animation: wiggle .6s;
+		}
 
-        #close-btn {
-            position: relative;
-            top: 0;
-            left: calc(100% - 1.4rem - (2 * var(--td-border-size)));
-        }
+		#avatar-info {
+			width: 50%;
+			height: 80%;
+			background: var(--td-ui-background-color);
+		}
 
-        .hide {
-            visibility: hidden;
-        }
+		#close-btn {
+			position: relative;
+			top: 0;
+			left: calc(100% - 1.4rem - (2 * var(--td-border-size)));
+		}
+
+		.hide {
+			visibility: hidden;
+		}
+
+		@keyframes wiggle {
+			0% {transform: rotate(3deg);}
+			25% {transform: rotate(-3deg);}
+			50% {transform: rotate(3deg);}
+			75% {transform: rotate(-3deg);}
+			100% {transform: rotate(0deg);}
+		}
 	</style>
 	<nav>
 		<td-logo></td-logo>
@@ -263,22 +321,22 @@
 			<slot></slot>
 			<td-lever class="ui" id="mode"></td-lever>
 			<div class="ui" id="avatar" style="cursor: pointer;">
-				<td-avatar avatar-name="-S-" avatar-background="rgb(30,30,140)"></td-avatar>
+				<td-avatar class="dummy-avatar"></td-avatar>
 			</div>
 		</div>
 	</nav>
-    <div id="avatar-info-container" class="hide">
-        <div id="avatar-info" class="ui">
-            <td-button id="close-btn" class="ui"><p style="aspect-ratio: 1; height: 1rem; text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">X</p></td-button>
-            <div style="width: 100%; height: fit-content; display: flex; flex-direction: column; justify-content: start; align-items: center; gap: 0.3rem;">
-                <p style="margin: 0;">Customize your avatar</p>
-                <td-avatar avatar-name="-S-" avatar-background="rgb(30,30,140)"></td-avatar>
-                <td-button id="logout-btn" class="ui">
-                    <p style="height: 1rem; text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">LOGOUT</p>
-                </td-button>
-            </div>
-        </div>
-    </div>
+	<div id="avatar-info-container" class="hide">
+		<div id="avatar-info" class="ui">
+			<td-button id="close-btn" class="ui"><p style="aspect-ratio: 1; height: 1rem; text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">X</p></td-button>
+			<div style="width: 100%; height: fit-content; display: flex; flex-direction: column; justify-content: start; align-items: center; gap: 0.3rem;">
+				<p style="margin: 0;">Customize your avatar</p>
+				<td-avatar class="dummy-avatar"></td-avatar>
+				<td-button id="logout-btn" class="ui">
+					<p style="height: 1rem; text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">LOGOUT</p>
+				</td-button>
+			</div>
+		</div>
+	</div>
 </template>
 <template id="component-logo">
 	<h1>:PONG</h1>
@@ -330,6 +388,7 @@
 
 		:host([disabled]) {
 			cursor: not-allowed;
+			pointer-events: none;
 			opacity: 0.5;
 		}
 	</style>

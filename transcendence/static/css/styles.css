@@ -78,3 +78,91 @@ main {
 .content-container > * {
 	width: 100%;
 }
+
+#notification-popup {
+	position: fixed;
+	bottom: 0;
+	width: fit-content;
+	height: fit-content;
+	min-width: 12rem;
+	margin-bottom: 0.4rem;
+	background: var(--td-ui-background-color);
+	z-index: 101;
+	opacity: 0;
+	transition: opacity 1s ease-out;
+	pointer-events: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#notification-popup.show {
+	opacity: 1;
+	animation: wiggle .6s;
+	pointer-events: auto;
+}
+
+@keyframes wiggle {
+	0% {transform: rotate(3deg);}
+	25% {transform: rotate(-3deg);}
+	50% {transform: rotate(3deg);}
+	75% {transform: rotate(-3deg);}
+	100% {transform: rotate(0deg);}
+}
+
+#confirm-to-logout-popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 100;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5em;
+	opacity: 0;
+	transition: opacity 1s ease-out;
+	pointer-events: none;
+}
+
+#confirm-to-logout-popup.show {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+#confirm-to-logout-popup.show > div {
+	animation: wiggle .6s;
+}
+
+.speech-bubble {
+	--triangle-position: 20%;
+	border: calc(var(--td-border-size) / 2) solid var(--td-ui-font-color);
+	box-sizing: border-box;
+	z-index: 3;
+}
+
+.speech-bubble::before {
+	content: '';
+	position: absolute;
+	top: 100%;
+	left: calc(var(--triangle-position) - (var(--td-border-size) / 2));
+	width: 0;
+	height: 0;
+	border: 0.75em solid transparent;
+	border-top-color: var(--td-ui-font-color);
+	border-left: 0;
+}
+
+.speech-bubble::after {
+	content: '';
+	position: absolute;
+	top: 99%;
+	left: var(--triangle-position);
+	width: 0;
+	height: 0;
+	border: 0.4em solid transparent;
+	border-top-color: var(--td-ui-background-color);
+	border-left: 0;
+}
