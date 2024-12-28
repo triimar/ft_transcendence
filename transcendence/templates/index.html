@@ -73,7 +73,10 @@
 	</td-lobby-room>
 	<td-room-setting-size id="room-size-buttons" class="ui" style="display: none"></td-room-setting-size>
 	<div class="ui ui-text"><p>More game options coming soon</p></div>
+	<div class="ui"><td-tournament-tree></td-tournament-tree></div>
 </template>
+
+
 
 <template id="page-main">
 	<style>
@@ -418,37 +421,60 @@
 	<div id="handle"></div>
 </template>
 <template id="component-tournament-tree">
-    <style>
-        .tournament-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .matchup {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: calc(var(--td-avatar-width) / 2);
-        }
-        .vs_line {
-            width: var(--td-border-size);
-            height: calc(var(--td-avatar-height)* 1.25);
-            background-color: var(--td-ui-font-color);
-            margin: 0 auto;
-        }
-
-		.ui {
-			border: var(--td-border-size) solid var(--td-ui-font-color);
-			box-sizing: border-box;
+	<style>
+		.tournament {
+			font-size: 0.75em;
 			display: flex;
-			width: fit-content;
-			/* gap: em; */
+			flex-direction: column;
+			align-items: center;
+			margin-top: 0.5em;
+			margin-bottom: 0.5em;
+			}
+		.round {
+			padding: 0.5em 0px 0.5em 0px;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			}
+		.match {
+			display: flex;
+			flex-direction: row;
+			padding: 0.5em;
 		}
-    </style>
-    <div class="tournament-container">
-    </div>
-	<div class="ui">
-	</div>
+	</style>
+	<div class="tournament"></div>
 </template>
-
+<template id="component-progress-bar">
+	<style>
+		:host {
+			display: block;
+			width: 100%;
+			height: 30px;
+			background-color: #e0e0e0;
+			border-radius: 15px;
+			overflow: hidden;
+			position: relative;
+		}
+		#progress-bar {
+			height: 100%;
+			width: 0;
+			background-color: #76c7c0;
+			transition: width 0.1s ease-in-out;
+		}
+		#progress-text {
+			position: absolute;
+			width: 100%;
+			text-align: center;
+			top: 50%;
+			transform: translateY(-50%);
+			font-family: Arial, sans-serif;
+			font-size: 14px;
+			color: black;
+			pointer-events: none;
+		}
+		</style>
+		<div id="progress-bar"></div>
+		<div id="progress-text">"something"</div>
+</template>
 </html>
