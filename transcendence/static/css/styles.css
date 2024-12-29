@@ -38,15 +38,15 @@ body {
 	width: 100vw;
 	height: 100vh;
 	overflow-x: hidden;
-    background-color: var(--td-ui-background-color);
-    color: var(--td-ui-font-color);
-    font-family: Arial, sans-serif;
+	background-color: var(--td-ui-background-color);
+	color: var(--td-ui-font-color);
+	font-family: Arial, sans-serif;
 }
 
 h1 {
-    margin-top: 50px;
-    color: #2c3e50;
-    text-align: center;
+	margin-top: 50px;
+	color: #2c3e50;
+	text-align: center;
 }
 
 main {
@@ -123,7 +123,7 @@ main {
 	align-items: center;
 	gap: 0.5em;
 	opacity: 0;
-	transition: opacity 1s ease-out;
+	transition: opacity 500ms ease-out;
 	pointer-events: none;
 
 	> * {
