@@ -13,13 +13,25 @@
 		<div id="notification-popup" class="ui">
 			<p id="notification-popup-text">Error</p>
 		</div>
-		<div id="confirm-to-logout-popup">
+		<div id="confirm-to-logout-popup" class="fullscreen-popup">
 			<div class="ui" style="width: fit-content; background: var(--td-ui-background-color); padding: 1em; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5em;">
 				<p>Are you sure you want to leave?</p>
 				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 1em;">
 					<td-button id="logout-yes-btn" class="ui" onclick="document.querySelector('#confirm-to-logout-popup').classList.remove('show');"><p style="padding: 0 0.5em;">YES</p></td-button>
 					<td-button id="logout-no-btn" class="ui" onclick="document.querySelector('#confirm-to-logout-popup').classList.remove('show');"><p style="padding: 0 0.5em;">NO</p></td-button>
 				</div>
+			</div>
+		</div>
+		<div id="tournament-tree-popup" class="fullscreen-popup">
+			<div class="ui" style="background: var(--td-ui-background-color);">
+				<td-button class="ui close-btn" onclick="document.querySelector('#tournament-tree-popup').classList.remove('show');"><p>X</p></td-button>
+				<td-tournament-tree style="
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-start;
+				align-items: center;
+				gap: 0.4em;">
+				</td-tournament-tree>
 			</div>
 		</div>
 		<footer style="width: 70%; margin-top: auto; display: flex; flex-direction: column; align-items: center;" class="ui">
@@ -50,12 +62,14 @@
 <template id="page-game">
 	<td-navigation-bar>
 		<p class="ui ui-text">EXIT GAME</p>
+		<p class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');">Tournament tree</p>
 	</td-navigation-bar>
 	<td-game-board></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
 		<p class="ui ui-text">EXIT GAME</p>
+		<p class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');">Tournament tree</p>
 	</td-navigation-bar>
 	<td-ai-game-board></td-ai-game-board>
 </template>
@@ -90,17 +104,6 @@
 	<td-navigation-bar>
 		<td-button id="add-room-btn" class="ui"><p class="ui-text">ADD ROOM</p></td-button>
 	</td-navigation-bar>
-</template>
-<template id="page-tree">
-	<td-navigation-bar>
-	</td-navigation-bar>
-	<td-tournament-tree style="
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: center;
-	gap: 0.4em;">
-	</td-tournament-tree>
 </template>
 <template id="component-lobby-room">
 	<style>

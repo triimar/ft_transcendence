@@ -314,15 +314,10 @@ class Visitor {
 			} break;
 			case "b_start_game": {
 				this.pageFinishedRendering = false;
-				window.location.href += "-tree";
-				await this.waitForPageToRender();
-				console.log(`page is ${this.pageName}`);
-				if (this.roomOwnerIsMyself) {
-					this.sendMessageStartGameCountDown();
-				}
+				let gameIndex = 0; // TODO
+				window.location.href += `-game${gameIndex}`;
 			} break;
 			case "b_startgame_countdown": {
-				console.log("Recevied countdown");
 			} break;
 			case "error": {
 				this.displayPopupMessage(message.message);
