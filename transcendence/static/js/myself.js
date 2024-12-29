@@ -334,8 +334,10 @@ class Visitor {
 			}
 			}
 		});
-		this.ws.addEventListener("close", function (event) {
+		this.ws.addEventListener("close", (event) => {
 			console.log("Websocket connection is closed unexpectedly");
+			this.displayPopupMessage("Connection Lost. Restarting connection...");
+			this.connectWs();
 		});
 	}
 
