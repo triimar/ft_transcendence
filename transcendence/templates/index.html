@@ -73,15 +73,15 @@
 </template>
 <template id="page-game">
 	<td-navigation-bar>
-		<p class="ui ui-text">EXIT GAME</p>
-		<p class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');">Tournament tree</p>
+		<td-button class="ui ui-text"><p>EXIT GAME</p></td-button>
+		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p>Tournament tree</p></td-button>
 	</td-navigation-bar>
 	<td-game-board></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
-		<p class="ui ui-text">EXIT GAME</p>
-		<p class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');">Tournament tree</p>
+		<td-button class="ui ui-text"><p>EXIT GAME</p></td-button>
+		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p>Tournament tree</p></td-button>
 	</td-navigation-bar>
 	<td-ai-game-board></td-ai-game-board>
 </template>
@@ -101,9 +101,6 @@
 	<div class="ui ui-text"><p>More game options coming soon</p></div>
 	<div class="ui"><td-tournament-tree></td-tournament-tree></div>
 </template>
-
-
-
 <template id="page-main">
 	<style>
 		td-navigation-bar {
