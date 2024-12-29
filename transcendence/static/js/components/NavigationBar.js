@@ -26,6 +26,7 @@ export default class ComponentNavigationBar extends HTMLElement {
 				myself.page.confirmPopupRedirectPageHash = "#login";
 				myself.sendMessageLeaveRoom(myself.roomId);
 				myself.logout();
+				window.location.hash = "#login";
 			}
 		};
 		document.querySelector("#logout-btn").addEventListener("click", this.logoutFunc, true);
