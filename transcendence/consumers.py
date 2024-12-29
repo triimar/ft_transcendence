@@ -182,15 +182,15 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             case {"type": "player_match_ready"}:
                 await self.start_match()
             case {"type": "bounce_ball", "ball": ball}:
-                await self.bounce_ball(self, ball)
+                await self.bounce_ball(ball)
             case {"type": "paddle_move", "position": position}:
-                await self.paddle_move(self, position)
+                await self.paddle_move(position)
             case {"type": "scored_point"}:
-                await self.score_point(self)
+                await self.score_point()
             case {"type": "ai_score_player"}:
-                await self.ai_score_point(self, self.player_id)
+                await self.ai_score_point(self.player_id)
             case {"type": "ai_score_ai"}:
-                await self.ai_score_point(self, "ai")
+                await self.ai_score_point("ai")
 
     async def create_matches(self, room_id):
         room_data = await data.get_one_room_data(room_id)
@@ -228,14 +228,18 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         player = await data.get_one_player(self.player_id)
         player['score'] = 0
         if (game_match['ready'] == 2):
-            event = {"type": "broadcast.start.match", 'ball': game_match['ball']}
+            position = 0
+            if game_match['players'][1] == self.player_id:
+                position = 1
+            event = {"type": "broadcast.start.match", 'ball': game_match['ball'], 'side': position}
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
         await data.update_room(room)
         await data.update_player(player)
 
     async def broadcast_start_match(self, event):
         ball = event["ball"]
-        text_data = json.dumps({"type": "b_start_match", "ball": ball})
+        side = event["side"]
+        text_data = json.dumps({"type": "b_start_match", "ball": ball, "side": side})
         await self.send(text_data=text_data)
 
     async def bounce_ball(self, ball):
@@ -260,13 +264,13 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             player_side = 1
         player_data['position'] = position
         await data.update_player(player_data)
-        event = {"type": "broadcast.paddle.bounce", "position": position, "player_side": player_side}
+        event = {"type": "broadcast.paddle.move", "position": position, "player_side": player_side}
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
 
-    async def broadcast_paddle_bounce(self, event):
+    async def broadcast_paddle_move(self, event):
         position = event["position"]
         player_side = event["player_side"]
-        text_data = json.dumps({"type": "b_paddle_bounce", "position": position, "paddle": player_side})
+        text_data = json.dumps({"type": "b_paddle_move", "position": position, "paddle": player_side})
         await self.send(text_data=text_data)
 
     async def score_point(self):
