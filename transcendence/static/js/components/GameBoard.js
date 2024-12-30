@@ -24,11 +24,11 @@ export default class ComponentGameBoard extends HTMLElement {
 
 	oponentPaddleMoved(side, position) {
 		if (side == 0)
-			this.paddleLeft = position;
+			this.paddleLeft.y = position;
 		else
-			this.paddleRight = position;
+			this.paddleRight.y = position;
+		// TODO: maybe need to change more than just y, maybe the velocity as well?
 	}
-
 	connectedCallback() {
 		const canvas = this.shadow.querySelector("canvas");
 		const ctx = canvas.getContext("2d");
