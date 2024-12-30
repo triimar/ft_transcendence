@@ -355,9 +355,9 @@ async def get_owner_id(room_id) -> str:
 
 def init_ball() -> dict:
     ball = dict()
-    ball.update({"position": {"x": 50, "y": 50}})
+    ball.update({"position": {"x": 600, "y": 300}})
     ball.update({"velocity": {"vx": random.choice(BALL_VELOCITY_X), "vy":random.choice(BALL_VELOCITY_Y)}})
-    ball.update({"size": 15})
+    ball.update({"size": 50})
     return {"ball": ball}
 
 async def generate_matches(room_id, self_player_id) -> list[str]:
