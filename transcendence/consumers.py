@@ -228,17 +228,16 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         player = await data.get_one_player(self.player_id)
         player['score'] = 0
         if (game_match['ready'] == 2):
-            position = 0
-            if game_match['players'][1] == self.player_id:
-                position = 1
-            event = {"type": "broadcast.start.match", 'ball': game_match['ball'], 'side': position}
+            event = {"type": "broadcast.start.match", 'ball': game_match['ball'], 'side0_player_id': game_match['players'][0]}
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
         await data.update_room(room)
         await data.update_player(player)
 
     async def broadcast_start_match(self, event):
         ball = event["ball"]
-        side = event["side"]
+        side = 1
+        if event['side0_player_id'] == self.player_id:
+            side = 0
         text_data = json.dumps({"type": "b_start_match", "ball": ball, "side": side})
         await self.send(text_data=text_data)
 
