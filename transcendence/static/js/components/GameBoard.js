@@ -257,30 +257,20 @@ export default class ComponentGameBoard extends HTMLElement {
 				e.preventDefault();
 			}
 			switch (e.key) {
+				case "s":
 				case "ArrowDown":
 					this.getMyPaddle().y += this.getMyPaddle().vy;
 					if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height)
 						this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
 					this.paddleMove();
-				break;
+					break;
+				case "w":
 				case "ArrowUp":
 					this.getMyPaddle().y -= this.getMyPaddle().vy;
 					if (this.getMyPaddle().y < 0)
 						this.getMyPaddle().y = 0;
 					this.paddleMove();
-				break;
-				case "s":
-					this.getMyPaddle().y += this.getMyPaddle().vy;
-					if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height)
-						this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
-					this.paddleMove();
-				break;
-				case "w":
-					this.getMyPaddle().y -= this.getMyPaddle().vy;
-					if (this.getMyPaddle().y < 0)
-						this.getMyPaddle().y = 0;
-					this.paddleMove();
-				break;
+					break;
 				case " ":
 					window.cancelAnimationFrame(this.raf);
 					break;
