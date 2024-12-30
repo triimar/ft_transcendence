@@ -19,8 +19,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.side = side;
 		this.ball.x = ball["position"]["x"]
 		this.ball.y = ball["position"]["y"]
-		this.ball.vx = ball["position"]["vx"]
-		this.ball.vy = ball["position"]["vy"]
+		this.ball.vx = ball["velocity"]["vx"]
+		this.ball.vy = ball["velocity"]["vy"]
 
 		this.ball.draw();
 		this.paddleLeft.draw();
