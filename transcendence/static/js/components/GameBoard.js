@@ -20,6 +20,12 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.ball.y = ball["position"]["y"]
 		this.ball.vx = ball["position"]["vx"]
 		this.ball.vy = ball["position"]["vy"]
+
+		this.ball.draw();
+		this.paddleLeft.draw();
+		this.paddleRight.draw();
+
+		this.raf = window.requestAnimationFrame(this.draw);
 	}
 
 	oponentPaddleMoved(side, position) {
@@ -227,7 +233,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			}
 		}
 
-		function draw() {
+		this.draw = () => {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			this.paddleLeft.draw();
 			this.paddleRight.draw();
@@ -242,7 +248,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			}
 			if (!pause)
 				moving.bind(this)();
-			this.raf = window.requestAnimationFrame(draw.bind(this));
+			this.raf = window.requestAnimationFrame(this.draw);
 		}
 
 		this.keydownEventListener = ((e) => {
@@ -286,12 +292,6 @@ export default class ComponentGameBoard extends HTMLElement {
 		}).bind(this);
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
-
-		this.ball.draw();
-		this.paddleLeft.draw();
-		this.paddleRight.draw();
-
-		this.raf = window.requestAnimationFrame(draw.bind(this));
 	}
 
 	disconnectedCallback() {
