@@ -241,8 +241,8 @@ export default class ComponentGameBoard extends HTMLElement {
 				}, 3000);
 			}
 			if (!pause)
-				moving();
-			this.raf = window.requestAnimationFrame(draw);
+				moving.bind(this)();
+			this.raf = window.requestAnimationFrame(draw.bind(this));
 		}
 
 		this.keydownEventListener = ((e) => {
@@ -279,7 +279,7 @@ export default class ComponentGameBoard extends HTMLElement {
 					window.cancelAnimationFrame(this.raf);
 					break;
 				case "Enter":
-					this.raf = window.requestAnimationFrame(draw);
+					this.raf = window.requestAnimationFrame(draw.bind(this));
 				default:
 					return;
 			}
@@ -291,7 +291,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleLeft.draw();
 		this.paddleRight.draw();
 
-		this.raf = window.requestAnimationFrame(draw);
+		this.raf = window.requestAnimationFrame(draw.bind(this));
 	}
 
 	disconnectedCallback() {
