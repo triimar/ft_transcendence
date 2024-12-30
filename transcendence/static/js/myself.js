@@ -11,6 +11,7 @@ class Visitor {
 		this.avatar_bg_color = null;
 		this.ws = null;
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
+		this.reconnectCount = 0;
 	}
 
 	#getCookie(name) {
@@ -346,9 +347,17 @@ class Visitor {
 			}
 		});
 		this.ws.addEventListener("close", (event) => {
-			console.log("Websocket connection is closed unexpectedly");
-			this.displayPopupMessage("Connection Lost. Restarting connection...");
-			this.connectWs();
+			if (this.reconnectCount >= 3) {
+				console.log("Websocket connection is closed unexpectedly");
+				this.displayPopupMessage("Retried connection 3 times but failed.");
+				this.reconnectCount = 0;
+				window.location.hash = "#login";
+			} else {
+				console.log("Websocket connection is closed unexpectedly");
+				this.displayPopupMessage("Connection Lost. Restarting connection...");
+				this.reconnectCount++;
+				this.connectWs();
+			}
 		});
 	}
 
