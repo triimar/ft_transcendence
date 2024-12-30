@@ -40,6 +40,7 @@ class Visitor {
 		}
 		catch (error) {
 			console.error(error);
+			this.displayPopupMessage("Failed to verify your account");
 		}
 		return false;
 	}
@@ -53,6 +54,7 @@ class Visitor {
 		}
 		catch (error) {
 			console.error(error);
+			this.displayPopupMessage("Failed to fetch your avatar's data");
 		}
 	}
 
@@ -70,6 +72,7 @@ class Visitor {
 				let json = await response.json();
 			} catch(error) {
 				console.error("Guest login error:", error);
+				this.displayPopupMessage("Failed to login");
 				is_success = false;
 			}
 		} else {
@@ -348,12 +351,12 @@ class Visitor {
 		});
 		this.ws.addEventListener("close", (event) => {
 			if (this.reconnectCount >= 3) {
-				console.log("Websocket connection is closed unexpectedly");
+				console.log("Websocket connection is closed");
 				this.displayPopupMessage("Retried connection 3 times but failed.");
 				this.reconnectCount = 0;
 				window.location.hash = "#login";
 			} else {
-				console.log("Websocket connection is closed unexpectedly");
+				console.log("Websocket connection is being restarted");
 				this.displayPopupMessage("Connection Lost. Restarting connection...");
 				this.reconnectCount++;
 				setTimeout(this.connectWs.bind(this), 1000);
