@@ -296,6 +296,7 @@ export default class ComponentGameBoard extends HTMLElement {
 
 	disconnectedCallback() {
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		window.cancelAnimationFrame(this.raf);
 	}
 
 	updateBall() {
