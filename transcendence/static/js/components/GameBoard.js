@@ -143,7 +143,7 @@ export default class ComponentGameBoard extends HTMLElement {
 				this.ball.y + this.ball.vy <= 0)
 			{
 				this.ball.vy = -this.ball.vy;
-				updateBall();
+				this.updateBall();
 			}
 			//Right wall collision
 			if (this.ball.x + this.ball.vx > canvas.width - this.ball.size)
@@ -175,21 +175,21 @@ export default class ComponentGameBoard extends HTMLElement {
 					if ((this.ball.vy > 0 && velocityY === -1) || this.ball.vy < 0 && velocityY === 1)
 						this.ball.vy *= -1;
 					this.ball.vx = Math.abs(this.ball.vx);
-					updateBall();
+					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy < this.paddleLeft.y) //Upper side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy > 0)
 						this.ball.vy = -this.ball.vy;
-					updateBall();
+					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy + this.ball.size > this.paddleLeft.y + this.paddleLeft.height) //Lower side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy < 0)
 						this.ball.vy = -this.ball.vy;
-					updateBall();
+					this.updateBall();
 				}
 			}
 			//Right paddle collisions
@@ -208,21 +208,21 @@ export default class ComponentGameBoard extends HTMLElement {
 					if ((this.ball.vy > 0 && velocityY === -1) || this.ball.vy < 0 && velocityY === 1)
 						this.ball.vy *= -1;
 					this.ball.vx = -Math.abs(this.ball.vx);
-					updateBall();
+					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy < this.paddleRight.y) //Upper side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy > 0)
 						this.ball.vy = -this.ball.vy;
-					updateBall();
+					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy + this.ball.size > this.paddleRight.y + this.paddleRight.height) //Lower side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy < 0)
 						this.ball.vy = -this.ball.vy;
-					updateBall();
+					this.updateBall();
 				}
 			}
 		}
@@ -252,28 +252,28 @@ export default class ComponentGameBoard extends HTMLElement {
 			}
 			switch (e.key) {
 				case "ArrowDown":
-					getMyPaddle().y += getMyPaddle().vy;
-					if (getMyPaddle().y > this.canvas.height - getMyPaddle().height)
-						getMyPaddle().y = this.canvas.height - getMyPaddle().height;
-					paddleMove();
+					this.getMyPaddle().y += this.getMyPaddle().vy;
+					if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height)
+						this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
+					this.paddleMove();
 				break;
 				case "ArrowUp":
-					getMyPaddle().y -= getMyPaddle().vy;
-					if (getMyPaddle().y < 0)
-						getMyPaddle().y = 0;
-					paddleMove();
+					this.getMyPaddle().y -= this.getMyPaddle().vy;
+					if (this.getMyPaddle().y < 0)
+						this.getMyPaddle().y = 0;
+					this.paddleMove();
 				break;
 				case "s":
-					getMyPaddle().y += getMyPaddle().vy;
-					if (getMyPaddle().y > this.canvas.height - getMyPaddle().height)
-						getMyPaddle().y = this.canvas.height - getMyPaddle().height;
-					paddleMove();
+					this.getMyPaddle().y += this.getMyPaddle().vy;
+					if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height)
+						this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
+					this.paddleMove();
 				break;
 				case "w":
-					getMyPaddle().y -= getMyPaddle().vy;
-					if (getMyPaddle().y < 0)
-						getMyPaddle().y = 0;
-					paddleMove();
+					this.getMyPaddle().y -= this.getMyPaddle().vy;
+					if (this.getMyPaddle().y < 0)
+						this.getMyPaddle().y = 0;
+					this.paddleMove();
 				break;
 				case " ":
 					window.cancelAnimationFrame(this.raf);
@@ -311,7 +311,7 @@ export default class ComponentGameBoard extends HTMLElement {
 	paddleMove() {
 		myself.sendMessage(JSON.stringify({
 			'type': 'paddle_move',
-			'position': getMyPaddle().y
+			'position': this.getMyPaddle().y
 		}))
 	}
 
