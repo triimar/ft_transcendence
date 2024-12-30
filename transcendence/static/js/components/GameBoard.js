@@ -5,6 +5,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.shadow = this.attachShadow({ mode: "open" });
 		const template = document.getElementById("component-game-board");
 		this.shadow.appendChild(template.content.cloneNode(true));
+		this.raf = null;
 	}
 
 	getMyPaddle() {
@@ -25,7 +26,23 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleLeft.draw();
 		this.paddleRight.draw();
 
+		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.draw);
+	}
+
+	freezeMatch() {
+		if (this.raf != null) {
+			window.cancelAnimationFrame(this.raf);
+			document.removeEventListener("keydown", this.keydownEventListener, true);
+			this.raf = null;
+		}
+	}
+
+	unfreezeMatch() {
+		if (this.raf == null) {
+			document.addEventListener("keydown", this.keydownEventListener, true);
+			this.raf = window.requestAnimationFrame(this.draw);
+		}
 	}
 
 	oponentPaddleMoved(side, position) {
@@ -35,6 +52,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.paddleRight.y = position;
 		// TODO: maybe need to change more than just y, maybe the velocity as well?
 	}
+
 	connectedCallback() {
 		const canvas = this.shadow.querySelector("canvas");
 		const ctx = canvas.getContext("2d");
@@ -280,8 +298,6 @@ export default class ComponentGameBoard extends HTMLElement {
 					return;
 			}
 		}).bind(this);
-
-		document.addEventListener("keydown", this.keydownEventListener, true);
 	}
 
 	disconnectedCallback() {
