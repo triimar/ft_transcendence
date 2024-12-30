@@ -356,7 +356,7 @@ class Visitor {
 				console.log("Websocket connection is closed unexpectedly");
 				this.displayPopupMessage("Connection Lost. Restarting connection...");
 				this.reconnectCount++;
-				this.connectWs();
+				setTimeout(this.connectWs.bind(this), 1000);
 			}
 		});
 	}
