@@ -227,7 +227,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			}
 		}
 
-		async function draw() {
+		function draw() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			this.paddleLeft.draw();
 			this.paddleRight.draw();
