@@ -320,18 +320,15 @@ class Visitor {
 			case "b_startgame_countdown": {
 				window.location.href += "-tree";
 				await this.waitForPageToRender();
-				console.log(`page is ${this.pageName}`);
 				this.sendMessage("player_match_ready")
 			} break;
 			case "b_start_match": {
-				console.log("recieved start match");
 				let gameboard = this.page.container.querySelector("td-game-board");
-				gameboard.startMatch(message["ball"], message["side"])
+				gameboard.startMatch(message["ball"], message["side"]);
 			} break;
 			case "b_paddle_move": {
-				console.log("paddle moved");
 				let gameboard = this.page.container.querySelector("td-game-board");
-				gameboard.oponentPaddleMoved(message["paddle"], message["position"])
+				gameboard.oponentPaddleMoved(message["paddle"], message["position"]);
 			} break;
 			case "error": {
 				this.displayPopupMessage(message.message);
