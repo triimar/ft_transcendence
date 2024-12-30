@@ -326,12 +326,12 @@ class Visitor {
 			case "b_start_match": {
 				console.log("recieved start match");
 				let gameboard = this.page.container.querySelector("td-game-board");
-				gameboard.startMatch(message["side"], message["ball"])
+				gameboard.startMatch(message["ball"], message["side"])
 			} break;
 			case "b_paddle_move": {
 				console.log("paddle moved");
 				let gameboard = this.page.container.querySelector("td-game-board");
-				gameboard.oponentPaddleMoved(message["player_side"], message["position"])
+				gameboard.oponentPaddleMoved(message["paddle"], message["position"])
 			} break;
 			case "error": {
 				this.displayPopupMessage(message.message);
