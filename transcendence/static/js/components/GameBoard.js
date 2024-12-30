@@ -150,13 +150,13 @@ export default class ComponentGameBoard extends HTMLElement {
 			if (this.ball.vx != PADDLE_SPEED && this.ball.vx != -PADDLE_SPEED && !this.ball.isSpeedingUp)
 			{
 				this.ball.isSpeedingUp = true;
-				setTimeout(function() {
+				setTimeout((function() {
 					if (this.ball.vx > 0 && this.ball.vx != PADDLE_SPEED)
 						this.ball.vx++;
 					else if (this.ball.vx != -PADDLE_SPEED)
 						this.ball.vx--;
 					this.ball.isSpeedingUp = false;
-				}, 1000);
+				}).bind(this), 1000);
 			}
 
 			this.ball.x += this.ball.vx;
@@ -251,7 +251,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			}
 		}
 
-		this.draw = () => {
+		this.draw = (function() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			this.paddleLeft.draw();
 			this.paddleRight.draw();
@@ -267,7 +267,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			if (!pause)
 				moving.bind(this)();
 			this.raf = window.requestAnimationFrame(this.draw);
-		}
+		}).bind(this);
 
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
@@ -293,7 +293,7 @@ export default class ComponentGameBoard extends HTMLElement {
 					window.cancelAnimationFrame(this.raf);
 					break;
 				case "Enter":
-					this.raf = window.requestAnimationFrame(draw.bind(this));
+					this.raf = window.requestAnimationFrame(this.draw);
 				default:
 					return;
 			}
