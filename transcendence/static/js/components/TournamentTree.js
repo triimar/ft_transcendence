@@ -3,142 +3,111 @@ export default class ComponentTournamentTree extends HTMLElement {
 		super();
 		const template = document.getElementById('component-tournament-tree').content;
 		this.attachShadow({ mode: 'open' }).appendChild(template.cloneNode(true));
+		//sample data for testing
+		const players_array = [{player_id: "c701ab9c-252b-5f4f-9a68-fc7f03a5502a", player_emoji: "VDV", player_bg_color: "F53948"}, 
+			// {player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "zmz", player_bg_color: "158FDA"},
+			// {player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "E9E", player_bg_color: "FFD133"},
+			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "T.T", player_bg_color: "A633FF"},
+			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "$u$", player_bg_color: "33FFF5"},
+			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "HuH", player_bg_color: "FF8333"},
+			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "0(0", player_bg_color: "FF33A6"},
+			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "wmw", player_bg_color: "3357FF"}]
+
+		this.players = players_array.map(player => ({
+            "avatar-name": player.player_emoji,
+        	"avatar-background": `#${player.player_bg_color}` // Convert the background to proper format
+        }));
 		this.tournamentData = {
-            player_count: 0,
-            round1: [],
-            round2: [],
-            round3: []
+			player_count: this.players.length,
+			rounds: [], //array of rounds, that contain an array of matches
         };		
 	}
 
-	// connectedCallback() {
-	// 	// Pass the tournament data to the renderTree method
-	// 	this.addFirstRound([{player_id: "c701ab9c-252b-5f4f-9a68-fc7f03a5502a", player_emoji: "VDV", player_bg_color: "F53948"}, 
-	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "zmz", player_bg_color: "158FDA"},
-	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "E9E", player_bg_color: "FFD133"},
-	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "T.T", player_bg_color: "A633FF"},
-	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "$u$", player_bg_color: "33FFF5"},
-	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "HuH", player_bg_color: "FF8333"},
-	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "0(0", player_bg_color: "FF33A6"},
-	// 		{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "wmw", player_bg_color: "3357FF"}])
-	// 	console.log(this.tournamentData)
-	// 	this.addWinners([1, 2, 4, 6, 2, 6, 6])
-	// 	console.log(this.tournamentData)
-	// 	this.renderTree(this.tournamentData);
-	// }
-
-
 	connectedCallback() {
 		// Pass the tournament data to the renderTree method
-		this.addFirstRound([{player_id: "c701ab9c-252b-5f4f-9a68-fc7f03a5502a", player_emoji: "VDV", player_bg_color: "F53948"}, 
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "E9E", player_bg_color: "FFD133"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "zmz", player_bg_color: "158FDA"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "0(0", player_bg_color: "FF33A6"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "T.T", player_bg_color: "A633FF"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "wmw", player_bg_color: "3357FF"}])
+		this.initiateTournament()
+		this.addWinners([0, 3, 5, 3, 3])
 		console.log(this.tournamentData)
-		this.addWinners([0, 2, 4, 2, -1])
-		console.log(this.tournamentData)
-		this.renderTree(this.tournamentData);
 	}
 
-	addFirstRound(players_array) {
-		// Transform backend player data to match the expected format
-        const transformedPlayers = players_array.map(player => ({
-            name: player.player_emoji,
-            background: `#${player.player_bg_color}` // Convert the background to proper format
-        }));
-
-        const totalPlayers = transformedPlayers.length;
-        const totalRounds = Math.ceil(Math.log2(totalPlayers)); // Calculate total rounds based on players
-		console.log("total rounds:", totalRounds)
-        this.tournamentData.player_count = totalPlayers;
-        this.tournamentData.round1 = transformedPlayers.reduce((matches, player, index, array) => {
-            if (index % 2 === 0) {
-                matches.push({
-                    player1: { "avatar-name": player.name, "avatar-background": player.background },
-                    player2: { "avatar-name": array[index + 1].name, "avatar-background": array[index + 1].background },
-                    winner: null
-                });
-            }
-            return matches;
-        }, []);
-        // Initialize future rounds dynamically
-        let previousRoundSize = this.tournamentData.round1.length;
-        for (let i = 2; i <= totalRounds; i++) {
-            const roundKey = `round${i}`;
-            this.tournamentData[roundKey] = Array(Math.ceil(previousRoundSize / 2)).fill(null).map(() => ({
-                player1: null,
-                player2: null,
-                winner: null
-            }));
-            previousRoundSize = Math.ceil(previousRoundSize / 2);
-        }
+	initiateTournament() {
+		const totalRounds = Math.ceil(Math.log2(this.tournamentData.player_count)); // Calculate total rounds based on players
+		// Initialize the first round
+		const round1 = [];
+		for (let i = 0; i < this.tournamentData.player_count; i += 2) {
+			round1.push({
+				player1_i: i,
+				player2_i: i + 1 < this.players.length ? i + 1 : -1, // Next player index or -1 if uneven amount of players
+				winner_i: null,
+			});
+		}
+		this.tournamentData.rounds.push(round1);
+		
+		// Initialize future rounds
+		for (let roundIndex = 1; roundIndex < totalRounds; roundIndex++) {
+			const newRound = [];
+			const previousRoundLen = this.tournamentData.rounds[roundIndex - 1].length
+			for (let i = 0; i < previousRoundLen; i += 2) {
+				const p2_placeholder = i + 1 < previousRoundLen ? null : -1; //
+				newRound.push({
+					player1_i: null,
+					player2_i: p2_placeholder,
+					winner_i: null,
+				})
+			}
+			this.tournamentData.rounds.push(newRound)
+		}
 	}
 
 	addWinners(winners_index_array) {
 		let i = 0;
-	
-		for (let round = 1; round <= Object.keys(this.tournamentData).length - 1; round++) {
-			const currentRoundKey = `round${round}`;
-			const nextRoundKey = `round${round + 1}`;
-			const currentRound = this.tournamentData[currentRoundKey];
-			const nextRound = this.tournamentData[nextRoundKey];
-	
+		const roundsLen = this.tournamentData.rounds.length
+		for (let roundIndex = 0; roundIndex < roundsLen; roundIndex++) {
+			const currentRound = this.tournamentData.rounds[roundIndex];
+			const nextRound = roundIndex + 1 < roundsLen ? this.tournamentData.rounds[roundIndex + 1] : null;
 			currentRound.forEach((match, matchIndex) => {
-				const winnerIdx = winners_index_array[i];	
-				if (winnerIdx === -1) {
-					i++;
+				if (i >= winners_index_array.length) // can happen only with 6 players 
+					i--;
+				const winnerIdx = winners_index_array[i];
+				if (winnerIdx === -1) 
 					return;
-				}
-				// Update the current round's match with the winner
-				match.winner = winnerIdx % 2 === 0 ? match.player1 : match.player2;
-				// Populate the next round's match
-				if (nextRound) {
-					const nextMatchIndex = Math.floor(matchIndex / 2);
-	
-					// Assign the winner to the correct slot in the next round					
-					if (matchIndex % 2 === 0) {
-						console.log(matchIndex, this.tournamentData.player_count)
-						if (this.tournamentData.player_count === 6 && matchIndex === 2) {
-								console.log("why are we not here");
-								nextRound[nextMatchIndex].player1 = match.winner;
-								nextRound[nextMatchIndex].player2 = { "avatar-name": "", "avatar-background": null };
-								nextRound[nextMatchIndex].winner = match.winner;
-								i--;
-							}
-						else if (!nextRound[nextMatchIndex].player1) {
-							nextRound[nextMatchIndex].player1 = match.winner;
-						}
-					} else {
-						if (!nextRound[nextMatchIndex].player2) {
-							nextRound[nextMatchIndex].player2 = match.winner;
-						}
+				if (match.winner_i === null)
+					match.winner_i = winnerIdx;
+				if (!nextRound) 
+					return;
+				//set next matches for the winner
+				const nextMatchIndex = Math.floor(matchIndex / 2)
+				const isPlayer1Slot = matchIndex % 2 === 0; // bool if the player should be player1 or 2
+				if (isPlayer1Slot && nextRound[nextMatchIndex].player1_i === null) {
+					nextRound[nextMatchIndex].player1_i = winnerIdx;
+					if (this.tournamentData.player_count === 6 && nextRound.length === 2 && matchIndex === 2) {
+						nextRound[nextMatchIndex].winner_i = winnerIdx;
+						this.tournamentData.rounds[2][0].player2_i = winnerIdx // pass single player to final
 					}
 				}
-	
+				else if (!isPlayer1Slot && nextRound[nextMatchIndex].player2_i === null)
+					nextRound[nextMatchIndex].player2_i = winnerIdx;
 				i++;
-			});
+			})
 		}
+		this.renderTree()
 	}
 	
-
-
-	renderTree(tournamentData) {
+	renderTree() {
 		const tournamentContainer = this.shadowRoot.querySelector('.tournament');
 		tournamentContainer.innerHTML = ''; // Clear previous tree render
 	
 		// Helper function to create a player avatar
-		const createAvatar = (player, winner) => {
+		const createAvatar = (player_i, winner_i) => {
+			if (player_i === -1)
+				return null;
 			const avatar = document.createElement('td-avatar');
-	
-			// Set default values if player doesn't exist
-			const playerName = player ? player["avatar-name"] : "???";
-			const playerBackground = player ? player["avatar-background"] : "#C8C8C8";
-	
+			// Set default values if player is null
+			const playerName = player_i === null ? "???" : this.players[player_i]["avatar-name"];
+			const playerBackground = player_i === null ? "#C8C8C8" : this.players[player_i]["avatar-background"];
 			avatar.setAttribute('avatar-name', playerName);
-			if (winner && winner["avatar-name"] !== playerName) {
-				avatar.setAttribute('avatar-background', "#C8C8C8");
+			if (winner_i !== null && winner_i !== player_i) {
+				avatar.setAttribute('avatar-background', "#A0A0A0");
 			} else {
 				avatar.setAttribute('avatar-background', playerBackground);
 			}
@@ -155,31 +124,24 @@ export default class ComponentTournamentTree extends HTMLElement {
 				matchDiv.className = 'match';
 	
 				// Create and append Player avatars
-				const avatar1 = createAvatar(match.player1, match.winner);
+				const avatar1 = createAvatar(match.player1_i, match.winner_i);
 				matchDiv.appendChild(avatar1);
-				if (match.player2 && match.player2["avatar-name"] !== "") {
-					const avatar2 = createAvatar(match.player2, match.winner);
+				const avatar2 = createAvatar(match.player2_i, match.winner_i);
+				if (avatar2) //if uneven number of players avatar 2 wont be created
 					matchDiv.appendChild(avatar2);
-				}
-	
 				rowDiv.appendChild(matchDiv);
 			});
-	
 			return rowDiv;
 		};
 	
-		// Dynamically determine and process rounds
-		const rounds = Object.keys(tournamentData)
-			.filter(key => key.startsWith('round')) // Only include "round" keys
-			.sort((a, b) => b.localeCompare(a)); // Sort rounds in reverse order
-	
-		rounds.forEach(roundKey => {
-			const roundMatches = tournamentData[roundKey];
+		//render each round in the tree structure starting from the final
+		for (let roundIndex = this.tournamentData.rounds.length - 1; roundIndex >= 0; roundIndex--) {
+			const roundMatches = this.tournamentData.rounds[roundIndex];
 			if (roundMatches && roundMatches.length > 0) {
 				const roundRow = createRoundRow(roundMatches);
 				tournamentContainer.appendChild(roundRow);
 			}
-		});
+		}
 	}
 	
 }
