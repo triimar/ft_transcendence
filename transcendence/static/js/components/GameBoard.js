@@ -16,10 +16,11 @@ export default class ComponentGameBoard extends HTMLElement {
 
 	startMatch(ball, side) {
 		this.side = side;
-		this.ball.x = ball["position"]["x"]
-		this.ball.y = ball["position"]["y"]
-		this.ball.vx = ball["position"]["vx"]
-		this.ball.vy = ball["position"]["vy"]
+		this.ball.x = ball["position"]["x"];
+		this.ball.y = ball["position"]["y"];
+		this.ball.vx = ball["position"]["vx"];
+		this.ball.vy = ball["position"]["vy"];
+		this.draw();
 	}
 
 	oponentPaddleMoved(side, position) {
@@ -314,6 +315,5 @@ export default class ComponentGameBoard extends HTMLElement {
 			'position': getMyPaddle().y
 		}))
 	}
-
 
 }
