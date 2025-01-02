@@ -5,6 +5,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.shadow = this.attachShadow({ mode: "open" });
 		const template = document.getElementById("component-game-board");
 		this.shadow.appendChild(template.content.cloneNode(true));
+		this.raf = null;
 	}
 
 	getMyPaddle() {
@@ -15,6 +16,56 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	startMatch(ball, side) {
+		this.side = side;
+		this.ball.x = ball["position"]["x"];
+		this.ball.y = ball["position"]["y"];
+		this.ball.vx = ball["velocity"]["vx"];
+		this.ball.vy = ball["velocity"]["vy"];
+
+		this.ball.draw();
+		this.paddleLeft.draw();
+		this.paddleRight.draw();
+
+		document.addEventListener("keydown", this.keydownEventListener, true);
+		this.raf = window.requestAnimationFrame(this.draw);
+	}
+
+	freezeMatch() {
+		if (this.raf != null) {
+			window.cancelAnimationFrame(this.raf);
+			document.removeEventListener("keydown", this.keydownEventListener, true);
+			this.raf = null;
+		}
+	}
+
+	unfreezeMatch() {
+		if (this.raf == null) {
+			document.addEventListener("keydown", this.keydownEventListener, true);
+			this.raf = window.requestAnimationFrame(this.draw);
+		}
+	}
+
+	oponentPaddleMoved(side, position) {
+		if (side == 0)
+			this.paddleLeft.y = position;
+		else
+			this.paddleRight.y = position;
+		// TODO: maybe need to change more than just y, maybe the velocity as well?
+	}
+
+	getMyPaddle() {
+		if (this.side == 0)
+			return this.paddleLeft;
+		else
+			return this.paddleRight;
+	}
+
+	startMatch(message) {
+		let ball = message["ball"]
+		let side = message["side"]
+		console.log(ball, side)
+		console.log("Ball position:")
+		console.log(ball["position"])
 		this.side = side;
 		this.ball.x = ball["position"]["x"];
 		this.ball.y = ball["position"]["y"];
@@ -127,13 +178,13 @@ export default class ComponentGameBoard extends HTMLElement {
 			if (this.ball.vx != PADDLE_SPEED && this.ball.vx != -PADDLE_SPEED && !this.ball.isSpeedingUp)
 			{
 				this.ball.isSpeedingUp = true;
-				setTimeout(function() {
+				setTimeout((function() {
 					if (this.ball.vx > 0 && this.ball.vx != PADDLE_SPEED)
 						this.ball.vx++;
 					else if (this.ball.vx != -PADDLE_SPEED)
 						this.ball.vx--;
 					this.ball.isSpeedingUp = false;
-				}, 1000);
+				}).bind(this), 1000);
 			}
 
 			this.ball.x += this.ball.vx;
@@ -144,7 +195,7 @@ export default class ComponentGameBoard extends HTMLElement {
 				this.ball.y + this.ball.vy <= 0)
 			{
 				this.ball.vy = -this.ball.vy;
-				updateBall();
+				this.updateBall();
 			}
 			//Right wall collision
 			if (this.ball.x + this.ball.vx > this.canvas.width - this.ball.size)
@@ -176,21 +227,21 @@ export default class ComponentGameBoard extends HTMLElement {
 					if ((this.ball.vy > 0 && velocityY === -1) || this.ball.vy < 0 && velocityY === 1)
 						this.ball.vy *= -1;
 					this.ball.vx = Math.abs(this.ball.vx);
-					updateBall();
+					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy < this.paddleLeft.y) //Upper side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy > 0)
 						this.ball.vy = -this.ball.vy;
-					updateBall();
+					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy + this.ball.size > this.paddleLeft.y + this.paddleLeft.height) //Lower side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy < 0)
 						this.ball.vy = -this.ball.vy;
-					updateBall();
+					this.updateBall();
 				}
 			}
 			//Right paddle collisions
@@ -209,26 +260,26 @@ export default class ComponentGameBoard extends HTMLElement {
 					if ((this.ball.vy > 0 && velocityY === -1) || this.ball.vy < 0 && velocityY === 1)
 						this.ball.vy *= -1;
 					this.ball.vx = -Math.abs(this.ball.vx);
-					updateBall();
+					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy < this.paddleRight.y) //Upper side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy > 0)
 						this.ball.vy = -this.ball.vy;
-					updateBall();
+					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy + this.ball.size > this.paddleRight.y + this.paddleRight.height) //Lower side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy < 0)
 						this.ball.vy = -this.ball.vy;
-					updateBall();
+					this.updateBall();
 				}
 			}
 		}
 
-		async function draw() {
+		this.draw = (function() {
 			ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 			this.paddleLeft.draw();
 			this.paddleRight.draw();
@@ -242,9 +293,9 @@ export default class ComponentGameBoard extends HTMLElement {
 				}, 3000);
 			}
 			if (!pause)
-				moving();
-			this.raf = window.requestAnimationFrame(draw);
-		}
+				moving.bind(this)();
+			this.raf = window.requestAnimationFrame(this.draw);
+		}).bind(this);
 
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
@@ -252,51 +303,34 @@ export default class ComponentGameBoard extends HTMLElement {
 				e.preventDefault();
 			}
 			switch (e.key) {
-				case "ArrowDown":
-					getMyPaddle().y += getMyPaddle().vy;
-					if (getMyPaddle().y > this.canvas.height - getMyPaddle().height)
-						getMyPaddle().y = this.canvas.height - getMyPaddle().height;
-					paddleMove();
-				break;
-				case "ArrowUp":
-					getMyPaddle().y -= getMyPaddle().vy;
-					if (getMyPaddle().y < 0)
-						getMyPaddle().y = 0;
-					paddleMove();
-				break;
 				case "s":
-					getMyPaddle().y += getMyPaddle().vy;
-					if (getMyPaddle().y > this.canvas.height - getMyPaddle().height)
-						getMyPaddle().y = this.canvas.height - getMyPaddle().height;
-					paddleMove();
-				break;
+				case "ArrowDown":
+					this.getMyPaddle().y += this.getMyPaddle().vy;
+					if (this.getMyPaddle().y > this.canvas.height - this.getMyPaddle().height)
+						this.getMyPaddle().y = this.canvas.height - this.getMyPaddle().height;
+					this.paddleMove();
+					break;
 				case "w":
-					getMyPaddle().y -= getMyPaddle().vy;
-					if (getMyPaddle().y < 0)
-						getMyPaddle().y = 0;
-					paddleMove();
-				break;
+				case "ArrowUp":
+					this.getMyPaddle().y -= this.getMyPaddle().vy;
+					if (this.getMyPaddle().y < 0)
+						this.getMyPaddle().y = 0;
+					this.paddleMove();
+					break;
 				case " ":
 					window.cancelAnimationFrame(this.raf);
 					break;
 				case "Enter":
-					this.raf = window.requestAnimationFrame(draw);
+					this.raf = window.requestAnimationFrame(this.draw);
 				default:
 					return;
 			}
 		}).bind(this);
-
-		document.addEventListener("keydown", this.keydownEventListener, true);
-
-		this.ball.draw();
-		this.paddleLeft.draw();
-		this.paddleRight.draw();
-
-		this.raf = window.requestAnimationFrame(draw);
 	}
 
 	disconnectedCallback() {
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		window.cancelAnimationFrame(this.raf);
 	}
 
 	updateBall() {
@@ -312,8 +346,9 @@ export default class ComponentGameBoard extends HTMLElement {
 	paddleMove() {
 		myself.sendMessage(JSON.stringify({
 			'type': 'paddle_move',
-			'position': getMyPaddle().y
+			'position': this.getMyPaddle().y
 		}))
 	}
+
 
 }

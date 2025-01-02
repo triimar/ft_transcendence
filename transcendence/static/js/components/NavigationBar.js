@@ -17,11 +17,6 @@ export default class ComponentNavigationBar extends HTMLElement {
 		}).bind(this);
 		this.shadow.querySelector("#mode").addEventListener("click", this.modeSwitcherFunc, true);
 
-		this.toggleAvatarInfoFunc = (() => {
-				this.shadow.querySelector("#avatar-info-container").classList.toggle("hide");
-		}).bind(this);
-		this.shadow.querySelector("#avatar").addEventListener("click", this.toggleAvatarInfoFunc, true);
-		this.shadow.querySelector("#close-btn").addEventListener("click", this.toggleAvatarInfoFunc, true);
 		this.logoutFunc = () => {
 			if (myself.roomId == null) {
 				myself.logout();
@@ -31,16 +26,21 @@ export default class ComponentNavigationBar extends HTMLElement {
 				myself.page.confirmPopupRedirectPageHash = "#login";
 				myself.sendMessageLeaveRoom(myself.roomId);
 				myself.logout();
+				setTimeout(() => {
+					if (window.location.hash != "#login") {
+						window.location.hash = "#login";
+					}
+				}, 2000);
 			}
 		};
-		this.shadow.querySelector("#logout-btn").addEventListener("click", this.logoutFunc, true);
+		document.querySelector("#logout-btn").addEventListener("click", this.logoutFunc, true);
 			// Note(HeiYiu): Change avatar
 			let avatarElement = document.createElement("td-avatar");
 			avatarElement.setAttribute("avatar-name", myself.avatar_emoji);
 			avatarElement.setAttribute("avatar-background", myself.avatar_bg_color);
 			avatarElement.setAttribute("avatar-id", myself.id);
 			avatarElement.setAttribute("slot", "avatar");
-			let dummyAvatars = this.shadow.querySelectorAll(".dummy-avatar");
+			let dummyAvatars = [document.querySelector("#avatar-info-popup td-avatar"), this.shadow.querySelector("td-avatar")];
 			for (let dummyAvatar of dummyAvatars) {
 				dummyAvatar.parentNode.replaceChild(avatarElement.cloneNode(), dummyAvatar);
 			}
@@ -48,8 +48,6 @@ export default class ComponentNavigationBar extends HTMLElement {
 
 	disconnectedCallback() {
 		this.shadow.querySelector("#mode").removeEventListener("click", this.modeSwitcherFunc, true);
-		this.shadow.querySelector("#avatar").removeEventListener("click", this.toggleAvatarInfoFunc, true);
-		this.shadow.querySelector("#close-btn").removeEventListener("click", this.toggleAvatarInfoFunc, true);
-		this.shadow.querySelector("#logout-btn").removeEventListener("click", this.logoutFunc, true);
+		document.querySelector("#logout-btn").removeEventListener("click", this.logoutFunc, true);
 	}
 }

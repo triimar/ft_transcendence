@@ -10,10 +10,31 @@
 <body>
 	<main>
 		<div class="content-container"></div>
-		<div id="notification-popup" class="ui">
-			<p id="notification-popup-text">Error</p>
+		<div id="tournament-tree-popup" class="fullscreen-popup">
+			<div class="ui" style="background: var(--td-ui-background-color);">
+				<td-button class="ui close-btn" onclick="document.querySelector('#tournament-tree-popup').classList.remove('show');"><p>X</p></td-button>
+				<td-tournament-tree style="
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-start;
+				align-items: center;
+				gap: 0.4em;">
+				</td-tournament-tree>
+			</div>
 		</div>
-		<div id="confirm-to-logout-popup">
+		<div id="avatar-info-popup" class="fullscreen-popup">
+			<div id="avatar-info" class="ui" style="width: 20em; height: 70%;">
+				<td-button class="ui close-btn" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');"><p>X</p></td-button>
+				<div style="width: 100%; height: fit-content; display: flex; flex-direction: column; justify-content: start; align-items: center; gap: 0.3rem;">
+					<p style="margin: 0;">Customize your avatar</p>
+					<td-avatar class="dummy-avatar"></td-avatar>
+					<td-button id="logout-btn" class="ui" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');">
+						<p style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">LOGOUT</p>
+					</td-button>
+				</div>
+			</div>
+		</div>
+		<div id="confirm-to-logout-popup" class="fullscreen-popup">
 			<div class="ui" style="width: fit-content; background: var(--td-ui-background-color); padding: 1em; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5em;">
 				<p>Are you sure you want to leave?</p>
 				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 1em;">
@@ -21,6 +42,9 @@
 					<td-button id="logout-no-btn" class="ui" onclick="document.querySelector('#confirm-to-logout-popup').classList.remove('show');"><p style="padding: 0 0.5em;">NO</p></td-button>
 				</div>
 			</div>
+		</div>
+		<div id="notification-popup" class="ui">
+			<p id="notification-popup-text">Error</p>
 		</div>
 		<footer style="width: 70%; margin-top: auto; display: flex; flex-direction: column; align-items: center;" class="ui">
 			<p>:PONG © 2024</p>
@@ -49,13 +73,15 @@
 </template>
 <template id="page-game">
 	<td-navigation-bar>
-		<p class="ui ui-text">EXIT GAME</p>
+		<td-button class="ui ui-text"><p>EXIT GAME</p></td-button>
+		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p>Tournament tree</p></td-button>
 	</td-navigation-bar>
 	<td-game-board></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
-		<p class="ui ui-text">EXIT GAME</p>
+		<td-button class="ui ui-text"><p>EXIT GAME</p></td-button>
+		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p>Tournament tree</p></td-button>
 	</td-navigation-bar>
 	<td-ai-game-board></td-ai-game-board>
 </template>
@@ -73,8 +99,8 @@
 	</td-lobby-room>
 	<td-room-setting-size id="room-size-buttons" class="ui" style="display: none"></td-room-setting-size>
 	<div class="ui ui-text"><p>More game options coming soon</p></div>
+	<div class="ui"><td-tournament-tree></td-tournament-tree></div>
 </template>
-
 <template id="page-main">
 	<style>
 		td-navigation-bar {
@@ -87,17 +113,6 @@
 	<td-navigation-bar>
 		<td-button id="add-room-btn" class="ui"><p class="ui-text">ADD ROOM</p></td-button>
 	</td-navigation-bar>
-</template>
-<template id="page-tree">
-	<td-navigation-bar>
-	</td-navigation-bar>
-	<td-tournament-tree style="
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: center;
-	gap: 0.4em;">
-	</td-tournament-tree>
 </template>
 <template id="component-lobby-room">
 	<style>
@@ -265,25 +280,6 @@
 			width: fit-content;
 		}
 
-		.ui-text {
-			padding: 0.5em 0.5em;
-			margin: 0;
-		}
-
-		#avatar-info-container {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.4);
-			z-index: 10;
-
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
-
 		#avatar:hover {
 			animation: wiggle .6s;
 		}
@@ -292,16 +288,6 @@
 			width: 50%;
 			height: 80%;
 			background: var(--td-ui-background-color);
-		}
-
-		#close-btn {
-			position: relative;
-			top: 0;
-			left: calc(100% - 1.4rem - (2 * var(--td-border-size)));
-		}
-
-		.hide {
-			visibility: hidden;
 		}
 
 		@keyframes wiggle {
@@ -317,23 +303,11 @@
 		<div id="buttons-container">
 			<slot></slot>
 			<td-lever class="ui" id="mode"></td-lever>
-			<div class="ui" id="avatar" style="cursor: pointer;">
+			<div class="ui" id="avatar" style="cursor: pointer;" onclick="document.querySelector('#avatar-info-popup').classList.add('show');">
 				<td-avatar class="dummy-avatar"></td-avatar>
 			</div>
 		</div>
 	</nav>
-	<div id="avatar-info-container" class="hide">
-		<div id="avatar-info" class="ui">
-			<td-button id="close-btn" class="ui"><p style="aspect-ratio: 1; height: 1rem; text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">X</p></td-button>
-			<div style="width: 100%; height: fit-content; display: flex; flex-direction: column; justify-content: start; align-items: center; gap: 0.3rem;">
-				<p style="margin: 0;">Customize your avatar</p>
-				<td-avatar class="dummy-avatar"></td-avatar>
-				<td-button id="logout-btn" class="ui">
-					<p style="height: 1rem; text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">LOGOUT</p>
-				</td-button>
-			</div>
-		</div>
-	</div>
 </template>
 <template id="component-logo">
 	<h1>:PONG</h1>
@@ -418,37 +392,60 @@
 	<div id="handle"></div>
 </template>
 <template id="component-tournament-tree">
-    <style>
-        .tournament-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .matchup {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: calc(var(--td-avatar-width) / 2);
-        }
-        .vs_line {
-            width: var(--td-border-size);
-            height: calc(var(--td-avatar-height)* 1.25);
-            background-color: var(--td-ui-font-color);
-            margin: 0 auto;
-        }
-
-		.ui {
-			border: var(--td-border-size) solid var(--td-ui-font-color);
-			box-sizing: border-box;
+	<style>
+		.tournament {
+			font-size: 0.75em;
 			display: flex;
-			width: fit-content;
-			/* gap: em; */
+			flex-direction: column;
+			align-items: center;
+			margin-top: 0.5em;
+			margin-bottom: 0.5em;
+			}
+		.round {
+			padding: 0.5em 0px 0.5em 0px;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			}
+		.match {
+			display: flex;
+			flex-direction: row;
+			padding: 0.5em;
 		}
-    </style>
-    <div class="tournament-container">
-    </div>
-	<div class="ui">
-	</div>
+	</style>
+	<div class="tournament"></div>
 </template>
-
+<template id="component-progress-bar">
+	<style>
+		:host {
+			display: block;
+			width: 100%;
+			height: 30px;
+			background-color: #e0e0e0;
+			border-radius: 15px;
+			overflow: hidden;
+			position: relative;
+		}
+		#progress-bar {
+			height: 100%;
+			width: 0;
+			background-color: #76c7c0;
+			transition: width 0.1s ease-in-out;
+		}
+		#progress-text {
+			position: absolute;
+			width: 100%;
+			text-align: center;
+			top: 50%;
+			transform: translateY(-50%);
+			font-family: Arial, sans-serif;
+			font-size: 14px;
+			color: black;
+			pointer-events: none;
+		}
+		</style>
+		<div id="progress-bar"></div>
+		<div id="progress-text">"something"</div>
+</template>
 </html>

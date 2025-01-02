@@ -216,29 +216,6 @@ export class PageRoom extends PageConfirmLeave{
 	}
 
 	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
-		if ((newPageName == "tree") && (newRoomId != null) && (newRoomId == myself.roomId)) {
-			return true;
-		}
-		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);
-	}
-}
-
-export class PageTree extends PageConfirmLeave{
-	constructor(container) {
-		super();
-		this.templateId = "page-tree";
-		this.container = container;
-	}
-
-	attachEvents() {
-		super.attachEvents();
-	}
-
-	removeEvents() {
-		super.removeEvents();
-	}
-
-	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
 		if (((newPageName == "game") || (newPageName == "ai-game")) && (newRoomId != null) && (newRoomId == myself.roomId)) {
 			return true;
 		}
