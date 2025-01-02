@@ -330,10 +330,12 @@ class Visitor {
 			case "b_start_match": {
 				console.log("recieved start match");
 				let gameboard = this.page.container.querySelector("td-game-board");
-				if (gameboard) {
+				if (!gameboard) {
+					gameboard = document.createElement("td-game-board");
+					this.page.container.appendChild(matchElement);
 					console.log("Created gameboard");
-					gameboard.startMatch(message);
 				}
+				gameboard.startMatch(message);
 			} break;
 			case "b_paddle_move": {
 				console.log("paddle moved");

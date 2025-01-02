@@ -15,16 +15,26 @@ export default class ComponentGameBoard extends HTMLElement {
 			return this.paddleRight;
 	}
 
-	startMatch(ball, side) {
+	startMatch(message) {
+		let ball = message["ball"];
+		let side = message["side"];
+		let playerLeft = message["players"][0];
+		let playerRight = message["players"][1];
 		this.side = side;
 		this.ball.x = ball["position"]["x"];
 		this.ball.y = ball["position"]["y"];
 		this.ball.vx = ball["velocity"]["vx"];
 		this.ball.vy = ball["velocity"]["vy"];
+		this.paddleLeft.name = playerLeft["player_emoji"];
+		this.paddleLeft.color = playerLeft["player_bg_color"];
+		this.paddleRight.name = playerRight["player_emoji"];
+		this.paddleRight.color = playerRight["player_bg_color"];
 
 		this.ball.draw();
-		this.paddleLeft.draw();
 		this.paddleRight.draw();
+		this.paddleLeft.draw();
+
+		console.log(this.paddleRight);
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.draw);
@@ -53,41 +63,13 @@ export default class ComponentGameBoard extends HTMLElement {
 		// TODO: maybe need to change more than just y, maybe the velocity as well?
 	}
 
-	getMyPaddle() {
-		if (this.side == 0)
-			return this.paddleLeft;
-		else
-			return this.paddleRight;
-	}
-
-	startMatch(message) {
-		let ball = message["ball"]
-		let side = message["side"]
-		console.log(ball, side)
-		console.log("Ball position:")
-		console.log(ball["position"])
-		this.side = side;
-		this.ball.x = ball["position"]["x"];
-		this.ball.y = ball["position"]["y"];
-		this.ball.vx = ball["position"]["vx"];
-		this.ball.vy = ball["position"]["vy"];
-		this.draw();
-	}
-
-	oponentPaddleMoved(side, position) {
-		if (side == 0)
-			this.paddleLeft = position;
-		else
-			this.paddleRight = position;
-	}
-
 	connectedCallback() {
-		this.canvas = this.shadow.querySelector("canvas");
-		const ctx = this.canvas.getContext("2d");
+		const canvas = this.shadow.querySelector("canvas");
+		const ctx = canvas.getContext("2d");
 		const BALL_SPEED = 5;
 		const MAXBOUNCEANGLE = Math.PI/4;
-		const PADDLE_H = this.canvas.width/10;
-		const PADDLE_W = this.canvas.width/10;
+		const PADDLE_H = canvas.width/10;
+		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 15;
 
 		let pause = false;
@@ -97,8 +79,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		}
 
 		this.ball = {
-			x: this.canvas.width / 2,
-			y: this.canvas.height / 2,
+			x: canvas.width / 2,
+			y: canvas.height / 2,
 			vx: BALL_SPEED,
 			vy: BALL_SPEED,
 			size: 50,
@@ -112,8 +94,8 @@ export default class ComponentGameBoard extends HTMLElement {
 			},
 			reset(side)
 			{
-				this.x = this.canvas.width / 2;
-				this.y = this.canvas.height / 2;
+				this.x = canvas.width / 2;
+				this.y = canvas.height / 2;
 				this.vx = BALL_SPEED * side;
 				this.vy = BALL_SPEED;
 				this.isReset = true;
@@ -125,7 +107,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleLeft = {
 			name: "6_6",
 			x: 0,
-			y: this.canvas.height/2 - PADDLE_H/2,
+			y: canvas.height/2 - PADDLE_H/2,
 			vy: PADDLE_SPEED,
 			height: PADDLE_H,
 			width: PADDLE_W,
@@ -142,7 +124,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			},
 			reset()
 			{
-				this.y = this.canvas.height/2 - PADDLE_H/2;
+				this.y = canvas.height/2 - PADDLE_H/2;
 				this.height = PADDLE_H;
 				this.width = PADDLE_W;
 			}
@@ -150,8 +132,8 @@ export default class ComponentGameBoard extends HTMLElement {
 
 		this.paddleRight = {
 			name: "0-0",
-			x: this.canvas.width - PADDLE_W,
-			y: this.canvas.height/2 - PADDLE_H/2,
+			x: canvas.width - PADDLE_W,
+			y: canvas.height/2 - PADDLE_H/2,
 			vy: PADDLE_SPEED,
 			height: PADDLE_H,
 			width: PADDLE_W,
@@ -168,7 +150,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			},
 			reset()
 			{
-				this.y = this.canvas.height/2 - PADDLE_H/2;
+				this.y = canvas.height/2 - PADDLE_H/2;
 				this.height = PADDLE_H;
 				this.width = PADDLE_W;
 			}
@@ -191,14 +173,14 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.ball.y += this.ball.vy;
 		  	//Bounce off the ceiling/floor
 			if (
-				this.ball.y + this.ball.vy > this.canvas.height - this.ball.size ||
+				this.ball.y + this.ball.vy > canvas.height - this.ball.size ||
 				this.ball.y + this.ball.vy <= 0)
 			{
 				this.ball.vy = -this.ball.vy;
 				this.updateBall();
 			}
 			//Right wall collision
-			if (this.ball.x + this.ball.vx > this.canvas.width - this.ball.size)
+			if (this.ball.x + this.ball.vx > canvas.width - this.ball.size)
 			{
 				this.ball.reset(-1);
 				this.paddleLeft.reset();
@@ -280,7 +262,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		}
 
 		this.draw = (function() {
-			ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			this.paddleLeft.draw();
 			this.paddleRight.draw();
 			this.ball.draw();
@@ -306,8 +288,8 @@ export default class ComponentGameBoard extends HTMLElement {
 				case "s":
 				case "ArrowDown":
 					this.getMyPaddle().y += this.getMyPaddle().vy;
-					if (this.getMyPaddle().y > this.canvas.height - this.getMyPaddle().height)
-						this.getMyPaddle().y = this.canvas.height - this.getMyPaddle().height;
+					if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height)
+						this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
 					this.paddleMove();
 					break;
 				case "w":

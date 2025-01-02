@@ -194,21 +194,25 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         room = await data.get_one_room_data(self.room_group_name)
         game_match = room['matches'][self.match_id]
         game_match['ready'] += 1
+        player0 = await data.get_one_player(game_match["players"][0])
+        player1 = await data.get_one_player(game_match["players"][1])
         player = await data.get_one_player(self.player_id)
         player['score'] = 0
         if (game_match['ready'] == 2):
             print("dis")
-            event = {"type": "broadcast.start.match", 'ball': game_match['ball'], 'side0_player_id': game_match['players'][0]}
+            event = {"type": "broadcast.start.match", 'ball': game_match['ball'], 'side0_player_id': game_match['players'][0],
+                      'players': [player0, player1]}
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
         await data.update_room(room)
         await data.update_player(player)
 
     async def broadcast_start_match(self, event):
         ball = event["ball"]
+        players = event["players"]
         side = 1
         if event['side0_player_id'] == self.player_id:
             side = 0
-        text_data = json.dumps({"type": "b_start_match", "ball": ball, "side": side})
+        text_data = json.dumps({"type": "b_start_match", "ball": ball, "side": side, "players": players})
         await self.send(text_data=text_data)
 
     async def bounce_ball(self, ball):
