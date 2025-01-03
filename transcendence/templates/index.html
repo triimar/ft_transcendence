@@ -5,10 +5,24 @@
 	<title>Transcendence!</title>
 	<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+	<script src="https://cdn.jsdelivr.net/npm/i18next/i18next.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend/i18nextHttpBackend.min.js"></script>
 	<script type="module" src="{% static 'js/index.js' %}"></script>
 </head>
 <body>
 	<main>
+
+
+		<select id="language-selector" class="ui" style="
+    	font-size: var(--td-font-size); 
+    	padding: 0.5em; 
+    	width: 150px;">
+    	<option value="en">EN</option>
+    	<option value="de">DE</option>
+		<option value="es">ES</option>
+		</select>
+
+
 		<div class="content-container"></div>
 		<div id="tournament-tree-popup" class="fullscreen-popup">
 			<div class="ui" style="background: var(--td-ui-background-color);">
@@ -48,7 +62,7 @@
 		</div>
 		<footer style="width: 70%; margin-top: auto; display: flex; flex-direction: column; align-items: center;" class="ui">
 			<p>:PONG © 2024</p>
-			<p style="font-size: 0.5em;">Made by Hei Yiu, Maria, Sangyao, Sol and Triin</p>
+			<p id="footer-authors" style="font-size: 0.5em;"></p>
 			</div>
 		</footer>
 	</main>
@@ -66,8 +80,8 @@
 	<div id="login-box" style="display: flex; flex-direction: column;" class="ui">
 		<td-logo style="margin-left: 1em;"></td-logo>
 		<div style="display: flex; flex-direction: row;">
-			<td-button id="btn-login-guest" class="ui"><p class="ui-text">Guest login</p></td-button>
-			<td-button id="btn-login-intra" class="ui"><p class="ui-text">Intra login</p></td-button>
+			<td-button id="btn-login-guest" class="ui"><p id="login-guest" class="ui-text"></p></td-button>
+			<td-button id="btn-login-intra" class="ui"><p id="login-intra" class="ui-text"></p></td-button>
 		</div>
 	</div>
 </template>

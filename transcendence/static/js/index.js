@@ -8,6 +8,7 @@ import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
 import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
+import { initializeI18n, updateGlobalTranslations } from "./translation.js";
 import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain } from "./pages.js";
 
 import { myself } from "./myself.js";
@@ -23,6 +24,9 @@ const pageMapping = {
 
 let isTriggerHashChange = true;
 async function main() {
+	await initializeI18n(); // Ensure translations are initialized
+    updateGlobalTranslations(); // Apply initial translations
+
 	const contentContainer = document.getElementsByClassName("content-container")[0];
 	let currentPage = null;
 	window.addEventListener("hashchange", async (event) => {
@@ -59,6 +63,7 @@ async function main() {
 		myself.roomId = roomId;
 		myself.gameIndex= gameIndex;
 		renderTemplate(contentContainer, currentPage.templateId);
+		updateGlobalTranslations();
 		currentPage.attachEvents();
 		if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
 		myself.pageFinishedRendering = true;
@@ -83,6 +88,7 @@ async function main() {
 	myself.roomId = roomId;
 	myself.gameIndex= gameIndex;
 	renderTemplate(contentContainer, currentPage.templateId);
+	updateGlobalTranslations();
 	currentPage.attachEvents();
 	if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
 	myself.pageFinishedRendering = true;

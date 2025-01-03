@@ -1,0 +1,9 @@
+{
+	"login": {
+		"guest": "Gastzugang",
+		"intra": "Intra-Login"
+	},
+	"footer": {
+        "authors": "Erstellt by Hei Yiu, Maria, Sangyao, Sol and Triin"
+    }
+}
