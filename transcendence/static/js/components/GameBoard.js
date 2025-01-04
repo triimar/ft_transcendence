@@ -67,7 +67,7 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	ballBounced(message) {
-		ball = message["ball"];
+		let ball = message["ball"];
 		this.ball.x = ball["position"]["x"];
 		this.ball.y = ball["position"]["y"];
 		this.ball.vx = ball["velocity"]["vx"];
@@ -328,7 +328,7 @@ export default class ComponentGameBoard extends HTMLElement {
 
 	updateBall() {
 		myself.sendMessage(JSON.stringify({
-			'type': 'ball_bounce',
+			'type': 'bounce_ball',
 			'ball': {
 				'position': {'x': this.ball.x, 'y': this.ball.y},
 				'velocity': {'vx': this.ball.vx, 'vy': this.ball.vy},
