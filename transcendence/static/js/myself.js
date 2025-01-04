@@ -340,7 +340,12 @@ class Visitor {
 			case "b_paddle_move": {
 				console.log("paddle moved");
 				let gameboard = this.page.container.querySelector("td-game-board");
-				gameboard.oponentPaddleMoved(message["player_side"], message["position"])
+				gameboard.oponentPaddleMoved(message["paddle"], message["position"])
+			} break;
+			case "b_ball_bounce": {
+				console.log("ball bounce");
+				let gameboard = this.page.container.querySelector("td-game-board");
+				gameboard.ballBounced(message);
 			} break;
 			case "error": {
 				this.displayPopupMessage(message.message);

@@ -26,15 +26,15 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.ball.vx = ball["velocity"]["vx"];
 		this.ball.vy = ball["velocity"]["vy"];
 		this.paddleLeft.name = playerLeft["player_emoji"];
-		this.paddleLeft.color = playerLeft["player_bg_color"];
+		this.paddleLeft.color = '#' + playerLeft["player_bg_color"];
 		this.paddleRight.name = playerRight["player_emoji"];
-		this.paddleRight.color = playerRight["player_bg_color"];
+		this.paddleRight.color = '#' + playerRight["player_bg_color"];
 
 		this.ball.draw();
 		this.paddleRight.draw();
 		this.paddleLeft.draw();
 
-		console.log(this.paddleRight);
+		console.log(this.side);
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.draw);
@@ -56,11 +56,22 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	oponentPaddleMoved(side, position) {
+		if (side == this.side) {
+			return;
+		}
 		if (side == 0)
 			this.paddleLeft.y = position;
 		else
 			this.paddleRight.y = position;
 		// TODO: maybe need to change more than just y, maybe the velocity as well?
+	}
+
+	ballBounced(message) {
+		ball = message["ball"];
+		this.ball.x = ball["position"]["x"];
+		this.ball.y = ball["position"]["y"];
+		this.ball.vx = ball["velocity"]["vx"];
+		this.ball.vy = ball["velocity"]["vy"];
 	}
 
 	connectedCallback() {
@@ -320,7 +331,8 @@ export default class ComponentGameBoard extends HTMLElement {
 			'type': 'ball_bounce',
 			'ball': {
 				'position': {'x': this.ball.x, 'y': this.ball.y},
-				'velocity': {'vx': this.ball.vx, 'vy': this.ball.vy}
+				'velocity': {'vx': this.ball.vx, 'vy': this.ball.vy},
+				'size': 15
 			}
 		}))
 	}

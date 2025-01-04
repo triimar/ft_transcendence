@@ -218,7 +218,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def bounce_ball(self, ball):
         room = await data.get_one_room_data(self.room_group_name)
         match_data = room['matches'][self.match_id]
-        match_data['ball'] = ball
+        match_data['ball']['position'] = ball['position']
+        match_data['ball']['velocity'] = ball['velocity']
         await data.update_room(room)
         event = {"type": "broadcast.bounce.ball", 'ball': match_data['ball']}
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
