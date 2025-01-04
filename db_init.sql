@@ -1,3 +1,4 @@
+\c transcendence;
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     uuid VARCHAR(22) NOT NULL,
@@ -5,3 +6,5 @@ CREATE TABLE IF NOT EXISTS users (
     avatar VARCHAR(3) NOT NULL,
     color VARCHAR(6) NOT NULL CHECK (color ~ '^([A-F0-9]{6})$') 
 );
+
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres;

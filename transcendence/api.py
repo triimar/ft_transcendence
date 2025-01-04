@@ -45,7 +45,7 @@ async def guest_login(request):
     color = await assign_random_background_color()
     await add_one_player(guest_id, avatar, color)
 
-    # redirect to the main page with jwt token as cookie set
+    # return json response while setting jwt token as cookie
     response = JsonResponse(payload)
     response.set_cookie(
         key='jwt', 
@@ -93,7 +93,7 @@ async def oauth_callback(request):
 
     # use the access token to fetch user data
     user_data_response = requests.get(
-        'https://api.intra.42.fr/v2/me', 
+        'https://api.intra.42.fr/v2/me',
         headers = {'Authorization': f'Bearer {access_token}'}
     )
 
@@ -107,7 +107,6 @@ async def oauth_callback(request):
     else:
         intra_user_uuid = shortuuid.ShortUUID().random(length=22)
         await create_new_user(intra_user_uuid, user_login)
-        # await add_one_player(intra_user_uuid, avatar, color)
 
     payload = {
         'id': intra_user_uuid,

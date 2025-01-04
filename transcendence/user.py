@@ -1,9 +1,7 @@
 import random
 from .redis_client import get_redis_client
 from .db_async_queries import add_user, avatar_exists, color_exists
-
-async def save_user_cache(id, avatar, color, guest=False):
-    pass
+from .redis_data import add_one_player
 
 async def assign_random_background_color():
     while True:
@@ -26,6 +24,6 @@ async def assign_random_avatar():
 async def create_new_user(uuid, login):
     avatar = await assign_random_avatar()
     color = await assign_random_background_color()
-    # save_user_cache(uuid, avatar, color)
-    add_user(uuid, login, avatar, color)
+    await add_user(uuid, login, avatar, color)
+    await add_one_player(uuid, avatar, color)
 
