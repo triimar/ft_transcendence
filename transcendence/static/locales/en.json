@@ -15,7 +15,10 @@
 	},
 	"lobby-room": {
 		"prepare-btn-txt" : "PREPARE?",
-		"prepared-btn-txt" : "PREPARED"
+		"prepared-btn-txt" : "PREPARED",
+		"prepare-btn-wait" : "Wait for other players",
+		"ready-bubble-txt" : "Ready!",
+		"prepare-btn-start": "Start game"
 	},
 	"tree-btn-txt": "Tournament tree",
 	"add-room": "ADD ROOM",

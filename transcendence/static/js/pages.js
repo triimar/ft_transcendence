@@ -198,7 +198,6 @@ export class PageRoom extends PageConfirmLeave{
 		this.prepareButtonFunc = (e) => {
 			myself.sendMessagePrepareGame(roomId);
 
-			// e.currentTarget.children[0].textContent = "PREPARED";
 			e.currentTarget.children[0].textContent = i18next.t("lobby-room.prepared-btn-txt");
 			e.currentTarget.setAttribute("disabled", "");
 		};

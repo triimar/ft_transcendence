@@ -15,7 +15,10 @@
 	},
 	"lobby-room": {
 		"prepare-btn-txt" : "BEREIT?",
-		"prepared-btn-txt" : "BEREIT"
+		"prepared-btn-txt" : "BEREIT",
+		"prepare-btn-wait" : "Warte auf andere Mitspieler",
+		"ready-bubble-txt" : "Los geht's!",
+		"prepare-btn-start": "Spiel starten"
 	},
 	"tree-btn-txt": "Turnierbaum",
 	"add-room": "RAUM HINZUFÜGEN",

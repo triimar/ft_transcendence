@@ -182,7 +182,7 @@ class Visitor {
 							let text = document.createElement("p");
 							text.style.width = "max-content";
 							text.style.padding = "0 0.5em";
-							text.textContent = "Ready!";
+							text.textContent = i18next.t("lobby-room.ready-bubble-txt");
 							readySpeechBubble.appendChild(text);
 						}
 						avatarElement.appendChild(readySpeechBubble);
@@ -193,7 +193,7 @@ class Visitor {
 				if (this.id == room["room_owner"]) {
 					this.roomOwnerIsMyself = true;
 					let prepareButton = this.page.container.querySelector("#prepare-btn");
-					prepareButton.children[0].textContent = "Wait for other players";
+					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
 					prepareButton.setAttribute("disabled", "");
 					let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 					roomSizeButtons.style.display = "flex";
@@ -239,14 +239,14 @@ class Visitor {
 							// Note(HeiYiu): Change the prepare button
 							let prepareButton = this.page.container.querySelector("#prepare-btn");
 							if (message["all_prepared"]) {
-								prepareButton.children[0].textContent = "Start game";
+								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
 								prepareButton.removeAttribute("disabled");
 								prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 								prepareButton.addEventListener("click", () => {
 									this.sendMessageStartGame(this.roomId);
 								}, {once: true});
 							} else {
-								prepareButton.children[0].textContent = "Wait for other players";
+								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
 								prepareButton.setAttribute("disabled", "");
 							}
 							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
@@ -295,7 +295,7 @@ class Visitor {
 							let text = document.createElement("p");
 							text.style.width = "max-content";
 							text.style.padding = "0 0.5em";
-							text.textContent = "Ready!";
+							text.textContent = i18next.t("lobby-room.ready-bubble-txt");
 							readySpeechBubble.appendChild(text);
 						}
 						avatarElement.appendChild(readySpeechBubble);
@@ -304,7 +304,7 @@ class Visitor {
 				}
 				if (this.roomOwnerIsMyself && message["all_prepared"]) {
 					let prepareButton = this.page.container.querySelector("#prepare-btn");
-					prepareButton.children[0].textContent = "Start game";
+					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
 					prepareButton.removeAttribute("disabled");
 					prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 					prepareButton.addEventListener("click", () => {
