@@ -5,5 +5,21 @@
 	},
 	"footer": {
         "authors": "Made by Hei Yiu, Maria, Sangyao, Sol and Triin"
-    }
+    },
+	"popups": {
+		"custom-avatar" : "Customize your avatar",
+		"logout" : "LOGOUT",
+		"confirm-logout-txt": "Are you sure you want to leave?",
+		"agree-txt": "YES",
+		"decline-txt": "NO"
+	},
+	"lobby-room": {
+		"prepare-btn-txt" : "PREPARE?",
+		"prepared-btn-txt" : "PREPARED"
+	},
+	"tree-btn-txt": "Tournament tree",
+	"add-room": "ADD ROOM",
+	"exit-room": "EXIT ROOM",
+	"exit-game": "EXIT GAME",
+	"page-error-txt": "Page unknown"
 }

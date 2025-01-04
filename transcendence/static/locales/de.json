@@ -5,5 +5,22 @@
 	},
 	"footer": {
         "authors": "Erstellt by Hei Yiu, Maria, Sangyao, Sol and Triin"
-    }
+    },
+	"popups": {
+		"custom-avatar" : "Passe deinen Avatar an",
+		"logout" : "ABMELDEN",
+		"confirm-logout-txt": "Bist du sicher, dass du den Raum verlassen möchtest?",
+		"agree-txt": "JA",
+		"decline-txt": "NEIN"
+	},
+	"lobby-room": {
+		"prepare-btn-txt" : "BEREIT?",
+		"prepared-btn-txt" : "BEREIT"
+	},
+	"tree-btn-txt": "Turnierbaum",
+	"add-room": "RAUM HINZUFÜGEN",
+	"exit-room": "RAUM VERLASSEN",
+	"exit-game": "SPIEL VERLASSEN",
+	"page-error-txt": "Seite unbekannt"
+	
 }

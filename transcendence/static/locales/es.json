@@ -1,9 +1,25 @@
 {
 	"login": {
 		"guest": "Acceso como invitado",
-		"intra": "Intra Login"
+		"intra": "Intra login"
 	},
 	"footer": {
         "authors": "Hecho por Hei Yiu, Maria, Sangyao, Sol y Triin"
-    }
+    },
+	"popups": {
+		"custom-avatar" : "Customize your avatar es",
+		"logout" : "LOGOUT es",
+		"confirm-logout-txt": "es Are you sure you want to leave?",
+		"agree-txt": "es YES",
+		"decline-txt": "es NO"
+	},
+	"lobby-room": {
+		"prepare-btn-txt" : "es PREPARE?",
+		"prepared-btn-txt" : "es PREPARED"
+	},
+	"tree-btn-txt": "Tournament tree es",
+	"add-room": "ADD ROOM es",
+	"exit-room": "EXIT ROOM es",
+	"exit-game": "EXIT GAME es",
+	"page-error-txt": "Page unknown es"
 }
