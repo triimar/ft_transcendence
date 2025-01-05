@@ -266,7 +266,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
 
     async def broadcast_match_win(self, event):
-        player_data = event["player_data"]
+        player_data = event["winner"]
         text_data = json.dumps({"type": "b_match_win", "winner": player_data})
         await self.send(text_data=text_data)
 
