@@ -66,6 +66,13 @@ export default class ComponentGameBoard extends HTMLElement {
 		// TODO: maybe need to change more than just y, maybe the velocity as well?
 	}
 
+	pointScored(side) {
+		if (side == 0)
+			this.score.left++;
+		else
+			this.score.right++;
+	}
+
 	ballBounced(message) {
 		let ball = message["ball"];
 		this.ball.x = ball["position"]["x"];
@@ -92,6 +99,21 @@ export default class ComponentGameBoard extends HTMLElement {
 
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+
+		this.score = {
+			left: 0,
+			right: 0,
+			color: "black",
+			draw()
+			{
+				ctx.fillStyle = this.color;
+				ctx.globalAlpha = 0.2;
+				ctx.font = '200px Monomaniac One';
+				ctx.fillText(this.left.toString(), canvas.width / 3 - ctx.measureText(this.left.toString()).width / 2, canvas.height / 2);
+				ctx.fillText(this.right.toString(), canvas.width - (canvas.width / 3 - ctx.measureText(this.right.toString()).width / 2), canvas.height / 2);
+				ctx.globalAlpha = 1;
+			}
 		}
 
 		this.ball = {
@@ -198,13 +220,17 @@ export default class ComponentGameBoard extends HTMLElement {
 			//Right wall collision
 			if (this.ball.x + this.ball.vx > canvas.width - this.ball.size)
 			{
+				if (this.side != 1)
+					this.scorePoint();
 				this.ball.reset(-1);
 				this.paddleLeft.reset();
 				this.paddleRight.reset();
 			}
 			//Left wall collision
 			if (this.ball.x + this.ball.vx < 0)
-			{
+				{
+				if (this.side != 0)
+					this.scorePoint();
 				this.ball.reset(1);
 				this.paddleLeft.reset();
 				this.paddleRight.reset();
@@ -279,6 +305,7 @@ export default class ComponentGameBoard extends HTMLElement {
 
 		this.draw = (function() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			this.score.draw();
 			this.paddleLeft.draw();
 			this.paddleRight.draw();
 			this.ball.draw();
@@ -366,5 +393,10 @@ export default class ComponentGameBoard extends HTMLElement {
 		}))
 	}
 
+	scorePoint() {
+		myself.sendMessage(JSON.stringify({
+			'type': 'scored_point'
+		}))
+	}
 
 }

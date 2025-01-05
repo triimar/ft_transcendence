@@ -347,6 +347,10 @@ class Visitor {
 				let gameboard = this.page.container.querySelector("td-game-board");
 				gameboard.ballBounced(message);
 			} break;
+			case "b_scored_point": {
+				let gameboard = this.page.container.querySelector("td-game-board");
+				gameboard.pointScored(message["player"]);
+			} break;
 			case "error": {
 				this.displayPopupMessage(message.message);
 				if (message["redirect_hash"]) {
