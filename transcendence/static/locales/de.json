@@ -18,7 +18,8 @@
 		"prepared-btn-txt" : "BEREIT",
 		"prepare-btn-wait" : "Warte auf andere Mitspieler",
 		"ready-bubble-txt" : "Los geht's!",
-		"prepare-btn-start": "Spiel starten"
+		"prepare-btn-start": "Spiel starten",
+		"invitation-link-txt": "Einladungslink in die Zwischenablage kopiert"
 	},
 	"tree-btn-txt": "Turnierbaum",
 	"add-room": "RAUM HINZUFÜGEN",

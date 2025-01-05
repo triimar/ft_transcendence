@@ -12,7 +12,7 @@ export default class ComponentLobbyRoom extends HTMLElement {
 		let id = this.shadow.querySelector("#lobby-room-id");
 		id.addEventListener("click", () => {
 			navigator.clipboard.writeText(location.origin + "/#room" + id.textContent);
-			myself.displayPopupMessage("Invitation link copied to clipboard");
+			myself.displayPopupMessage(i18next.t("lobby-room.invitation-link-txt"));
 		});
 	}
 
