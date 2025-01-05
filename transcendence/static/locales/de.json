@@ -21,9 +21,14 @@
 		"prepare-btn-start": "Spiel starten",
 		"invitation-link-txt": "Einladungslink in die Zwischenablage kopiert"
 	},
-    "message": {
-        "new-owner": "Der Raum-Besitzer hat den Raum verlassen. Du bist jetzt der neue Besitzer.",
-        "connection-lost": "Verbindung verloren. Verbindung wird neu gestartet..."
+	"error": {
+        "room_not_found": "Raum-ID nicht gefunden",
+        "player_not_found": "Spieler-ID nicht gefunden",
+        "max_players_reached": "Maximale Spieleranzahl erreicht. Beitritt zum Raum nicht möglich",
+        "mode_not_supported": "Modus nicht unterstützt"
+    },
+	"label": {
+        "people": "{{count}} PERSONEN"
     },
 	"tree-btn-txt": "Turnierbaum",
 	"add-room": "RAUM HINZUFÜGEN",

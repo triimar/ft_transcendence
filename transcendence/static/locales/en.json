@@ -21,10 +21,17 @@
 		"prepare-btn-start": "Start game",
 		"invitation-link-txt": "Invitation link copied to clipboard"
 	},
-	"message": {
-		"new-owner": "Room owner has left. You become the new owner",
-		"connection-lost": "Connection Lost. Restarting connection..."
+	"error": {
+		"owner-left": "Room owner has left. You become the new owner",
+		"connection-lost": "Connection Lost. Restarting connection...",
+		"room_not_found": "Room id not found",
+		"player_not_found": "Player id not found",
+		"max_players_reached": "Max number of players reached. Cannot join room",
+		"mode_not_supported": "Mode not supported"
 	},
+	"label": {
+        "people": "{{count}} PEOPLE"
+    },
 	"tree-btn-txt": "Tournament tree",
 	"add-room": "ADD ROOM",
 	"exit-room": "EXIT ROOM",

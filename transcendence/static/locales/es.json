@@ -21,10 +21,17 @@
 		"prepare-btn-start": "es Start game",
 		"invitation-link-txt": "es Invitation link copied to clipboard"
 	},
-	"message": {
-		"new-owner": "ES Room owner has left. You become the new owner",
-		"connection-lost": "ES Connection Lost. Restarting connection..."
+	"error": {
+		"owner-left": "es Room owner has left. You become the new owner",
+		"connection-lost": "es Connection Lost. Restarting connection...",
+		"room_not_found": "es Room id not found",
+		"player_not_found": "es Player id not found",
+		"max_players_reached": "es Max number of players reached. Cannot join room",
+		"mode_not_supported": "es Mode not supported"
 	},
+	"label": {
+        "people": "{{count}} ES PEOPLE"
+    },
 	"tree-btn-txt": "Tournament tree es",
 	"add-room": "ADD ROOM es",
 	"exit-room": "EXIT ROOM es",

@@ -1,7 +1,7 @@
 let isI18nInitialized = false;
 
 export async function initializeI18n() {
-    if (isI18nInitialized) return; // Skip if already initialized
+    if (isI18nInitialized) return;
     try {
         await i18next
             .use(i18nextHttpBackend)
@@ -11,12 +11,13 @@ export async function initializeI18n() {
                 ns: ["translation"], // Default namespace
                 defaultNS: "translation",
                 backend: {
-                    loadPath: "/static/locales/{{lng}}.json", // Ensure locales are accessible here
+                    loadPath: "/static/locales/{{lng}}.json", 
                 },
                 debug: true, // Set to false in production
             });
 
-        isI18nInitialized = true; // Mark as initialized
+        isI18nInitialized = true; 
+		updateGlobalTranslations();
 
         const languageSelector = document.getElementById("language-selector");
         if (languageSelector) {
@@ -32,6 +33,10 @@ export async function initializeI18n() {
             speechBubbles.forEach(bubble => {
                 bubble.textContent = i18next.t("lobby-room.ready-bubble-txt");
             });
+			const label = document.querySelector("td-room-setting-size")?.shadow?.querySelector("#label")
+			if (label) {
+				label.textContent = i18next.t("label.people", { count: document.querySelector("td-room-setting-size").size });
+			}
         });
     } catch (error) {
         console.error("Error initializing i18next:", error);

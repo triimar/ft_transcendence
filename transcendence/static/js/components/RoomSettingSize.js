@@ -15,7 +15,7 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		incButton.addEventListener("click", () => {
 			if (this.size < this.maxSize) {
 				this.size++;
-				this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
+				this.shadow.querySelector("#label").textContent = i18next.t("label.people", { count: this.size });
 				if (this.size == this.maxSize) {
 					incButton.setAttribute("disabled", "");
 				}
@@ -28,7 +28,7 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		decButton.addEventListener("click", () => {
 			if (this.size > this.minSize) {
 				this.size--;
-				this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
+				this.shadow.querySelector("#label").textContent = i18next.t("label.people", { count: this.size });
 				if (this.size == this.minSize) {
 					decButton.setAttribute("disabled", "");
 				}
@@ -40,7 +40,7 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		});
 		if (this.size == this.minSize) decButton.setAttribute("disabled", "");
 		if (this.size == this.maxSize) incButton.setAttribute("disabled", "");
-		this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
+		this.shadow.querySelector("#label").textContent = i18next.t("label.people", { count: this.size });
 	}
 
 	changeSize(newSize) {
@@ -49,7 +49,7 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		const decButton = this.shadow.querySelector("#dec-button");
 		if (this.size == this.minSize) decButton.setAttribute("disabled", "");
 		if (this.size == this.maxSize) incButton.setAttribute("disabled", "");
-		this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
+		this.shadow.querySelector("#label").textContent = i18next.t("label.people", { count: this.size });
 	}
 
 	changeMinSize(newMinSize) {
@@ -58,6 +58,6 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		const decButton = this.shadow.querySelector("#dec-button");
 		if (this.size == this.minSize) decButton.setAttribute("disabled", "");
 		if (this.size == this.maxSize) incButton.setAttribute("disabled", "");
-		this.shadow.querySelector("#label").textContent = `${this.size} PEOPLE`;
+		this.shadow.querySelector("#label").textContent = i18next.t("label.people", { count: this.size });
 	}
 }

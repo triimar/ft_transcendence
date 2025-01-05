@@ -233,7 +233,7 @@ class Visitor {
 						roomElement.removeParticipant(message["player_id"]);
 						if (("new_room_owner" in message) && (message["new_room_owner"] == this.id)) {
 							this.roomOwnerIsMyself = true;
-							this.displayPopupMessage(i18next.t("message.new-owner"));
+							this.displayPopupMessage(i18next.t("error.owner-left"));
 						}
 						if (this.roomOwnerIsMyself) {
 							// Note(HeiYiu): Change the prepare button
@@ -320,7 +320,7 @@ class Visitor {
 			case "b_startgame_countdown": {
 			} break;
 			case "error": {
-				this.displayPopupMessage(message.message);
+				this.displayPopupMessage(i18next.t(message.message_key));
 				if (message["redirect_hash"]) {
 					if (this.pageName == "room")
 					{
@@ -336,7 +336,7 @@ class Visitor {
 		});
 		this.ws.addEventListener("close", (event) => {
 			console.log("Websocket connection is closed unexpectedly");
-			this.displayPopupMessage(i18next.t("message.connection-lost"));
+			this.displayPopupMessage(i18next.t("error.connection-lost"));
 			this.connectWs();
 		});
 	}

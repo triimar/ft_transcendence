@@ -25,7 +25,6 @@ const pageMapping = {
 let isTriggerHashChange = true;
 async function main() {
 	await initializeI18n(); // Ensure translations are initialized
-    updateGlobalTranslations(); // Apply initial translations
 
 	const contentContainer = document.getElementsByClassName("content-container")[0];
 	let currentPage = null;
