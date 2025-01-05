@@ -169,12 +169,6 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         first_layer_player.append(await data.get_one_player(id))
                 event_start_game = {"type":"broadcast.start.game", "players": first_layer_player}
                 await self.channel_layer.group_send(self.room_group_name, event_start_game)
-            case {"type": "start_match_countdown"}:
-                match = await data.get_one_match(self.room_group_name, self.match_id)
-                player_one = await data.get_one_player(match["players"][0]) if match["players"][0] != "ai" else {"player_id": "ai"}
-                player_two = await data.get_one_player(match["players"][1]) if match["players"][1] != "ai" else {"player_id": "ai"}
-                event_start_match_countdown = {"type": "broadcast.startgame.countdown", "match": match, "opponents": [player_one, player_two]}
-                await self.channel_layer.group_send(self.match_group_name, event_start_match_countdown)
             case {"type": "join_match", "room_id": room_id, "player_id": player_id}:
                 await self.join_match(room_id, player_id) # TODO
             case {"type": "player_match_ready"}:
@@ -344,11 +338,4 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 self.joined_group += ["match"]
                 break
         text_data = json.dumps({"type": "b_start_game", "players": players})
-        await self.send(text_data=text_data)
-
-    async def broadcast_startgame_countdown(self, event):
-        match = event["match"]
-        opponents = event["opponents"]
-
-        text_data = json.dumps({"type": "b_startgame_countdown", "match": match, "avatars": opponents})
         await self.send(text_data=text_data)

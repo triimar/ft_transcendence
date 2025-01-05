@@ -321,12 +321,6 @@ class Visitor {
 				let gameIndex = 0; // TODO
 				window.location.href += `-game${gameIndex}`;
 			} break;
-			case "b_startgame_countdown": {
-				window.location.href += "-tree";
-				await this.waitForPageToRender();
-				console.log(`page is ${this.pageName}`);
-				this.sendMessagePlayerMatchReady();
-			} break;
 			case "b_start_match": {
 				console.log("recieved start match");
 				let gameboard = this.page.container.querySelector("td-game-board");
