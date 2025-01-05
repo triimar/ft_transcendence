@@ -37,7 +37,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		console.log(this.side);
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
-		this.raf = window.requestAnimationFrame(this.draw);
+		this.raf = window.requestAnimationFrame(this.gameLoop);
 	}
 
 	freezeMatch() {
@@ -82,6 +82,11 @@ export default class ComponentGameBoard extends HTMLElement {
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 15;
+		let lastTime = 0; // The timestamp of the last frame
+		// let serverTimeOffset = 0; // Difference between server and local clock
+		let accumulatedTime = 0; // Accumulated time for fixed updates
+		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
+
 
 		let pause = false;
 
@@ -277,19 +282,36 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.paddleLeft.draw();
 			this.paddleRight.draw();
 			this.ball.draw();
-			if (this.ball.isReset)
-			{
-				pause = true;
-				this.ball.isReset = false;
-				setTimeout(function() {
-					pause = false;
-				}, 3000);
-			}
-			if (!pause)
-				moving.bind(this)();
-			this.raf = window.requestAnimationFrame(this.draw);
-		}).bind(this);
-
+			// if (this.ball.isReset)
+			// {
+			// 	pause = true;
+			// 	this.ball.isReset = false;
+			// 	setTimeout(function() {
+				// 		pause = false;
+				// 	}, 3000);
+				// }
+				// if (!pause)
+				// 	moving.bind(this)();
+				// this.raf = window.requestAnimationFrame(this.draw);
+			}).bind(this);
+			
+			this.gameLoop = (function(timeStamp) {
+				if (!lastTime) lastTime = Date.now();
+	
+				const deltaTime = timeStamp - lastTime;
+				lastTime = timeStamp;
+	
+				accumulatedTime += deltaTime;
+				if (accumulatedTime < 0) accumulatedTime = 0;
+				while (accumulatedTime >= updateInterval) {
+					moving.bind(this)();
+					accumulatedTime -= updateInterval;
+				}
+	
+				this.draw();
+				this.raf = window.requestAnimationFrame(this.gameLoop);
+			}).bind(this);
+		
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
 				// Prevent the default action (scrolling)
@@ -314,7 +336,7 @@ export default class ComponentGameBoard extends HTMLElement {
 					window.cancelAnimationFrame(this.raf);
 					break;
 				case "Enter":
-					this.raf = window.requestAnimationFrame(this.draw);
+					this.raf = window.requestAnimationFrame(this.gameLoop);
 				default:
 					return;
 			}
