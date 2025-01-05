@@ -188,17 +188,17 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         room = await data.get_one_room_data(self.room_group_name)
         game_match = room['matches'][self.match_id]
         game_match['ready'] += 1
+        print("start_match_ready_count: " + str(game_match['ready']))
         player0 = await data.get_one_player(game_match["players"][0])
         player1 = await data.get_one_player(game_match["players"][1])
         player = await data.get_one_player(self.player_id)
         player['score'] = 0
+        await data.update_room(room)
+        await data.update_player(player)
         if (game_match['ready'] == 2):
-            print("dis")
             event = {"type": "broadcast.start.match", 'ball': game_match['ball'], 'side0_player_id': game_match['players'][0],
                       'players': [player0, player1]}
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
-        await data.update_room(room)
-        await data.update_player(player)
 
     async def broadcast_start_match(self, event):
         ball = event["ball"]
