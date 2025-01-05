@@ -18,15 +18,21 @@ export async function initializeI18n() {
 
         isI18nInitialized = true; // Mark as initialized
 
-		const languageSelector = document.getElementById("language-selector");
+        const languageSelector = document.getElementById("language-selector");
         if (languageSelector) {
             languageSelector.addEventListener("change", (event) => {
                 const selectedLanguage = event.target.value;
-                i18next.changeLanguage(selectedLanguage, () => {
-                    updateGlobalTranslations(); // Reapply translations
-                });
+                i18next.changeLanguage(selectedLanguage);
             });
         }
+        // The language change listener
+        i18next.on("languageChanged", () => {
+            updateGlobalTranslations();
+            const speechBubbles = document.querySelectorAll(".speech-bubble p");
+            speechBubbles.forEach(bubble => {
+                bubble.textContent = i18next.t("lobby-room.ready-bubble-txt");
+            });
+        });
     } catch (error) {
         console.error("Error initializing i18next:", error);
     }

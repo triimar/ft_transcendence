@@ -233,7 +233,7 @@ class Visitor {
 						roomElement.removeParticipant(message["player_id"]);
 						if (("new_room_owner" in message) && (message["new_room_owner"] == this.id)) {
 							this.roomOwnerIsMyself = true;
-							this.displayPopupMessage("Room owner has left. You become the new owner");
+							this.displayPopupMessage(i18next.t("message.new-owner"));
 						}
 						if (this.roomOwnerIsMyself) {
 							// Note(HeiYiu): Change the prepare button
@@ -336,7 +336,7 @@ class Visitor {
 		});
 		this.ws.addEventListener("close", (event) => {
 			console.log("Websocket connection is closed unexpectedly");
-			this.displayPopupMessage("Connection Lost. Restarting connection...");
+			this.displayPopupMessage(i18next.t("message.connection-lost"));
 			this.connectWs();
 		});
 	}

@@ -21,6 +21,10 @@
 		"prepare-btn-start": "Spiel starten",
 		"invitation-link-txt": "Einladungslink in die Zwischenablage kopiert"
 	},
+    "message": {
+        "new-owner": "Der Raum-Besitzer hat den Raum verlassen. Du bist jetzt der neue Besitzer.",
+        "connection-lost": "Verbindung verloren. Verbindung wird neu gestartet..."
+    },
 	"tree-btn-txt": "Turnierbaum",
 	"add-room": "RAUM HINZUFÜGEN",
 	"exit-room": "RAUM VERLASSEN",

@@ -21,6 +21,10 @@
 		"prepare-btn-start": "Start game",
 		"invitation-link-txt": "Invitation link copied to clipboard"
 	},
+	"message": {
+		"new-owner": "Room owner has left. You become the new owner",
+		"connection-lost": "Connection Lost. Restarting connection..."
+	},
 	"tree-btn-txt": "Tournament tree",
 	"add-room": "ADD ROOM",
 	"exit-room": "EXIT ROOM",
