@@ -318,8 +318,25 @@ class Visitor {
 			} break;
 			case "b_start_game": {
 				this.pageFinishedRendering = false;
-				let gameIndex = 0; // TODO
-				window.location.href += `-game${gameIndex}`;
+				let players = message["players"];
+				let gameIndex = 0;
+				for (let [i, player] of players.entries()) {
+					if (player["player_id"] == this.id) {
+						gameIndex = i % 2;
+						window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+						await this.waitForPageToRender();
+						document.querySelector("#tournament-tree-popup td-tournament-tree").initiateTournament(players);
+						let popup = document.querySelector("#tournament-tree-popup");
+						popup.classList.add('show');
+						await sleep(5000);
+						// Note(HeiYiu): show leaderboard with 5 seconds loading animation
+						popup.classList.remove('show');
+						let gameboard = this.page.container.querySelector("td-game-board");
+						await gameboard.countdown();
+						this.sendMessagePlayerMatchReady();
+						break;
+					}
+				}
 			} break;
 			case "b_start_match": {
 				console.log("recieved start match");
