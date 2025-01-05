@@ -76,14 +76,14 @@
 		<td-button class="ui ui-text"><p>EXIT GAME</p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p>Tournament tree</p></td-button>
 	</td-navigation-bar>
-	<td-game-board></td-game-board>
+	<td-game-board class="ui" style="box-sizing: content-box;"></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
 		<td-button class="ui ui-text"><p>EXIT GAME</p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p>Tournament tree</p></td-button>
 	</td-navigation-bar>
-	<td-ai-game-board></td-ai-game-board>
+	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
 </template>
 <template id="page-room">
 	<style>
@@ -314,13 +314,28 @@
 </template>
 <template id="component-game-board">
 	<style>
-		.ui {
-			border: var(--td-border-size) solid var(--td-ui-font-color);
-			box-sizing: border-box;
-			width: fit-content;
+		:host {
+			position: relative;
+			aspect-ratio: 2;
+		}
+
+		* {
+			position: absolute;
+		}
+
+		#blocker {
+			opacity: 0;
+			transition: opacity 1s ease-out;
+		}
+
+		#blocker.show {
+			opacity: 1;
 		}
 	</style>
-	<canvas style="width: 100%;"  width="1200" height="600" class="ui"></canvas>
+	<div id="blocker" class="show" style="width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center;">
+		<p id="countdown" style="color: white;"></p>
+	</div>
+	<canvas style="width: 100%;"  width="1200" height="600"></canvas>
 </template>
 <template id="component-button">
 	<style>

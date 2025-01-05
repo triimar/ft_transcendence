@@ -1,4 +1,4 @@
-import { myself } from "../myself.js";
+import { myself, sleep } from "../myself.js";
 export default class ComponentGameBoard extends HTMLElement {
 	constructor() {
 		super();
@@ -13,6 +13,26 @@ export default class ComponentGameBoard extends HTMLElement {
 			return this.paddleLeft;
 		else
 			return this.paddleRight;
+	}
+
+	countdown() {
+		let blocker = this.shadow.querySelector("#blocker");
+		blocker.classList.add("show");
+		let countdownPromise = new Promise((resolve) => {
+			let seconds = 5;
+			let intervalId = setInterval(() => {
+				let countdownText = blocker.children[0];
+				if (seconds == 0) {
+					countdownText.textContent = "Start";
+					clearInterval(intervalId);
+					resolve();
+				} else {
+					countdownText.textContent = seconds;
+					seconds--;
+				}
+			}, 1000);
+		});
+		return countdownPromise.then(() => sleep(1000)).then(() => blocker.classList.remove("show"));
 	}
 
 	startMatch(message) {
