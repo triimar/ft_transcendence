@@ -4,9 +4,9 @@ room_data_sample = [
         'room_owner': 'player_id_1',
         'mode': 'balance', #'shoot','bomb','remix'
         'avatars': [
-            {'player_id': 'example_player_id_1'},
-            {'player_id': 'example_player_id_2'},
-            {'player_id': 'example_player_id_3'},
+            {'player_id': 'example_player_id_1', 'prepared': True},
+            {'player_id': 'example_player_id_2', 'prepared': False},
+            {'player_id': 'example_player_id_3', 'prepared': True},
         ], # can be list
         'prepared_count': 1,
         'max_player': 3,
@@ -75,7 +75,7 @@ player_data_sample = [
     {
         'player_id': 'example_player_id_1',
         'player_emoji': 'Q-Q',
-        'player_bg_color': 'ffffff',
+        'player_bg_color': 'ff0000',
         'position': 50,
         'size': 15,
         'score': 0
@@ -83,7 +83,7 @@ player_data_sample = [
     {
         'player_id': 'example_player_id_2',
         'player_emoji': '-_-',
-        'player_bg_color': 'ff000',
+        'player_bg_color': '00ff00',
         'position': 50,
         'size': 15,
         'score': 0
@@ -91,7 +91,31 @@ player_data_sample = [
     {
         'player_id': 'example_player_id_3',
         'player_emoji': 'O-O',
-        'player_bg_color': 'ff000',
+        'player_bg_color': '0000ff',
+        'position': 50,
+        'size': 15,
+        'score': 0
+    },
+    {
+        'player_id': 'example_player_id_4',
+        'player_emoji': '~_~',
+        'player_bg_color': 'ff0f00',
+        'position': 50,
+        'size': 15,
+        'score': 0
+    },
+    {
+        'player_id': 'example_player_id_5',
+        'player_emoji': '4-4',
+        'player_bg_color': 'f00f00',
+        'position': 50,
+        'size': 15,
+        'score': 0
+    },
+    {
+        'player_id': 'example_player_id_6',
+        'player_emoji': 'T-T',
+        'player_bg_color': 'f000ff',
         'position': 50,
         'size': 15,
         'score': 0

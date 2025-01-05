@@ -11,6 +11,7 @@ class Visitor {
 		this.avatar_bg_color = null;
 		this.ws = null;
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
+		this.reconnectCount = 0;
 	}
 
 	#getCookie(name) {
@@ -39,6 +40,7 @@ class Visitor {
 		}
 		catch (error) {
 			console.error(error);
+			this.displayPopupMessage("Failed to verify your account");
 		}
 		return false;
 	}
@@ -52,6 +54,7 @@ class Visitor {
 		}
 		catch (error) {
 			console.error(error);
+			this.displayPopupMessage("Failed to fetch your avatar's data");
 		}
 	}
 
@@ -69,6 +72,7 @@ class Visitor {
 				let json = await response.json();
 			} catch(error) {
 				console.error("Guest login error:", error);
+				this.displayPopupMessage("Failed to login");
 				is_success = false;
 			}
 		} else {
@@ -318,6 +322,34 @@ class Visitor {
 				window.location.href += `-game${gameIndex}`;
 			} break;
 			case "b_startgame_countdown": {
+				window.location.href += "-tree";
+				await this.waitForPageToRender();
+				console.log(`page is ${this.pageName}`);
+				this.sendMessagePlayerMatchReady();
+			} break;
+			case "b_start_match": {
+				console.log("recieved start match");
+				let gameboard = this.page.container.querySelector("td-game-board");
+				if (!gameboard) {
+					gameboard = document.createElement("td-game-board");
+					this.page.container.appendChild(matchElement);
+					console.log("Created gameboard");
+				}
+				gameboard.startMatch(message);
+			} break;
+			case "b_paddle_move": {
+				console.log("paddle moved");
+				let gameboard = this.page.container.querySelector("td-game-board");
+				gameboard.oponentPaddleMoved(message["paddle"], message["position"])
+			} break;
+			case "b_bounce_ball": {
+				console.log("ball bounce");
+				let gameboard = this.page.container.querySelector("td-game-board");
+				gameboard.ballBounced(message);
+			} break;
+			case "b_scored_point": {
+				let gameboard = this.page.container.querySelector("td-game-board");
+				gameboard.pointScored(message["player"]);
 			} break;
 			case "error": {
 				this.displayPopupMessage(message.message);
@@ -335,9 +367,17 @@ class Visitor {
 			}
 		});
 		this.ws.addEventListener("close", (event) => {
-			console.log("Websocket connection is closed unexpectedly");
-			this.displayPopupMessage("Connection Lost. Restarting connection...");
-			this.connectWs();
+			if (this.reconnectCount >= 3) {
+				console.log("Websocket connection is closed");
+				this.displayPopupMessage("Retried connection 3 times but failed.");
+				this.reconnectCount = 0;
+				window.location.hash = "#login";
+			} else {
+				console.log("Websocket connection is being restarted");
+				this.displayPopupMessage("Connection Lost. Restarting connection...");
+				this.reconnectCount++;
+				setTimeout(this.connectWs.bind(this), 1000);
+			}
 		});
 	}
 
@@ -459,6 +499,13 @@ class Visitor {
 	sendMessageStartGameCountDown() {
 		let message = {
 			type: "start_game_countdown"
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessagePlayerMatchReady() {
+		let message = {
+			type: "player_match_ready"
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
