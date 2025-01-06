@@ -128,11 +128,6 @@ async def get_one_match(room_id, match_id) -> dict|None:
     return match_data
 
 # Update playar data with new player data
-async def update_match(updated_match):
-	redis_instance = await get_redis_client()
-	match_data = json.loads(await redis_instance.get('match_data'))
-	match_data[updated_match['match_id']] = updated_match
-	await redis_instance.set('match_data', json.dumps(match_data))
 async def add_one_player(player_id, player_emoji, player_bg_color):
     redis_instance = await get_redis_client()
     await redis_instance.json().set("player_data", f'$.{player_id}', {"player_id": player_id, "player_emoji": player_emoji, "player_bg_color": player_bg_color});
