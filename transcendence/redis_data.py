@@ -1,10 +1,8 @@
 from enum import Enum
-import json
 import redis
 import random
 from .transcendence_dictionary import player_data_sample, room_data_sample
 from .redis_client import get_redis_client
-from channels.generic.websocket import AsyncWebsocketConsumer
 
 MAX_NUM_PLAYER = 8
 SUPPORTED_MODES = ["balance", "shoot","bomb","remix"]
@@ -12,75 +10,9 @@ SUPPORTED_MODES = ["balance", "shoot","bomb","remix"]
 # Connect to Redis
 redis_instance = redis.Redis(host='db_redis', port=6379, db=0)
 
-# Sample room data
-# room_data_sample = [
-#     {
-#         "room_id": "example_room_1",
-#         "room_owner": "example_player_id_1",
-#         "mode": "balance", #"shoot","bomb","remix"
-#         "avatars": [
-#             {"player_id": "example_player_id_1", "prepared": True},
-#             {"player_id": "example_player_id_2", "prepared": False},
-#             {"player_id": "example_player_id_3", "prepared": False},
-#         ],
-#         "max_player": 3,
-#         'matches':['match_id_1', 'match_id_2']
-#     },
-#     {
-#         "room_id": "example_room_2",
-#         "room_owner": "example_player_id_4",
-#         "mode": "balance", #"shoot","bomb","remix"
-#         "avatars": [
-#             {"player_id": "example_player_id_4",  "prepared": True},
-#             {"player_id": "example_player_id_5", "prepared": False},
-#             {"player_id": "example_player_id_6", "prepared": False}
-#         ],
-#         'max_player': 5,
-#         'matches':['match_id_3', 'match_id_4']
-#     },
-# ]
-
-# Convert the room data to JSON and store it under a specific key in Redis
-redis_instance.set("room_data", json.dumps(room_data_sample))
-
-# all the player data who is connected
-# player_data_sample = [
-#     {"player_id": "example_player_id_1", "player_emoji": "233", "player_bg_color": "ff0000"},
-#     {"player_id": "example_player_id_2", "player_emoji": "234", "player_bg_color": "ffff00"},
-#     {"player_id": "example_player_id_3", "player_emoji": "235", "player_bg_color": "00ff00"},
-#     {"player_id": "example_player_id_4", "player_emoji": "236", "player_bg_color": "0000ff"},
-#     {"player_id": "example_player_id_5", "player_emoji": "237", "player_bg_color": "ff00ff"},
-#     {"player_id": "example_player_id_6", "player_emoji": "238", "player_bg_color": "00ffff"}
-# ] # can be dict of dict
-
-redis_instance.set("player_data", json.dumps(player_data_sample))
-
-# The match data
-match_data_sample = [
-    {
-        'match_id': 'example_match_id_1',
-        'ready': 1,
-        'players': ['player_id_1', 'player_id_2'],
-        'ball': {
-            'position': {'x': 50, 'y': 50},
-            'velocity': {'vx': 5, 'vy': 5},
-            'size': 15
-        },
-        'winner':'player1'
-    },
-    {
-        'match_id': 'example_match_id_2',
-        'ready': 1,
-        'players': ['player_id_3', 'player_id_4'],
-        'ball': {
-            'position': {'x': 50, 'y': 50},
-            'velocity': {'vx': 5, 'vy': 5},
-            'size': 15
-        },
-        'winner':'player1'
-    }
-]
-redis_instance.set("match_data", json.dumps(match_data_sample))
+# Use redis JSON to store json documents
+redis_instance.json().set("room_data", "$", room_data_sample)
+redis_instance.json().set("player_data", "$", player_data_sample)
 
 class RedisError(Enum):
     NONE = 0
