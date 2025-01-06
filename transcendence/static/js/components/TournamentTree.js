@@ -3,34 +3,25 @@ export default class ComponentTournamentTree extends HTMLElement {
 		super();
 		const template = document.getElementById('component-tournament-tree').content;
 		this.attachShadow({ mode: 'open' }).appendChild(template.cloneNode(true));
-		//sample data for testing
-		const players_array = [{player_id: "c701ab9c-252b-5f4f-9a68-fc7f03a5502a", player_emoji: "VDV", player_bg_color: "F53948"}, 
-			// {player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "zmz", player_bg_color: "158FDA"},
-			// {player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "E9E", player_bg_color: "FFD133"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "T.T", player_bg_color: "A633FF"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "$u$", player_bg_color: "33FFF5"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "HuH", player_bg_color: "FF8333"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "0(0", player_bg_color: "FF33A6"},
-			{player_id: "a0eb6023-a04b-512e-ab4b-4993df6a4377", player_emoji: "wmw", player_bg_color: "3357FF"}]
-
-		this.players = players_array.map(player => ({
-            "avatar-name": player.player_emoji,
-        	"avatar-background": `#${player.player_bg_color}` // Convert the background to proper format
-        }));
+		this.players = [];
 		this.tournamentData = {
-			player_count: this.players.length,
+			player_count: 0,
 			rounds: [], //array of rounds, that contain an array of matches
-        };		
+		};
 	}
 
 	connectedCallback() {
-		// Pass the tournament data to the renderTree method
-		this.initiateTournament()
-		this.addWinners([0, 3, 5, 3, 3])
-		console.log(this.tournamentData)
 	}
 
-	initiateTournament() {
+	initiateTournament(playersArray) {
+		this.players = playersArray.map(player => ({
+			"avatar-name": player.player_emoji,
+			"avatar-background": `#${player.player_bg_color}` // Convert the background to proper format
+		}));
+		this.tournamentData = {
+			player_count: this.players.length,
+			rounds: [], //array of rounds, that contain an array of matches
+		};
 		const totalRounds = Math.ceil(Math.log2(this.tournamentData.player_count)); // Calculate total rounds based on players
 		// Initialize the first round
 		const round1 = [];
@@ -57,6 +48,7 @@ export default class ComponentTournamentTree extends HTMLElement {
 			}
 			this.tournamentData.rounds.push(newRound)
 		}
+		this.#renderTree();
 	}
 
 	addWinners(winners_index_array) {
@@ -90,13 +82,13 @@ export default class ComponentTournamentTree extends HTMLElement {
 				i++;
 			})
 		}
-		this.renderTree()
+		this.#renderTree();
 	}
-	
-	renderTree() {
+
+	#renderTree() {
 		const tournamentContainer = this.shadowRoot.querySelector('.tournament');
 		tournamentContainer.innerHTML = ''; // Clear previous tree render
-	
+
 		// Helper function to create a player avatar
 		const createAvatar = (player_i, winner_i) => {
 			if (player_i === -1)
@@ -113,7 +105,7 @@ export default class ComponentTournamentTree extends HTMLElement {
 			}
 			return avatar;
 		};
-	
+
 		// Helper function to create a row of matches
 		const createRoundRow = (roundMatches) => {
 			const rowDiv = document.createElement('div');
@@ -133,7 +125,7 @@ export default class ComponentTournamentTree extends HTMLElement {
 			});
 			return rowDiv;
 		};
-	
+
 		//render each round in the tree structure starting from the final
 		for (let roundIndex = this.tournamentData.rounds.length - 1; roundIndex >= 0; roundIndex--) {
 			const roundMatches = this.tournamentData.rounds[roundIndex];

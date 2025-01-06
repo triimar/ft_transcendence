@@ -11,6 +11,7 @@ class Visitor {
 		this.avatar_bg_color = null;
 		this.ws = null;
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
+		this.reconnectCount = 0;
 	}
 
 	#getCookie(name) {
@@ -39,6 +40,7 @@ class Visitor {
 		}
 		catch (error) {
 			console.error(error);
+			this.displayPopupMessage("Failed to verify your account");
 		}
 		return false;
 	}
@@ -52,6 +54,7 @@ class Visitor {
 		}
 		catch (error) {
 			console.error(error);
+			this.displayPopupMessage("Failed to fetch your avatar's data");
 		}
 	}
 
@@ -69,6 +72,7 @@ class Visitor {
 				let json = await response.json();
 			} catch(error) {
 				console.error("Guest login error:", error);
+				this.displayPopupMessage("Failed to login");
 				is_success = false;
 			}
 		} else {
@@ -314,10 +318,49 @@ class Visitor {
 			} break;
 			case "b_start_game": {
 				this.pageFinishedRendering = false;
-				let gameIndex = 0; // TODO
-				window.location.href += `-game${gameIndex}`;
+				let players = message["players"];
+				let gameIndex = 0;
+				for (let [i, player] of players.entries()) {
+					if (player["player_id"] == this.id) {
+						gameIndex = i % 2;
+						window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+						await this.waitForPageToRender();
+						document.querySelector("#tournament-tree-popup td-tournament-tree").initiateTournament(players);
+						let popup = document.querySelector("#tournament-tree-popup");
+						popup.classList.add('show');
+						await sleep(5000);
+						// Note(HeiYiu): show leaderboard with 5 seconds loading animation
+						popup.classList.remove('show');
+						let gameboard = this.page.container.querySelector("td-game-board");
+						await gameboard.countdown();
+						this.sendMessagePlayerMatchReady();
+						break;
+					}
+				}
 			} break;
-			case "b_startgame_countdown": {
+			case "b_start_match": {
+				console.log("recieved start match");
+				let gameboard = this.page.container.querySelector("td-game-board");
+				if (!gameboard) {
+					gameboard = document.createElement("td-game-board");
+					this.page.container.appendChild(matchElement);
+					console.log("Created gameboard");
+				}
+				gameboard.startMatch(message);
+			} break;
+			case "b_paddle_move": {
+				console.log("paddle moved");
+				let gameboard = this.page.container.querySelector("td-game-board");
+				gameboard.oponentPaddleMoved(message["paddle"], message["position"])
+			} break;
+			case "b_bounce_ball": {
+				console.log("ball bounce");
+				let gameboard = this.page.container.querySelector("td-game-board");
+				gameboard.ballBounced(message);
+			} break;
+			case "b_scored_point": {
+				let gameboard = this.page.container.querySelector("td-game-board");
+				gameboard.pointScored(message["player"]);
 			} break;
 			case "error": {
 				this.displayPopupMessage(i18next.t(message.message_key));
@@ -335,9 +378,18 @@ class Visitor {
 			}
 		});
 		this.ws.addEventListener("close", (event) => {
-			console.log("Websocket connection is closed unexpectedly");
-			this.displayPopupMessage(i18next.t("error.connection-lost"));
-			this.connectWs();
+			if (this.reconnectCount >= 3) {
+				console.log("Websocket connection is closed");
+				this.displayPopupMessage(i18next.t("error.connection-lost-3-times"));
+				this.displayPopupMessage("Connection lost");
+				this.reconnectCount = 0;
+				window.location.hash = "#login";
+			} else {
+				console.log("Websocket connection is being restarted");
+				this.displayPopupMessage(i18next.t("error.connection-lost"));
+				this.reconnectCount++;
+				setTimeout(this.connectWs.bind(this), 1000);
+			}
 		});
 	}
 
@@ -462,6 +514,17 @@ class Visitor {
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
+
+	sendMessagePlayerMatchReady() {
+		let message = {
+			type: "player_match_ready"
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+}
+
+export function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export const myself = new Visitor();
