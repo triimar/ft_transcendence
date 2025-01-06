@@ -22,7 +22,7 @@ volumes:
 services:
   db_redis:
     container_name: db_redis
-    image: redis:6
+    image: redis/redis-stack:7.4.0-v1
     networks:
       - transcendence
     expose:
