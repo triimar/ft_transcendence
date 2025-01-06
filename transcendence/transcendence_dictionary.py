@@ -1,5 +1,5 @@
-room_data_sample = [
-    {
+room_data_sample = {
+    'example_room_1': {
         'room_id': 'example_room_1',
         'room_owner': 'player_id_1',
         'mode': 'balance', #'shoot','bomb','remix'
@@ -23,7 +23,7 @@ room_data_sample = [
             },
             {
                 'ready': 1,
-                'players': ['player_id_3', 'player_id_4'],
+                'players': ['player_id_3', 'ai'],
                 'ball': {
                     'position': {'x': 50, 'y': 50},
                     'velocity': {'vx': 5, 'vy': 5}
@@ -32,23 +32,22 @@ room_data_sample = [
             }
         ]
     },
-    {
+    'example_room_2': {
         'room_id': 'example_room_2',
         'room_owner': 'player_id_4',
         'mode': 'balance', #'shoot','bomb','remix'
         'avatars': [
-            {'player_id': 'example_player_id_4'},
-            {'player_id': 'example_player_id_5'},
-            {'player_id': 'example_player_id_6'}
+            {'player_id': 'example_player_id_4', 'prepared': True},
+            {'player_id': 'example_player_id_5', 'prepared': False},
+            {'player_id': 'example_player_id_6', 'prepared': True},
         ],
         'prepared_count': 1,
         'max_player': 5,
         'ai': {'score': 0},
         'matches':[
             {
-                'match_id': 'example_match_id_1',
                 'ready': 1,
-                'players': ['player_id_1', 'player_id_2'],
+                'players': ['player_id_4', 'player_id_5'],
                 'ball': {
                     'position': {'x': 50, 'y': 50},
                     'velocity': {'vx': 5, 'vy': 5},
@@ -57,9 +56,8 @@ room_data_sample = [
                 'winner':'player_id_1'
             },
             {
-                'match_id': 'example_match_id_2',
                 'ready': 1,
-                'players': ['player_id_3', 'player_id_4'],
+                'players': ['ai', 'player_id_6'],
                 'ball': {
                     'position': {'x': 50, 'y': 50},
                     'velocity': {'vx': 5, 'vy': 5},
@@ -69,10 +67,10 @@ room_data_sample = [
             }
         ]
     },
-]
+}
 
-player_data_sample = [
-    {
+player_data_sample = {
+    'example_player_id_1': {
         'player_id': 'example_player_id_1',
         'player_emoji': 'Q-Q',
         'player_bg_color': 'ff0000',
@@ -80,7 +78,7 @@ player_data_sample = [
         'size': 15,
         'score': 0
     },
-    {
+    'example_player_id_2': {
         'player_id': 'example_player_id_2',
         'player_emoji': '-_-',
         'player_bg_color': '00ff00',
@@ -88,7 +86,7 @@ player_data_sample = [
         'size': 15,
         'score': 0
     },
-    {
+    'example_player_id_3': {
         'player_id': 'example_player_id_3',
         'player_emoji': 'O-O',
         'player_bg_color': '0000ff',
@@ -96,7 +94,7 @@ player_data_sample = [
         'size': 15,
         'score': 0
     },
-    {
+    'example_player_id_4': {
         'player_id': 'example_player_id_4',
         'player_emoji': '~_~',
         'player_bg_color': 'ff0f00',
@@ -104,7 +102,7 @@ player_data_sample = [
         'size': 15,
         'score': 0
     },
-    {
+    'example_player_id_5': {
         'player_id': 'example_player_id_5',
         'player_emoji': '4-4',
         'player_bg_color': 'f00f00',
@@ -112,7 +110,7 @@ player_data_sample = [
         'size': 15,
         'score': 0
     },
-    {
+    'example_player_id_6': {
         'player_id': 'example_player_id_6',
         'player_emoji': 'T-T',
         'player_bg_color': 'f000ff',
@@ -120,4 +118,4 @@ player_data_sample = [
         'size': 15,
         'score': 0
     }
-]
+}
