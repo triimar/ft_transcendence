@@ -24,6 +24,7 @@
 	"error": {
 		"owner-left": "Der Raum-Besitzer hat den Raum verlassen. Du bist jetzt der neue Besitzer.",
 		"connection-lost": "Verbindung verloren. Verbindung wird neu gestartet...",
+		"connection-lost-3-times": "Verbindung verloren.",
 		"page-not-found": "Seite unbekannt",
         "room_not_found": "Raum-ID nicht gefunden",
         "player_not_found": "Spieler-ID nicht gefunden",

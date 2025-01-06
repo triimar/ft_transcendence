@@ -24,6 +24,7 @@
 	"error": {
 		"owner-left": "es Room owner has left. You become the new owner",
 		"connection-lost": "es Connection Lost. Restarting connection...",
+		"connection-lost-3-times": "es Connection Lost.",
 		"page-not-found": "Page unknown es",
 		"room_not_found": "es Room id not found",
 		"player_not_found": "es Player id not found",
