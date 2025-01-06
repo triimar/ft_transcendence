@@ -233,3 +233,23 @@ async def generate_matches(room_id, self_player_id) -> list[str]:
     await redis_instance.json().set("room_data", f'$.{room_id}.ai', {"score": 0})
 
     return first_layer_player_id
+
+async def set_player_ready_for_match(room_id, match_index, player_id):
+    redis_instance = await get_redis_client()
+    await redis_instance.json().numincrby("room_data", f'$.{room_id}.matches[{match_index}].ready', 1)
+    await redis_instance.json().set("player_data", f'$.{player_id}.score', 0)
+
+async def set_ball_bounce(room_id, match_index, ball):
+    redis_instance = await get_redis_client()
+    await redis_instance.json().mset([
+        ("room_data", f'$.{room_id}.matches[{match_index}].ball.position', ball['position']),
+        ("room_data", f'$.{room_id}.matches[{match_index}].ball.velocity', ball['velocity'])
+    ])
+
+async def set_match_winner(room_id, match_index, player_id):
+    redis_instance = await get_redis_client()
+    await redis_instance.json().set("room_data", f'$.{room_id}.matches[{match_index}].winner', player_id)
+
+async def increase_ai_score(room_id):
+    redis_instance = await get_redis_client()
+    await redis_instance.json().numincrby("room_data", f'$.{room_id}.ai.score', 1)
