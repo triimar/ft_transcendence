@@ -19,14 +19,6 @@ export async function initializeI18n() {
         isI18nInitialized = true; 
 		updateGlobalTranslations();
 
-        const languageSelector = document.getElementById("language-selector");
-        if (languageSelector) {
-            languageSelector.addEventListener("change", (event) => {
-                const selectedLanguage = event.target.value;
-                i18next.changeLanguage(selectedLanguage);
-            });
-        }
-        // The language change listener
         i18next.on("languageChanged", () => {
             updateGlobalTranslations();
             const speechBubbles = document.querySelectorAll(".speech-bubble p");
@@ -43,62 +35,30 @@ export async function initializeI18n() {
     }
 }
 
+function assignTranslation(elementId, translationKey) {
+	const element = document.getElementById(elementId);
+	if (element)
+		element.textContent = i18next.t(translationKey)
+}
+
 export function updateGlobalTranslations() {
     if (!isI18nInitialized) return; // Ensure i18n is initialized
 
-    const footerAuthors = document.getElementById("footer-authors");
-	const addRoom = document.getElementById("add-room");
-	const exitRoom = document.getElementById("exit-room"); 	
-	const tree = document.getElementById("tree-btn-txt");
-	const exitGame = document.getElementById("exit-game");
-	const pageError = document.getElementById("page-error-txt");
-    if (footerAuthors)
-        footerAuthors.textContent = i18next.t("footer.authors");
-	if (addRoom)
-		addRoom.textContent = i18next.t("add-room");
-	if (exitRoom)
-		exitRoom.textContent = i18next.t("exit-room");
-	if (tree)
-		tree.textContent = i18next.t("tree-btn-txt");
-	if (exitGame) 
-		exitGame.textContent = i18next.t("exit-game");
-	if (pageError)
-		pageError.textContent = i18next.t("page-error-txt");
-
-    updateLoginTranslations();
-	updatePopupTranslations();
-	updateLobbyTranslations();
-}
-
-function updateLoginTranslations() {
-    const loginGuest = document.getElementById("login-guest");
-    const loginIntra = document.getElementById("login-intra");
-    if (loginGuest) 
-        loginGuest.textContent = i18next.t("login.guest");
-    if (loginIntra) 
-        loginIntra.textContent = i18next.t("login.intra");
-}
-
-function updateLobbyTranslations() {
-	const prepare = document.getElementById("prepare-btn-txt");
-	if (prepare)
-		prepare.textContent = i18next.t("lobby-room.prepare-btn-txt")
-}
-
-function updatePopupTranslations() {
-	const customAvatar = document.getElementById("custom-avatar");
-	const logout = document.getElementById("logout")
-	const confirmLogout = document.getElementById("confirm-logout-txt")
-	const agree = document.getElementById("agree-txt")
-	const decline = document.getElementById("decline-txt")
-	if (customAvatar)
-		customAvatar.textContent = i18next.t("popups.custom-avatar")
-	if (logout)
-		logout.textContent = i18next.t("popups.logout");
-	if (confirmLogout)
-		confirmLogout.textContent = i18next.t("popups.confirm-logout-txt");
-	if (agree)
-		agree.textContent = i18next.t("popups.agree-txt");
-	if (decline)
-		decline.textContent = i18next.t("popups.decline-txt");
+    const translations = [
+        { id: "footer-authors", key: "footer.authors" },
+        { id: "add-room", key: "add-room" },
+        { id: "exit-room", key: "exit-room" },
+        { id: "tree-btn-txt", key: "tree-btn-txt" },
+        { id: "exit-game", key: "exit-game" },
+        { id: "page-error-txt", key: "error.page-not-found" },
+        { id: "login-guest", key: "login.guest" },
+        { id: "login-intra", key: "login.intra" },
+        { id: "prepare-btn-txt", key: "lobby-room.prepare-btn-txt" },
+        { id: "custom-avatar", key: "popups.custom-avatar" },
+        { id: "logout", key: "popups.logout" },
+        { id: "confirm-logout-txt", key: "popups.confirm-logout-txt" },
+        { id: "agree-txt", key: "popups.agree-txt" },
+        { id: "decline-txt", key: "popups.decline-txt" }
+    ];
+    translations.forEach(({ id, key }) => assignTranslation(id, key));
 }

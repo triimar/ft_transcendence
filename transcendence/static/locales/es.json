@@ -24,6 +24,7 @@
 	"error": {
 		"owner-left": "es Room owner has left. You become the new owner",
 		"connection-lost": "es Connection Lost. Restarting connection...",
+		"page-not-found": "Page unknown es",
 		"room_not_found": "es Room id not found",
 		"player_not_found": "es Player id not found",
 		"max_players_reached": "es Max number of players reached. Cannot join room",
@@ -35,6 +36,5 @@
 	"tree-btn-txt": "Tournament tree es",
 	"add-room": "ADD ROOM es",
 	"exit-room": "EXIT ROOM es",
-	"exit-game": "EXIT GAME es",
-	"page-error-txt": "Page unknown es"
+	"exit-game": "EXIT GAME es"
 }

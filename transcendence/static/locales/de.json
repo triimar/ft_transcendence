@@ -22,6 +22,9 @@
 		"invitation-link-txt": "Einladungslink in die Zwischenablage kopiert"
 	},
 	"error": {
+		"owner-left": "Der Raum-Besitzer hat den Raum verlassen. Du bist jetzt der neue Besitzer.",
+		"connection-lost": "Verbindung verloren. Verbindung wird neu gestartet...",
+		"page-not-found": "Seite unbekannt",
         "room_not_found": "Raum-ID nicht gefunden",
         "player_not_found": "Spieler-ID nicht gefunden",
         "max_players_reached": "Maximale Spieleranzahl erreicht. Beitritt zum Raum nicht möglich",
@@ -33,7 +36,5 @@
 	"tree-btn-txt": "Turnierbaum",
 	"add-room": "RAUM HINZUFÜGEN",
 	"exit-room": "RAUM VERLASSEN",
-	"exit-game": "SPIEL VERLASSEN",
-	"page-error-txt": "Seite unbekannt"
-	
+	"exit-game": "SPIEL VERLASSEN"
 }

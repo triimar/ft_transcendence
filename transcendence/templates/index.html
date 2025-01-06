@@ -11,18 +11,6 @@
 </head>
 <body>
 	<main>
-
-
-		<select id="language-selector" class="ui" style="
-    	font-size: var(--td-font-size); 
-    	padding: 0.5em; 
-    	width: 150px;">
-    	<option value="en">EN</option>
-    	<option value="de">DE</option>
-		<option value="es">ES</option>
-		</select>
-
-
 		<div class="content-container"></div>
 		<div id="tournament-tree-popup" class="fullscreen-popup">
 			<div class="ui" style="background: var(--td-ui-background-color);">
@@ -71,6 +59,7 @@
 	<h1 id="page-error-txt"></h1>
 </template>
 <template id="page-login">
+	
 	<style>
 		*:has(#login-box) {
 			justify-content: center;
@@ -78,6 +67,7 @@
 		}
 	</style>
 	<div id="login-box" style="display: flex; flex-direction: column;" class="ui">
+		<td-language-selector class="ui" style="align-self: flex-end;"></td-language-selector>
 		<td-logo style="margin-left: 1em;"></td-logo>
 		<div style="display: flex; flex-direction: row;">
 			<td-button id="btn-login-guest" class="ui"><p id="login-guest" class="ui-text"></p></td-button>
@@ -87,6 +77,7 @@
 </template>
 <template id="page-game">
 	<td-navigation-bar>
+		<td-language-selector class="ui"></td-language-selector>
 		<td-button class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
@@ -94,6 +85,7 @@
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
+		<td-language-selector class="ui"></td-language-selector>
 		<td-button class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
@@ -106,6 +98,7 @@
 		}
 	</style>
 	<td-navigation-bar>
+		<td-language-selector class="ui"></td-language-selector>
 		<td-button id="leave-room-btn" class="ui"><p id="exit-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 	<td-lobby-room room-join-disabled class="ui">
@@ -125,6 +118,7 @@
 		}
 	</style>
 	<td-navigation-bar>
+		<td-language-selector class="ui"></td-language-selector>
 		<td-button id="add-room-btn" class="ui"><p id="add-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 </template>
@@ -429,5 +423,47 @@
 		}
 	</style>
 	<div class="tournament"></div>
+</template>
+<template id="component-language-selector">
+    <style>
+        :host {
+            font-family: var(--td-font-family, "Monomaniac One", sans-serif); /* Use the same variable as other components */
+            font-size: var(--td-font-size, 16px);
+            display: inline-block;
+        }
+        select {
+            font-family: inherit; /* Inherit from :host */
+            font-size: inherit;
+            padding: 0.5em;
+            width: 150px;
+            background: var(--td-ui-background-color, white);
+            color: var(--td-ui-font-color, black);
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+			appearance: none; /* Reset native styles */
+            -webkit-appearance: none; /* For Safari/Chrome */
+            -moz-appearance: none; /* For Firefox */
+        }
+        select:hover {
+            background: var(--td-ui-font-color, black);
+            color: var(--td-ui-background-color, white);
+        }
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+        }
+		select option {
+            font-family: inherit; 
+            font-size: inherit; 
+            background: var(--td-ui-background-color, white); 
+            color: var(--td-ui-font-color, black); 
+        }
+    </style>
+    <select id="language-selector">
+        <option value="en">EN</option>
+        <option value="de">DE</option>
+        <option value="es">ES</option>
+		<option value="kr">KR</option>
+    </select>
 </template>
 </html>
