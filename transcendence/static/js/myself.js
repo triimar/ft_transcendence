@@ -186,7 +186,7 @@ class Visitor {
 							let text = document.createElement("p");
 							text.style.width = "max-content";
 							text.style.padding = "0 0.5em";
-							text.textContent = "Ready!";
+							text.textContent = i18next.t("lobby-room.ready-bubble-txt");
 							readySpeechBubble.appendChild(text);
 						}
 						avatarElement.appendChild(readySpeechBubble);
@@ -197,7 +197,7 @@ class Visitor {
 				if (this.id == room["room_owner"]) {
 					this.roomOwnerIsMyself = true;
 					let prepareButton = this.page.container.querySelector("#prepare-btn");
-					prepareButton.children[0].textContent = "Wait for other players";
+					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
 					prepareButton.setAttribute("disabled", "");
 					let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 					roomSizeButtons.style.display = "flex";
@@ -237,20 +237,20 @@ class Visitor {
 						roomElement.removeParticipant(message["player_id"]);
 						if (("new_room_owner" in message) && (message["new_room_owner"] == this.id)) {
 							this.roomOwnerIsMyself = true;
-							this.displayPopupMessage("Room owner has left. You become the new owner");
+							this.displayPopupMessage(i18next.t("error.owner-left"));
 						}
 						if (this.roomOwnerIsMyself) {
 							// Note(HeiYiu): Change the prepare button
 							let prepareButton = this.page.container.querySelector("#prepare-btn");
 							if (message["all_prepared"]) {
-								prepareButton.children[0].textContent = "Start game";
+								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
 								prepareButton.removeAttribute("disabled");
 								prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 								prepareButton.addEventListener("click", () => {
 									this.sendMessageStartGame(this.roomId);
 								}, {once: true});
 							} else {
-								prepareButton.children[0].textContent = "Wait for other players";
+								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
 								prepareButton.setAttribute("disabled", "");
 							}
 							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
@@ -299,7 +299,7 @@ class Visitor {
 							let text = document.createElement("p");
 							text.style.width = "max-content";
 							text.style.padding = "0 0.5em";
-							text.textContent = "Ready!";
+							text.textContent = i18next.t("lobby-room.ready-bubble-txt");
 							readySpeechBubble.appendChild(text);
 						}
 						avatarElement.appendChild(readySpeechBubble);
@@ -308,7 +308,7 @@ class Visitor {
 				}
 				if (this.roomOwnerIsMyself && message["all_prepared"]) {
 					let prepareButton = this.page.container.querySelector("#prepare-btn");
-					prepareButton.children[0].textContent = "Start game";
+					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
 					prepareButton.removeAttribute("disabled");
 					prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 					prepareButton.addEventListener("click", () => {
@@ -363,7 +363,7 @@ class Visitor {
 				gameboard.pointScored(message["player"]);
 			} break;
 			case "error": {
-				this.displayPopupMessage(message.message);
+				this.displayPopupMessage(i18next.t(message.message_key));
 				if (message["redirect_hash"]) {
 					if (this.pageName == "room")
 					{
@@ -380,12 +380,13 @@ class Visitor {
 		this.ws.addEventListener("close", (event) => {
 			if (this.reconnectCount >= 3) {
 				console.log("Websocket connection is closed");
-				this.displayPopupMessage("Retried connection 3 times but failed.");
+				this.displayPopupMessage(i18next.t("error.connection-lost-3-times"));
+				this.displayPopupMessage("Connection lost");
 				this.reconnectCount = 0;
 				window.location.hash = "#login";
 			} else {
 				console.log("Websocket connection is being restarted");
-				this.displayPopupMessage("Connection Lost. Restarting connection...");
+				this.displayPopupMessage(i18next.t("error.connection-lost"));
 				this.reconnectCount++;
 				setTimeout(this.connectWs.bind(this), 1000);
 			}

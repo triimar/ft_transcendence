@@ -3,6 +3,7 @@ import redis
 from channels.generic.websocket import AsyncWebsocketConsumer
 from . import redis_data as data
 import shortuuid
+from .error_messages import ErrorMessages
 
 class WebsiteConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -82,13 +83,13 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         if joined_room is not None:
                             await self.send(text_data=json.dumps({"type": "ack_join_room", "single_room_data": joined_room}))
                         else:
-                            await self.send(text_data=json.dumps({"type": "error", "message": "Cannot find the room to join!"}))
+                            await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value}))
                     case data.RedisError.NOPLAYERFOUND:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_FOUND.value, "redirect_hash": "main"}))
                     case data.RedisError.NOROOMFOUND:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
                     case data.RedisError.MAXROOMPLAYERSREACHED:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "max number of players reached. Cannot join room", "redirect_hash": "main"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.MAX_PLAYERS_REACHED.value, "redirect_hash": "main"}))
             case {"type": "add_room","owner_id": owner_id}:
                 room_id = shortuuid.ShortUUID().random(length=15)
                 self.room_group_name = room_id
@@ -117,7 +118,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         case data.RedisError.NONE:
                             event_leave_room.update({"all_prepared": False})
                         case data.RedisError.NOROOMFOUND:
-                            await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
+                            await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
                     await self.channel_layer.group_send(self.room_group_name, event_leave_room)
                 else:
                     await data.delete_one_room(room_id)
@@ -135,18 +136,18 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         await self.channel_layer.group_send(self.room_group_name, event_update_max_num)
                         await self.channel_layer.group_send(self.lobby_group_name, event_update_max_num)
                     case data.RedisError.NOROOMFOUND:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
                     case data.RedisError.MAXROOMPLAYERSREACHED:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "max number of players reached. Cannot join room"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.MAX_PLAYERS_REACHED.value}))
             case {"type": "update_mode", "room_id": room_id, "mode": mode}:
                 match(await data.update_game_mode_in_one_room(room_id, mode)):
                     case data.RedisError.NONE:
                         event_update_mode = {"type":"broadcast.update.mode", "room_id":room_id, "mode": mode}
                         await self.channel_layer.group_send(self.room_group_name, event_update_mode)
                     case data.RedisError.NOROOMFOUND:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
                     case data.RedisError.MODENOTSUPPORTED:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "mode not supported"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.MODE_NOT_SUPPORTED.value}))
             case {"type": "prepare_game", "room_id": room_id, "player_id": player_id}:
                 match(await data.update_prepared_one_player_in_one_room(room_id, player_id)):
                     case data.RedisError.NONE:
@@ -156,9 +157,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         event_update_mode = {"type": "broadcast.update.preparegame", "room_id": room_id, "player_id": player_id, "all_prepared": True}
                         await self.channel_layer.group_send(self.room_group_name, event_update_mode)
                     case data.RedisError.NOROOMFOUND:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "room id not found", "redirect_hash": "main"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
                     case data.RedisError.NOPLAYERFOUND:
-                        await self.send(text_data=json.dumps({"type": "error", "message": "player id not found", "redirect_hash": "main"}))
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_FOUND.value, "redirect_hash": "main"}))
             case {"type": "start_game", "room_id": room_id}:
                 self.first_layer_player_id = await data.generate_matches(room_id, self.player_id)
                 first_layer_player  = []

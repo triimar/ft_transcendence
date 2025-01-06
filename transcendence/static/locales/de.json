@@ -1,0 +1,41 @@
+{
+	"login": {
+		"guest": "Gastzugang",
+		"intra": "Intra-Login"
+	},
+	"footer": {
+        "authors": "Erstellt by Hei Yiu, Maria, Sangyao, Sol and Triin"
+    },
+	"popups": {
+		"custom-avatar" : "Passe deinen Avatar an",
+		"logout" : "ABMELDEN",
+		"confirm-logout-txt": "Bist du sicher, dass du den Raum verlassen möchtest?",
+		"agree-txt": "JA",
+		"decline-txt": "NEIN"
+	},
+	"lobby-room": {
+		"prepare-btn-txt" : "BEREIT?",
+		"prepared-btn-txt" : "BEREIT",
+		"prepare-btn-wait" : "Warte auf andere Mitspieler",
+		"ready-bubble-txt" : "Los geht's!",
+		"prepare-btn-start": "Spiel starten",
+		"invitation-link-txt": "Einladungslink in die Zwischenablage kopiert"
+	},
+	"error": {
+		"owner-left": "Der Raum-Besitzer hat den Raum verlassen. Du bist jetzt der neue Besitzer.",
+		"connection-lost": "Verbindung verloren. Verbindung wird neu gestartet...",
+		"connection-lost-3-times": "Verbindung verloren.",
+		"page-not-found": "Seite unbekannt",
+        "room_not_found": "Raum-ID nicht gefunden",
+        "player_not_found": "Spieler-ID nicht gefunden",
+        "max_players_reached": "Maximale Spieleranzahl erreicht. Beitritt zum Raum nicht möglich",
+        "mode_not_supported": "Modus nicht unterstützt"
+    },
+	"label": {
+        "people": "{{count}} PERSONEN"
+    },
+	"tree-btn-txt": "Turnierbaum",
+	"add-room": "RAUM HINZUFÜGEN",
+	"exit-room": "RAUM VERLASSEN",
+	"exit-game": "SPIEL VERLASSEN"
+}

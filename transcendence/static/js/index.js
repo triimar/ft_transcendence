@@ -8,6 +8,8 @@ import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
 import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
+import ComponentLanguageSelector from "./components/LanguageSelector.js";
+import { initializeI18n, updateGlobalTranslations } from "./translation.js";
 import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain } from "./pages.js";
 
 import { myself } from "./myself.js";
@@ -23,6 +25,7 @@ const pageMapping = {
 
 let isTriggerHashChange = true;
 async function main() {
+	await initializeI18n(); // Ensure translations are initialized
 	document.myself = myself; // only for debugging
 	const contentContainer = document.getElementsByClassName("content-container")[0];
 	let currentPage = null;
@@ -60,6 +63,7 @@ async function main() {
 		myself.roomId = roomId;
 		myself.gameIndex= gameIndex;
 		renderTemplate(contentContainer, currentPage.templateId);
+		updateGlobalTranslations();
 		currentPage.attachEvents();
 		if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
 		myself.pageFinishedRendering = true;
@@ -84,6 +88,7 @@ async function main() {
 	myself.roomId = roomId;
 	myself.gameIndex= gameIndex;
 	renderTemplate(contentContainer, currentPage.templateId);
+	updateGlobalTranslations();
 	currentPage.attachEvents();
 	if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
 	myself.pageFinishedRendering = true;
@@ -215,3 +220,4 @@ window.customElements.define("td-ai-game-board", ComponentAIGameBoard);
 window.customElements.define("td-button", ComponentButton);
 window.customElements.define("td-lever", ComponentLever);
 window.customElements.define("td-tournament-tree", ComponentTournamentTree);
+window.customElements.define("td-language-selector", ComponentLanguageSelector);

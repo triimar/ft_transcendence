@@ -1,0 +1,42 @@
+{
+	"login": {
+		"guest": "Korean Guest login",
+		"intra": "Intra login"
+	},
+	"footer": {
+        "authors": "Made by Hei Yiu, Maria, Sangyao, Sol and Triin"
+    },
+	"popups": {
+		"custom-avatar" : "Customize your avatar",
+		"logout" : "LOGOUT",
+		"confirm-logout-txt": "Are you sure you want to leave?",
+		"agree-txt": "YES",
+		"decline-txt": "NO"
+	},
+	"lobby-room": {
+		"prepare-btn-txt" : "PREPARE?",
+		"prepared-btn-txt" : "PREPARED",
+		"prepare-btn-wait" : "Wait for other players",
+		"ready-bubble-txt" : "Ready!",
+		"prepare-btn-start": "Start game",
+		"invitation-link-txt": "Invitation link copied to clipboard"
+	},
+	"error": {
+		"owner-left": "Room owner has left. You become the new owner",
+		"connection-lost": "Connection Lost. Restarting connection...",
+		"connection-lost-3-times": "Connection Lost.",
+		"page-not-found": "Page unknown",
+		"room_not_found": "Room id not found",
+		"player_not_found": "Player id not found",
+		"max_players_reached": "Max number of players reached. Cannot join room",
+		"mode_not_supported": "Mode not supported"
+	},
+	"label": {
+        "people": "{{count}} PEOPLE"
+    },
+	"tree-btn-txt": "Tournament tree",
+	"add-room": "ADD ROOM",
+	"exit-room": "EXIT ROOM",
+	"exit-game": "EXIT GAME"
+	
+}

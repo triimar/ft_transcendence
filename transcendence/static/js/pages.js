@@ -197,7 +197,8 @@ export class PageRoom extends PageConfirmLeave{
 		let roomId = myself.roomId;
 		this.prepareButtonFunc = (e) => {
 			myself.sendMessagePrepareGame(roomId);
-			e.currentTarget.children[0].textContent = "PREPARED";
+
+			e.currentTarget.children[0].textContent = i18next.t("lobby-room.prepared-btn-txt");
 			e.currentTarget.setAttribute("disabled", "");
 		};
 		this.container.querySelector("#prepare-btn").addEventListener("click", this.prepareButtonFunc, {once: true});
