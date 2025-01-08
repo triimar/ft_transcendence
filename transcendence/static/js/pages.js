@@ -55,6 +55,10 @@ export class PageAiGame extends PageConfirmLeave {
 
 	attachEvents() {
 		super.attachEvents();
+		// Note(HeiYiu): Other events
+		this.container.querySelector("#leave-room-btn").addEventListener("click", () => {
+			location.hash = "#main";
+		});
 	}
 
 	removeEvents() {
@@ -62,7 +66,7 @@ export class PageAiGame extends PageConfirmLeave {
 	}
 
 	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
-		if ((newPageName == "tree") && (newRoomId != null) && (newRoomId == myself.roomId)) {
+		if ((newPageName == "main") && (newRoomId != null) && (newRoomId == myself.roomId)) {
 			return true;
 		}
 		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);
@@ -92,6 +96,10 @@ export class PageGame extends PageConfirmLeave {
 	}
 
 	attachEvents() {
+		// Note(HeiYiu): Other events
+		this.container.querySelector("#leave-room-btn").addEventListener("click", () => {
+			location.hash = "#main";
+		});
 		super.attachEvents();
 	}
 
@@ -100,7 +108,7 @@ export class PageGame extends PageConfirmLeave {
 	}
 
 	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
-		if ((newPageName == "tree") && (newRoomId != null) && (newRoomId == myself.roomId)) {
+		if ((newPageName == "main") && (newRoomId != null) && (newRoomId == myself.roomId)) {
 			return true;
 		}
 		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);

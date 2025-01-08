@@ -78,7 +78,7 @@
 <template id="page-game">
 	<td-navigation-bar>
 		<td-language-selector class="ui"></td-language-selector>
-		<td-button class="ui ui-text"><p id="exit-game"></p></td-button>
+		<td-button id="leave-room-btn" class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
 	<td-game-board class="ui" style="box-sizing: content-box;"></td-game-board>
@@ -86,7 +86,7 @@
 <template id="page-ai-game">
 	<td-navigation-bar>
 		<td-language-selector class="ui"></td-language-selector>
-		<td-button class="ui ui-text"><p id="exit-game"></p></td-button>
+		<td-button id="leave-room-btn" class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
 	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
