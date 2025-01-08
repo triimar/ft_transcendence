@@ -26,7 +26,7 @@ BALL_VELOCITY_X = [-1, 1]
 BALL_VELOCITY_Y = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
 
 async def get_full_room_data() -> list:
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     rooms = await redis_instance.json().get("room_data")
     players = await redis_instance.json().get("player_data")
 
@@ -47,7 +47,7 @@ async def get_full_room_data() -> list:
     return full_room_data
 
 async def add_player_to_room(room_id, player_id) -> RedisError:
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
 
     result = await redis_instance.json().get("room_data", f'$.{room_id}')
     if len(result) == 0:
@@ -70,7 +70,7 @@ async def add_player_to_room(room_id, player_id) -> RedisError:
     return RedisError.NONE
 
 async def get_one_room_data(room_id):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
 
     result = await redis_instance.json().get("room_data", f'$.{room_id}')
     if len(result) == 0:
@@ -87,7 +87,7 @@ async def get_one_room_data(room_id):
     return room
 
 async def add_new_room(room_id, owner_id) -> dict:
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
 
     # Create a new room with default settings
     new_room = {
@@ -109,7 +109,7 @@ async def add_new_room(room_id, owner_id) -> dict:
     return new_room
 
 async def get_one_player(player_id) -> dict|None:
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     result = await redis_instance.json().get("player_data", f'$.{player_id}')
     if len(result) >= 0:
         return result[0]
@@ -118,37 +118,37 @@ async def get_one_player(player_id) -> dict|None:
 
 # Update playar data with new player data
 async def update_player(updated_player):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().set('player_data', f'$.{updated_player["player_id"]}', updated_player)
 
 async def get_one_match(room_id, match_id) -> dict|None:
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     room_data = await get_one_room_data(room_id)
     match_data = room_data['matches'][match_id]
     return match_data
 
 # Update playar data with new player data
 async def add_one_player(player_id, player_emoji, player_bg_color):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().set("player_data", f'$.{player_id}', {"player_id": player_id, "player_emoji": player_emoji, "player_bg_color": player_bg_color});
 
 # leave room
 async def delete_one_room(room_id) -> None:
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().delete("room_data", f'$.{room_id}')
 
 async def delete_one_player_from_room(room_id, player_id):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().delete("room_data", f'$.{room_id}.avatars[?(@.player_id == "{player_id}")]')
 
 async def update_room_owner(room_id, player_id):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().set("room_data", f'$.{room_id}.room_owner', player_id);
     await redis_instance.json().set("room_data", f'$.{room_id}.avatars[0]', True);
     return player_id
 
 async def is_all_prepared(room_id):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
 
     result = await redis_instance.json().get("room_data", f'$.{room_id}.avatars')
     if len(result) == 0:
@@ -165,7 +165,7 @@ async def is_all_prepared(room_id):
 async def update_max_player_num_in_one_room(room_id, max_player_num) -> RedisError:
     if max_player_num > MAX_NUM_PLAYER:
         return RedisError.MAXROOMPLAYERSREACHED
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().set("room_data", f'$.{room_id}.max_player', max_player_num)
     return RedisError.NONE
 
@@ -173,12 +173,12 @@ async def update_game_mode_in_one_room(room_id, mode) -> RedisError:
     if mode not in SUPPORTED_MODES:
         return RedisError.MODENOTSUPPORTED
 
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().set("room_data", f'$.{room_id}.mode', mode)
     return RedisError.NONE
 
 async def update_prepared_one_player_in_one_room(room_id, player_id):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().set("room_data", f'$.{room_id}.avatars[?(@.player_id == "{player_id}")].prepared', True)
     result = await redis_instance.json().get("room_data", f'$.{room_id}.avatars')
     if len(result) == 0:
@@ -191,7 +191,7 @@ async def update_prepared_one_player_in_one_room(room_id, player_id):
         return RedisError.NONE
 
 async def get_owner_id(room_id) -> str:
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     result = await redis_instance.json().get("room_data", f'$.{room_id}.room_owner')
     if len(result) == 0:
         return ""
@@ -206,7 +206,7 @@ def init_ball() -> dict:
     return {"ball": ball}
 
 async def generate_matches(room_id, self_player_id) -> list[str]:
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     [room] = await redis_instance.json().get("room_data", f'$.{room_id}')
     first_layer_player_id = None
 
@@ -235,21 +235,21 @@ async def generate_matches(room_id, self_player_id) -> list[str]:
     return first_layer_player_id
 
 async def set_player_ready_for_match(room_id, match_index, player_id):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().numincrby("room_data", f'$.{room_id}.matches[{match_index}].ready', 1)
     await redis_instance.json().set("player_data", f'$.{player_id}.score', 0)
 
 async def set_ball_bounce(room_id, match_index, ball):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().mset([
         ("room_data", f'$.{room_id}.matches[{match_index}].ball.position', ball['position']),
         ("room_data", f'$.{room_id}.matches[{match_index}].ball.velocity', ball['velocity'])
     ])
 
 async def set_match_winner(room_id, match_index, player_id):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().set("room_data", f'$.{room_id}.matches[{match_index}].winner', player_id)
 
 async def increase_ai_score(room_id):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     await redis_instance.json().numincrby("room_data", f'$.{room_id}.ai.score', 1)
