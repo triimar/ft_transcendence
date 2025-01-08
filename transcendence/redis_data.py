@@ -29,6 +29,7 @@ async def get_full_room_data() -> list:
     redis_instance = get_redis_client()
     rooms = await redis_instance.json().get("room_data")
     players = await redis_instance.json().get("player_data")
+    player_keys = ["player_emoji", "player_bg_color"]
 
     full_room_data = []
 
@@ -39,10 +40,11 @@ async def get_full_room_data() -> list:
             player_id = avatar["player_id"]
             # Fetch the corresponding player data and merge it
             if player_id in players:
-                avatar.update(players[player_id])
+                player_info = dict((key, players[player_id][key]) for key in player_keys)
+                avatar.update(player_info)
 
         # Append the updated room data to the combined list
-        full_room_data.append(room)
+        full_room_data.append({"avatars": room["avatars"], "room_id": room["room_id"], "max_player": room["max_player"]})
 
     return full_room_data
 
