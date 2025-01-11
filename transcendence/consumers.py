@@ -184,17 +184,10 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.ai_score_point(self.player_id)
             case {"type": "ai_score_ai"}:
                 await self.ai_score_point(self, "ai")
-            case {"type": "end_game_countdown"}:
+            case {"type": "end_game"}:
                 room = data.get_one_room_data(self.room_group_name)
-                # update players in future matches in the room
-                current_winner_id = room["matches"][self.match_id]["winner"]
-                if (self.match_id != room["matches"][-1]["match_id"]):
-                    next_match_id = (len(self.first_layer_player_id) + self.match_id) / 2
-                    await data.update_next_game_in_room(room["room_id"], next_match_id, current_winner_id)
-                     # update self.match_id and self.match_group_name to new match_id
-                    self.match_id = next_match_id
-                    self.match_group_name = self.room_group_name + "_" + str(self.match_id)
-                # create list of player index for generating game tree
+
+                 # create list of player index for generating game tree
                 winner_list = [match["winner"] for match in room["matches"]]
                 winner_id_list = []
                 for w in winner_list:
@@ -202,13 +195,24 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         winner_id_list.append(self.first_layer_player_id.index(w))
                     else:
                         winner_id_list.append(-1)
-                # leave current game page and join room page
+                # leave current game page and join next game page if there is one
                 await self.channel_layer.group_discard(self.match_group_name, self.channel_name)
-                await self.channel_layer.group_add(self.room_group_name,self.channel_name)
-                self.joined_group = ["room"]
                 # broadcast winner list to room page for game tree
                 event = {"type": "broadcast.endgame.countdown", "winner": winner_id_list}
                 await self.channel_layer.group_send(self.room_group_name, event)
+                # update players in future matches in the room
+                current_winner_id = room["matches"][self.match_id]["winner"]
+                if (self.match_id != room["matches"][-1]["match_id"]):
+                    next_match_id = (len(self.first_layer_player_id) + self.match_id) / 2
+                    await data.update_next_game_in_room(room["room_id"], next_match_id, current_winner_id)
+                    # update self.match_id and self.match_group_name to new match_id
+                    self.match_id = next_match_id
+                    self.match_group_name = self.room_group_name + "_" + str(self.match_id)
+                    await self.channel_layer.group_add(self.match_group_name, self.channel_name)
+                else:
+                    await self.channel_layer.group_discard(self.match_group_name, self.channel_name)
+                    await self.channel_layer.group_discard(self.room_group_name, self.channel
+
 
     async def create_matches(self, room_id):
         room_data = await data.get_one_room_data(room_id)
