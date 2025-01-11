@@ -190,8 +190,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 current_winner_id = room["matches"][self.match_id]["winner"]
                 if (self.match_id != room["matches"][-1]["match_id"]):
                     next_match_id = (len(self.first_layer_player_id) + self.match_id) / 2
-                    room["matches"][next_match_id]["players"].append(current_winner_id)
-                    await data.update_room(room)
+                    await data.update_next_game_in_room(room["room_id"], next_match_id, current_winner_id)
                      # update self.match_id and self.match_group_name to new match_id
                     self.match_id = next_match_id
                     self.match_group_name = self.room_group_name + "_" + str(self.match_id)

@@ -255,3 +255,8 @@ async def set_match_winner(room_id, match_index, player_id):
 async def increase_ai_score(room_id):
     redis_instance = get_redis_client()
     await redis_instance.json().numincrby("room_data", f'$.{room_id}.ai.score', 1)
+
+async def update_next_game_in_room(room_id, next_match_id, current_winner_id):
+    redis_instance = get_redis_client()
+
+    await redis_instance.json().arrappend("room_data", f'$.{room_id}.matches[{next_match_id}].players', current_winner_id)
