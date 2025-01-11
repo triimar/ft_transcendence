@@ -311,7 +311,9 @@ class Visitor {
 					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
 					prepareButton.removeAttribute("disabled");
 					prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
-					prepareButton.addEventListener("click", () => {
+					prepareButton.addEventListener("click", (e) => {
+						console.log("BUTTON PRESSED");
+						e.stopImmediatePropagation();
 						this.sendMessageStartGame(this.roomId);
 					}, {once: true});
 				}
@@ -320,11 +322,13 @@ class Visitor {
 				this.pageFinishedRendering = false;
 				let players = message["players"];
 				let gameIndex = 0;
+				let ai = false;
 				for (let [i, player] of players.entries()) {
 					if (player["player_id"] == this.id) {
 						gameIndex = i % 2;
 						if ((i % 2) == 0) {
 							if (players[i + 1]["player_id"] == "ai") {
+								ai = true;
 								window.location.href += `-ai-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
 							}
 							else {
@@ -332,6 +336,7 @@ class Visitor {
 							}
 						} else {
 							if (players[i - 1]["player_id"] == "ai") {
+								ai = true;
 								window.location.href += `-ai-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
 							}
 							else {
@@ -345,8 +350,14 @@ class Visitor {
 						await sleep(5000);
 						// Note(HeiYiu): show leaderboard with 5 seconds loading animation
 						popup.classList.remove('show');
-						let gameboard = this.page.container.querySelector("td-game-board");
-						await gameboard.countdown();
+						if (!ai) {
+							let gameboard = this.page.container.querySelector("td-game-board");
+							await gameboard.countdown();
+						} else {
+							let gameboard = this.page.container.querySelector("td-ai-game-board");
+							await gameboard.countdown();
+
+						}
 						this.sendMessagePlayerMatchReady();
 						break;
 					}
