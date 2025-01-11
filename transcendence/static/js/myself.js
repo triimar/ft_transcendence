@@ -323,7 +323,21 @@ class Visitor {
 				for (let [i, player] of players.entries()) {
 					if (player["player_id"] == this.id) {
 						gameIndex = i % 2;
-						window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+						if ((i % 2) == 0) {
+							if (players[i + 1]["player_id"] == "ai") {
+								window.location.href += `-ai-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+							}
+							else {
+								window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+							}
+						} else {
+							if (players[i - 1]["player_id"] == "ai") {
+								window.location.href += `-ai-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+							}
+							else {
+								window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+							}
+						}
 						await this.waitForPageToRender();
 						document.querySelector("#tournament-tree-popup td-tournament-tree").initiateTournament(players);
 						let popup = document.querySelector("#tournament-tree-popup");

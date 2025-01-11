@@ -15,7 +15,7 @@ export default class ComponentTournamentTree extends HTMLElement {
 
 	initiateTournament(playersArray) {
 		this.players = playersArray.map(player => {
-			if (player === "ai") {
+			if (player.player_id === "ai") {
 				return {
 					"avatar-name": "🤖", // Default emoji for AI player
 					"avatar-background": "#CCCCCC" // Default background color for AI player
@@ -28,7 +28,7 @@ export default class ComponentTournamentTree extends HTMLElement {
 			}
 
 		});
-
+		console.log(this.players)
 		this.tournamentData = {
 			player_count: this.players.length,
 			rounds: [], //array of rounds, that contain an array of matches
