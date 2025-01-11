@@ -210,8 +210,12 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     self.match_group_name = self.room_group_name + "_" + str(self.match_id)
                     await self.channel_layer.group_add(self.match_group_name, self.channel_name)
                 else:
+                    self.room_group_name = ""
+                    self.match_id = ""
                     await self.channel_layer.group_discard(self.match_group_name, self.channel_name)
-                    await self.channel_layer.group_discard(self.room_group_name, self.channel
+                    await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+                    await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
+                    self.joined_group = ["lobby"]
 
 
     async def create_matches(self, room_id):
