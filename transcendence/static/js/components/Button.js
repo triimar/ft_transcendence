@@ -3,6 +3,24 @@ export default class ComponentButton extends HTMLElement {
 		super();
 		this.shadow = this.attachShadow({ mode: "open" });
 		const template = document.getElementById("component-button");
-		this.shadow.appendChild(template.content.cloneNode(true));
+		this.shadow.appendChild(template.content.cloneNode(true));		
+	}
+
+	connectedCallback() {
+		this.setAttribute("role", "button");
+		// this.children.forEach(element => {
+		// 	element.setAttribute("role", "none")
+		// });
+		Array.from(this.children).forEach((child) => {
+			if (child.tagName === "P") {
+				child.setAttribute("role", "none");
+			}
+		});
+
+		this.addEventListener("keydown", (e) => {
+			if ((e.key === "Enter") || (e.key === " ")) {
+				this.click();
+			}
+		});
 	}
 }
