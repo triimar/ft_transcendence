@@ -22,8 +22,8 @@ class RedisError(Enum):
     MODENOTSUPPORTED = 4
     PLAYERALLPREPARED = 5
 
-BALL_VELOCITY_X = [-1, 1]
-BALL_VELOCITY_Y = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
+BALL_VELOCITY_X = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
+BALL_VELOCITY_Y = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
 
 async def get_full_room_data() -> list:
     redis_instance = get_redis_client()
@@ -210,6 +210,18 @@ def init_ball() -> dict:
     ball.update({"velocity": {"vx": random.choice(BALL_VELOCITY_X), "vy":random.choice(BALL_VELOCITY_Y)}})
     ball.update({"size": 50})
     return {"ball": ball}
+
+async def reset_ball(room_id, match_index) -> dict:
+    redis_instance = get_redis_client()
+    await redis_instance.json().mset([
+        ("room_data", f'$.{room_id}.matches[{match_index}].ball.position', {'x': 600, 'y': 300}),
+        ("room_data", f'$.{room_id}.matches[{match_index}].ball.velocity', {"vx": random.choice(BALL_VELOCITY_X), "vy":random.choice(BALL_VELOCITY_Y)})
+    ])
+    result = await redis_instance.json().get("room_data", f'$.{room_id}.matches[{match_index}].ball')
+    if len(result) >= 0:
+        return result[0]
+    else:
+        return None
 
 async def generate_matches(room_id, self_player_id) -> list[str]:
     redis_instance = get_redis_client()

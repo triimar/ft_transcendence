@@ -348,6 +348,16 @@ class Visitor {
 				}
 				gameboard.startMatch(message);
 			} break;
+			case "b_start_ai_match": {
+				console.log("recieved start match");
+				let gameboard = this.page.container.querySelector("td-ai-game-board");
+				if (!gameboard) {
+					gameboard = document.createElement("td-ai-game-board");
+					this.page.container.appendChild(matchElement);
+					console.log("Created gameboard");
+				}
+				gameboard.startMatch(message);
+			} break;
 			case "b_paddle_move": {
 				console.log("paddle moved");
 				let gameboard = this.page.container.querySelector("td-game-board");
@@ -361,6 +371,7 @@ class Visitor {
 			case "b_scored_point": {
 				let gameboard = this.page.container.querySelector("td-game-board");
 				gameboard.pointScored(message["player"]);
+				gameboard.ballBounced(message);
 			} break;
 			case "b_match_win": {
 				let gameboard = this.page.container.querySelector("td-game-board");

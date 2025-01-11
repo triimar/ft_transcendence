@@ -194,6 +194,16 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             event = {"type": "broadcast.start.match", 'ball': game_match['ball'], 'side0_player_id': game_match['players'][0],
                       'players': [player0, player1]}
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
+        if (game_match['players'][0] == "ai" or game_match['players'][1] == "ai"):
+            player = await data.get_one_player(game_match["players"][(1 if game_match["players"][0] == "ai" else 0)])
+            event = {"type": "broadcast.start.ai.match", 'ball': game_match['ball'], 'player': player}
+            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
+
+    async def broadcast_start_ai_match(self, event):
+        ball = event["ball"]
+        player = event["player"]
+        text_data = json.dumps({"type": "b_start_ai_match", "ball": ball, "player": player})
+        await self.send(text_data=text_data)
 
     async def broadcast_start_match(self, event):
         ball = event["ball"]
@@ -245,7 +255,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         player_side = 0
         if match_data['players'][1] == self.player_id:
             player_side = 1
-        event = {"type": "broadcast.scored.point", "player_side": player_side}
+        ball = await data.reset_ball(self.room_group_name, self.match_id)
+        event = {"type": "broadcast.scored.point", "player_side": player_side, "ball": ball}
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
 
     async def broadcast_match_win(self, event):
@@ -255,7 +266,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
     async def broadcast_scored_point(self, event):
         player_side = event["player_side"]
-        text_data = json.dumps({"type": "b_scored_point", 'player': player_side})
+        ball = event["ball"]
+        text_data = json.dumps({"type": "b_scored_point", 'player': player_side, 'ball': ball})
         await self.send(text_data=text_data)
 
     async def ai_score_point(self, id):
