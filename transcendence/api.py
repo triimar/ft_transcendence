@@ -80,7 +80,7 @@ async def oauth_callback(request):
         'client_id': settings.OAUTH2_PROVIDER['CLIENT_ID'],
         'client_secret': settings.OAUTH2_PROVIDER['CLIENT_SECRET'],
         'code': code,
-        'redirect_uri': 'http://localhost:8000/api/callback',
+        'redirect_uri': 'http://localhost:8000/api/auth_request',
     }
 
     # post request to get the access token
@@ -102,7 +102,7 @@ async def oauth_callback(request):
 
     user_login = user_data_response.json().get('login')
 
-    if (await user_exists(user_login)):
+    if (await user_exists(user_login) == True):
         intra_user_uuid = await get_uuid(user_login)
     else:
         intra_user_uuid = shortuuid.ShortUUID().random(length=22)
@@ -134,7 +134,7 @@ def oauth_redirect(request):
         'https://api.intra.42.fr/oauth/authorize?'
         f'client_id={settings.OAUTH2_PROVIDER["CLIENT_ID"]}'
         '&response_type=code'
-        '&redirect_uri=http://localhost:8000/api/callback'
+        '&redirect_uri=http://localhost:8000/api/auth_request'
         '&scope=public'
     )
     return redirect(authorization_url)
