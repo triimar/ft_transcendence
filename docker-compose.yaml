@@ -23,7 +23,7 @@ services:
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping"]
-      interval: 3s
+      interval: 1s
       timeout: 5s
       retries: 3
 
