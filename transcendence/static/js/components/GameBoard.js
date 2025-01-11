@@ -141,9 +141,6 @@ export default class ComponentGameBoard extends HTMLElement {
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
 
-
-		let pause = false;
-
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
@@ -343,35 +340,24 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.paddleLeft.draw();
 			this.paddleRight.draw();
 			this.ball.draw();
-			// if (this.ball.isReset)
-			// {
-			// 	pause = true;
-			// 	this.ball.isReset = false;
-			// 	setTimeout(function() {
-				// 		pause = false;
-				// 	}, 3000);
-				// }
-				// if (!pause)
-				// 	moving.bind(this)();
-				// this.raf = window.requestAnimationFrame(this.draw);
-			}).bind(this);
+		}).bind(this);
 			
-			this.gameLoop = (function(timeStamp) {
-				if (!this.lastTime) this.lastTime = Date.now();
-	
-				const deltaTime = timeStamp - this.lastTime;
-				this.lastTime = timeStamp;
-	
-				accumulatedTime += deltaTime;
-				if (accumulatedTime < 0) accumulatedTime = 0;
-				while (accumulatedTime >= updateInterval) {
-					moving.bind(this)();
-					accumulatedTime -= updateInterval;
-				}
-	
-				this.draw();
-				this.raf = window.requestAnimationFrame(this.gameLoop);
-			}).bind(this);
+		this.gameLoop = (function(timeStamp) {
+			if (!this.lastTime) this.lastTime = Date.now();
+
+			const deltaTime = timeStamp - this.lastTime;
+			this.lastTime = timeStamp;
+
+			accumulatedTime += deltaTime;
+			if (accumulatedTime < 0) accumulatedTime = 0;
+			while (accumulatedTime >= updateInterval) {
+				moving.bind(this)();
+				accumulatedTime -= updateInterval;
+			}
+
+			this.draw();
+			this.raf = window.requestAnimationFrame(this.gameLoop);
+		}).bind(this);
 		
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {

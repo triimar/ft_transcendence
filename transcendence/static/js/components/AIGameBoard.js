@@ -7,9 +7,29 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		this.shadow.appendChild(template.content.cloneNode(true));
 	}
 
+	countdown() {
+		let blocker = this.shadow.querySelector("#blocker");
+		blocker.classList.add("show");
+		let countdownPromise = new Promise((resolve) => {
+			let seconds = 5;
+			let intervalId = setInterval(() => {
+				let countdownText = blocker.children[0];
+				if (seconds == 0) {
+					countdownText.textContent = "Start";
+					clearInterval(intervalId);
+					resolve();
+				} else {
+					countdownText.textContent = seconds;
+					seconds--;
+				}
+			}, 1000);
+		});
+		return countdownPromise.then(() => sleep(1000)).then(() => blocker.classList.remove("show"));
+	}
+
 	startMatch(message) {
 		let ball = message["ball"];
-		let player = message["player"][0];
+		let player = message["player"];
 		this.ball.x = ball["position"]["x"];
 		this.ball.y = ball["position"]["y"];
 		this.ball.vx = ball["velocity"]["vx"];
@@ -22,7 +42,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		this.ai.draw();
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
-		this.raf = window.requestAnimationFrame(this.draw);
+		this.raf = window.requestAnimationFrame(this.gameLoop);
 	}
 
 	connectedCallback() {
@@ -34,6 +54,10 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 10;
 		const AI_SPEED = 8.5;
+		this.lastLoop = 0; // The timestamp of the last frame
+		// let serverTimeOffset = 0; // Difference between server and local clock
+		let accumulatedTime = 0; // Accumulated time for fixed updates
+		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
 
 		// PID constants
 		const Kp = 2.0;  // Proportional constant
@@ -45,7 +69,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		let previousError = 0;
 
 		let raf;
-		let pause = false;
 
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
@@ -101,7 +124,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			}
 		};
 
-		const ai = {
+		this.ai = {
 			x: canvas.width - PADDLE_W,
 			y: canvas.height/2 - PADDLE_H/2,
 			vy: AI_SPEED,
@@ -135,19 +158,17 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 			const rt = 0.1; //reaction time to see ahead of the ball
 			const predictedBallY = this.ball.y + this.ball.size / 2 + this.ball.vy * 0.1;
-			const error = predictedBallY - (ai.y + ai.height/2);
+			const error = predictedBallY - (this.ai.y + this.ai.height/2);
 			integral += error * dt;
 			const deriv = (error - previousError) / dt;
-			const newPos = ((error * Kp) + (integral * Ki) + (deriv * Kd)) * ai.vy;
-			ai.y += newPos / canvas.height;
+			const newPos = ((error * Kp) + (integral * Ki) + (deriv * Kd)) * this.ai.vy;
+			this.ai.y += newPos / canvas.height;
 			previousError = error;
 		}
 
 		function moving_ai() {
-
 			this.ball.x += this.ball.vx;
 			this.ball.y += this.ball.vy;
-			
 			//Bounce off the ceiling/floor
 			if (
 				this.ball.y + this.ball.vy > canvas.height - this.ball.size ||
@@ -160,7 +181,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			{
 				this.ball.reset(-1);
 				this.paddleLeft.reset();
-				ai.reset();
+				this.ai.reset();
 				//TODO send message player scored
 			}
 			//Left wall collision
@@ -168,7 +189,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			{
 				this.ball.reset(1);
 				this.paddleLeft.reset();
-				ai.reset();
+				this.ai.reset();
 				//TODO: send message ai scored
 			}
 
@@ -205,14 +226,14 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			}
 			
 			//AI paddle collisions
-			if (this.ball.x + this.ball.vx + this.ball.size > ai.x &&
-				this.ball.y + this.ball.vy < ai.y + ai.height &&
-				this.ball.y + this.ball.vy + this.ball.size > ai.y && this.ball.vx > 0)
+			if (this.ball.x + this.ball.vx + this.ball.size > this.ai.x &&
+				this.ball.y + this.ball.vy < this.ai.y + this.ai.height &&
+				this.ball.y + this.ball.vy + this.ball.size > this.ai.y && this.ball.vx > 0)
 			{
 				//Horizontal collision
-				if (this.ball.x + this.ball.vx < ai.x) {
-					var relativeIntersection = ((this.ball.y + this.ball.size/2) + this.ball.vy) - (ai.y + ai.height/2);
-					var normalizedRelativeIntersectionY = (relativeIntersection/(ai.height/2));
+				if (this.ball.x + this.ball.vx < this.ai.x) {
+					var relativeIntersection = ((this.ball.y + this.ball.size/2) + this.ball.vy) - (this.ai.y + this.ai.height/2);
+					var normalizedRelativeIntersectionY = (relativeIntersection/(this.ai.height/2));
 					var bounceAngle = normalizedRelativeIntersectionY * MAXBOUNCEANGLE;
 					var velocityY = this.ball.vy > 0 ? 1 : -1;
 					this.ball.vx = BALL_SPEED*Math.cos(bounceAngle);
@@ -221,13 +242,13 @@ export default class ComponentAIGameBoard extends HTMLElement {
 						this.ball.vy *= -1;
 					this.ball.vx = -Math.abs(this.ball.vx);
 				}
-				else if (this.ball.y + this.ball.vy < ai.y) //Upper side collision
+				else if (this.ball.y + this.ball.vy < this.ai.y) //Upper side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy > 0)
 						this.ball.vy = -this.ball.vy;
 				}
-				else if (this.ball.y + this.ball.vy + this.ball.size > ai.y + ai.height) //Lower side collision
+				else if (this.ball.y + this.ball.vy + this.ball.size > this.ai.y + this.ai.height) //Lower side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy < 0)
@@ -235,23 +256,38 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				}
 			}
 
-			update_paddle_ai();
-			if (ai.y < 0)
-				ai.y = 0;
-			if (ai.y > canvas.height - ai.height)
-				ai.y = canvas.height - ai.height;
+			update_paddle_ai.bind(this)();
+			if (this.ai.y < 0)
+				this.ai.y = 0;
+			if (this.ai.y > canvas.height - this.ai.height)
+				this.ai.y = canvas.height - this.ai.height;
 		}
 
 		this.draw = (function() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			this.paddleLeft.draw();
-			ai.draw();
+			this.ai.draw();
 			this.ball.draw();
-			if (!pause)
-				moving_ai();
-			raf = window.requestAnimationFrame(draw);
+			// moving_ai.bind(this)();
+			// raf = window.requestAnimationFrame(this.draw);
+		}).bind(this);
 
-		})
+		this.gameLoop = (function(timeStamp) {
+			if (!this.lastLoop) this.lastLoop = Date.now();
+
+			const deltaTime = timeStamp - this.lastLoop;
+			this.lastLoop = timeStamp;
+
+			accumulatedTime += deltaTime;
+			if (accumulatedTime < 0) accumulatedTime = 0;
+			while (accumulatedTime >= updateInterval) {
+				moving_ai.bind(this)();
+				accumulatedTime -= updateInterval;
+			}
+
+			this.draw();
+			this.raf = window.requestAnimationFrame(this.gameLoop);
+		}).bind(this);
 
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
@@ -275,7 +311,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 					window.cancelAnimationFrame(raf);
 					break;
 				case "Enter":
-					raf = window.requestAnimationFrame(draw);
+					raf = window.requestAnimationFrame(this.gameLoop);
 				default:
 					return;
 			}
@@ -292,11 +328,11 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		});
 		*/
 
-		this.ball.draw();
-		this.paddleLeft.draw();
+		// this.ball.draw();
+		// this.paddleLeft.draw();
 		let lastTime = Date.now();
 
-		raf = window.requestAnimationFrame(draw);
+		// raf = window.requestAnimationFrame(this.draw);
 	}
 
 	disconnectedCallback() {
