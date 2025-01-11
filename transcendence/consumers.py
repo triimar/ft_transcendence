@@ -396,9 +396,3 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
         text_data = json.dumps({"types": "b_endgame_countdown", "winner": winner})
         await self.send(text_data=text_data)
-
-    async def broadcast_endgame_countdown(self, event):
-        winner = event["winner"]
-
-        text_data = json.dumps({"types": "b_endgame_countdown", "winner": winner})
-        await self.send(text_data=text_data)
