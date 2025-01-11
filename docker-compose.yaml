@@ -4,13 +4,6 @@ networks:
     driver: bridge
 
 volumes:
-  db_redis:
-    name: db_redis
-    driver: local
-    driver_opts:
-      o: "bind"
-      type: none
-      device: ./db_redis
   db_sql:
     name: db_sql
     driver: local
@@ -22,13 +15,11 @@ volumes:
 services:
   db_redis:
     container_name: db_redis
-    image: redis:6
+    image: redis/redis-stack:7.4.0-v1
     networks:
       - transcendence
     expose:
       - 6379
-    volumes:
-      - db_redis:/data
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping"]

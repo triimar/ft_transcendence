@@ -186,17 +186,11 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.ai_score_point("ai")
 
     async def start_match(self):
-        room = await data.get_one_room_data(self.room_group_name)
-        game_match = room['matches'][self.match_id]
-        game_match['ready'] += 1
-        print("start_match_ready_count: " + str(game_match['ready']))
-        player0 = await data.get_one_player(game_match["players"][0])
-        player1 = await data.get_one_player(game_match["players"][1])
-        player = await data.get_one_player(self.player_id)
-        player['score'] = 0
-        await data.update_room(room)
-        await data.update_player(player)
+        await data.set_player_ready_for_match(self.room_group_name, self.match_id, self.player_id)
+        game_match = await data.get_one_match(self.room_group_name, self.match_id)
         if (game_match['ready'] == 2):
+            player0 = await data.get_one_player(game_match["players"][0])
+            player1 = await data.get_one_player(game_match["players"][1])
             event = {"type": "broadcast.start.match", 'ball': game_match['ball'], 'side0_player_id': game_match['players'][0],
                       'players': [player0, player1]}
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
@@ -211,12 +205,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def bounce_ball(self, ball):
-        room = await data.get_one_room_data(self.room_group_name)
-        match_data = room['matches'][self.match_id]
-        match_data['ball']['position'] = ball['position']
-        match_data['ball']['velocity'] = ball['velocity']
-        await data.update_room(room)
-        event = {"type": "broadcast.bounce.ball", 'ball': match_data['ball']}
+        await data.set_ball_bounce(self.room_group_name, self.match_id, ball)
+        event = {"type": "broadcast.bounce.ball", 'ball': ball}
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
 
     async def broadcast_bounce_ball(self, event):
@@ -243,17 +233,15 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def score_point(self):
-        room = await data.get_one_room_data(self.room_group_name)
-        match_data = room['matches'][self.match_id]
         player_data = await data.get_one_player(self.player_id)
         # player_data does not have score field
         player_data['score'] += 1
         if (player_data['score'] == 11):
-            match_data['winner'] = self.player_id
+            await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
             event = {"type": "broadcast.match.win", "winner": player_data}
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
-            await data.update_room(room)
         await data.update_player(player_data)
+        match_data = await data.get_one_match(self.room_group_name, self.match_id)
         player_side = 0
         if match_data['players'][1] == self.player_id:
             player_side = 1
@@ -273,19 +261,19 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def ai_score_point(self, id):
         room = await data.get_one_room_data(self.room_group_name)
         match_data = room["matches"][self.match_id]
-        player = room['ai']
+        player = None
         if id != "ai":
             player = await data.get_one_player(self.player_id)
             player['score'] += 1
             await data.update_player(player)
             event = {"type": "broadcast.match.win", "winner": player}
         else:
-            player['score'] += 1
+            player = room['ai']
+            await data.increase_ai_score(self.room_group_name)
             event = {"type": "broadcast.match.win", "winner": "ai"}
         if player['score'] == 11:
-            match_data['winner'] = id
+            await data.set_match_winner(self.room_group_name, self.match_id, id)
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
-        await data.update_room(room)
 
 # functions for dealing with events
     async def broadcast_join_room(self, event):

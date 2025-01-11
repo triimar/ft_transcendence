@@ -1,10 +1,8 @@
 from enum import Enum
-import json
 import redis
 import random
 from .transcendence_dictionary import player_data_sample, room_data_sample
 from .redis_client import get_redis_client
-from channels.generic.websocket import AsyncWebsocketConsumer
 
 MAX_NUM_PLAYER = 8
 SUPPORTED_MODES = ["balance", "shoot","bomb","remix"]
@@ -12,75 +10,9 @@ SUPPORTED_MODES = ["balance", "shoot","bomb","remix"]
 # Connect to Redis
 redis_instance = redis.Redis(host='db_redis', port=6379, db=0)
 
-# Sample room data
-# room_data_sample = [
-#     {
-#         "room_id": "example_room_1",
-#         "room_owner": "example_player_id_1",
-#         "mode": "balance", #"shoot","bomb","remix"
-#         "avatars": [
-#             {"player_id": "example_player_id_1", "prepared": True},
-#             {"player_id": "example_player_id_2", "prepared": False},
-#             {"player_id": "example_player_id_3", "prepared": False},
-#         ],
-#         "max_player": 3,
-#         'matches':['match_id_1', 'match_id_2']
-#     },
-#     {
-#         "room_id": "example_room_2",
-#         "room_owner": "example_player_id_4",
-#         "mode": "balance", #"shoot","bomb","remix"
-#         "avatars": [
-#             {"player_id": "example_player_id_4",  "prepared": True},
-#             {"player_id": "example_player_id_5", "prepared": False},
-#             {"player_id": "example_player_id_6", "prepared": False}
-#         ],
-#         'max_player': 5,
-#         'matches':['match_id_3', 'match_id_4']
-#     },
-# ]
-
-# Convert the room data to JSON and store it under a specific key in Redis
-redis_instance.set("room_data", json.dumps(room_data_sample))
-
-# all the player data who is connected
-# player_data_sample = [
-#     {"player_id": "example_player_id_1", "player_emoji": "233", "player_bg_color": "ff0000"},
-#     {"player_id": "example_player_id_2", "player_emoji": "234", "player_bg_color": "ffff00"},
-#     {"player_id": "example_player_id_3", "player_emoji": "235", "player_bg_color": "00ff00"},
-#     {"player_id": "example_player_id_4", "player_emoji": "236", "player_bg_color": "0000ff"},
-#     {"player_id": "example_player_id_5", "player_emoji": "237", "player_bg_color": "ff00ff"},
-#     {"player_id": "example_player_id_6", "player_emoji": "238", "player_bg_color": "00ffff"}
-# ] # can be dict of dict
-
-redis_instance.set("player_data", json.dumps(player_data_sample))
-
-# The match data
-match_data_sample = [
-    {
-        'match_id': 'example_match_id_1',
-        'ready': 1,
-        'players': ['player_id_1', 'player_id_2'],
-        'ball': {
-            'position': {'x': 50, 'y': 50},
-            'velocity': {'vx': 5, 'vy': 5},
-            'size': 15
-        },
-        'winner':'player1'
-    },
-    {
-        'match_id': 'example_match_id_2',
-        'ready': 1,
-        'players': ['player_id_3', 'player_id_4'],
-        'ball': {
-            'position': {'x': 50, 'y': 50},
-            'velocity': {'vx': 5, 'vy': 5},
-            'size': 15
-        },
-        'winner':'player1'
-    }
-]
-redis_instance.set("match_data", json.dumps(match_data_sample))
+# Use redis JSON to store json documents
+redis_instance.json().set("room_data", "$", room_data_sample)
+redis_instance.json().set("player_data", "$", player_data_sample)
 
 class RedisError(Enum):
     NONE = 0
@@ -94,88 +26,70 @@ BALL_VELOCITY_X = [-1, 1]
 BALL_VELOCITY_Y = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
 
 async def get_full_room_data() -> list:
-    redis_instance = await get_redis_client()
-    room_data = json.loads(await redis_instance.get("room_data"))
-    player_data = json.loads(await redis_instance.get("player_data"))
-
-    player_data_dict = {player["player_id"]: player for player in player_data}
+    redis_instance = get_redis_client()
+    rooms = await redis_instance.json().get("room_data")
+    players = await redis_instance.json().get("player_data")
+    player_keys = ["player_emoji", "player_bg_color"]
 
     full_room_data = []
 
-    for room in room_data:
+    # TODO: remove redundant data
+    for _, room in rooms.items():
         # Add player data to each avatar in the room
         for avatar in room["avatars"]:
             player_id = avatar["player_id"]
             # Fetch the corresponding player data and merge it
-            if player_id in player_data_dict:
-                avatar.update(player_data_dict[player_id])
+            if player_id in players:
+                player_info = dict((key, players[player_id][key]) for key in player_keys)
+                avatar.update(player_info)
 
         # Append the updated room data to the combined list
-        full_room_data.append(room)
+        full_room_data.append({"avatars": room["avatars"], "room_id": room["room_id"], "max_player": room["max_player"]})
 
     return full_room_data
 
 async def add_player_to_room(room_id, player_id) -> RedisError:
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
 
-    room_data = json.loads(await redis_instance.get("room_data"))
-    player_data = json.loads(await redis_instance.get("player_data"))
-
-    # Find the player details from player_data
-    new_player = next((player for player in player_data if player["player_id"] == player_id), None)
-
-    # Check if the player exists in player_data
-    if new_player is None:
-        print(f"Player with player_id {player_id} not found in player_data.")
-        return RedisError.NOPLAYERFOUND
-    else:
-        # Find room based on room id and add new player to it
-        for room in room_data:
-            if room["room_id"] == room_id:
-                for avatar in room["avatars"]:
-                    if avatar["player_id"] == new_player["player_id"]:
-                        return RedisError.NONE
-                if room["max_player"] <= len(room["avatars"]):
-                    return RedisError.MAXROOMPLAYERSREACHED
-                room["avatars"].append({"player_id": new_player["player_id"], "prepared": False})
-                print(f"Player {player_id} added to {room['room_id']}.")
-                await redis_instance.set("room_data", json.dumps(room_data))
-                return RedisError.NONE
+    result = await redis_instance.json().get("room_data", f'$.{room_id}')
+    if len(result) == 0:
         print(f"Room with room_id {room_id} not found in room_data.")
         return RedisError.NOROOMFOUND
+    room = result[0]
+    result = await redis_instance.json().get("player_data", f'$.{player_id}')
+    if len(result) == 0:
+        print(f"Player with player_id {player_id} not found in player_data.")
+        return RedisError.NOPLAYERFOUND
+    player = result[0]
+    # Find room based on room id and add new player to it
+    for avatar in room["avatars"]:
+        if avatar["player_id"] == player_id:
+            return RedisError.NONE
+    if room["max_player"] <= len(room["avatars"]):
+        return RedisError.MAXROOMPLAYERSREACHED
+    await redis_instance.json().arrappend("room_data", f'$.{room_id}.avatars', {"player_id": player_id, "prepared": False})
+    print(f"Player {player_id} added to {room['room_id']}.")
+    return RedisError.NONE
 
 async def get_one_room_data(room_id):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
 
-    room_data = json.loads(await redis_instance.get("room_data"))
-    player_data = json.loads(await redis_instance.get("player_data"))
-    player_data_dict = {player["player_id"]: player for player in player_data}
-
-    # Find the room by room_id
-    room = next((room for room in room_data if room["room_id"] == room_id), None)
+    result = await redis_instance.json().get("room_data", f'$.{room_id}')
+    if len(result) == 0:
+        return None
+    room = result[0]
+    players = await redis_instance.json().get("player_data")
 
     # Add player data to each avatar in the room
     for avatar in room["avatars"]:
         player_id = avatar["player_id"]
         # Fetch the corresponding player data and merge it
-        if player_id in player_data_dict:
-            avatar.update(player_data_dict[player_id])
+        if player_id in players:
+            avatar.update(players[player_id])
     return room
 
-# Update room data with new room data
-async def update_room(updated_room):
-    redis_instance = await get_redis_client()
-    room_data = json.loads(await redis_instance.get('room_data'))
-    for i, room in enumerate(room_data):
-        if room['room_id'] == updated_room['room_id']:
-            room_data[i] = updated_room
-            break
-    await redis_instance.set('room_data', json.dumps(room_data))
-
 async def add_new_room(room_id, owner_id) -> dict:
-    redis_instance = await get_redis_client()
-
-    room_data = json.loads(await redis_instance.get("room_data") or '[]')
+    redis_instance = get_redis_client()
 
     # Create a new room with default settings
     new_room = {
@@ -192,166 +106,99 @@ async def add_new_room(room_id, owner_id) -> dict:
         "max_player": 2
     }
 
-    room_data.append(new_room)
-
-    await redis_instance.set("room_data", json.dumps(room_data))
+    await redis_instance.json().set("room_data", f'$.{room_id}', new_room)
 
     return new_room
 
 async def get_one_player(player_id) -> dict|None:
-    redis_instance = await get_redis_client()
-    player_data = json.loads(await redis_instance.get("player_data"))
-
-    one_player = next((player for player in player_data if player["player_id"] == player_id), None)
-
-    return one_player
+    redis_instance = get_redis_client()
+    result = await redis_instance.json().get("player_data", f'$.{player_id}')
+    if len(result) >= 0:
+        return result[0]
+    else:
+        return None
 
 # Update playar data with new player data
 async def update_player(updated_player):
-    redis_instance = await get_redis_client()
-    player_data = json.loads(await redis_instance.get('player_data'))
-    for i, room in enumerate(player_data):
-        if room['player_id'] == updated_player['player_id']:
-            player_data[i] = updated_player
-            break
-    await redis_instance.set('player_data', json.dumps(player_data))
-
-async def get_full_match_data() -> list:
-    redis_instance = await get_redis_client()
-    match_data = json.loads(await redis_instance.get("match_data"))
-
-    return match_data
-
-async def update_full_matches(updated_matches):
-	redis_instance = await get_redis_client()
-	await redis_instance.set('match_data', json.dumps(updated_matches))
+    redis_instance = get_redis_client()
+    await redis_instance.json().set('player_data', f'$.{updated_player["player_id"]}', updated_player)
 
 async def get_one_match(room_id, match_id) -> dict|None:
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
     room_data = await get_one_room_data(room_id)
     match_data = room_data['matches'][match_id]
     return match_data
 
 # Update playar data with new player data
-async def update_match(updated_match):
-	redis_instance = await get_redis_client()
-	match_data = json.loads(await redis_instance.get('match_data'))
-	match_data[updated_match['match_id']] = updated_match
-	await redis_instance.set('match_data', json.dumps(match_data))
-
 async def add_one_player(player_id, player_emoji, player_bg_color):
-    redis_instance = await get_redis_client()
-    player_data = json.loads(await redis_instance.get("player_data"))
-    player_data.append({"player_id": player_id, "player_emoji": player_emoji, "player_bg_color": player_bg_color});
-    await redis_instance.set("player_data", json.dumps(player_data))
+    redis_instance = get_redis_client()
+    await redis_instance.json().set("player_data", f'$.{player_id}', {"player_id": player_id, "player_emoji": player_emoji, "player_bg_color": player_bg_color});
 
 # leave room
 async def delete_one_room(room_id) -> None:
-    redis_instance = await get_redis_client()
-
-    room_data = json.loads(await redis_instance.get("room_data"))
-
-    room_data = [room for room in room_data if room['room_id'] != room_id]
-
-    await redis_instance.set("room_data", json.dumps(room_data))
-
+    redis_instance = get_redis_client()
+    await redis_instance.json().delete("room_data", f'$.{room_id}')
 
 async def delete_one_player_from_room(room_id, player_id):
-    redis_instance = await get_redis_client()
-
-    room_data = json.loads(await redis_instance.get("room_data"))
-
-    for room in room_data:
-        if room["room_id"] == room_id:
-            room["avatars"] = [avatar for avatar in room["avatars"] if avatar["player_id"] != player_id]
-    await redis_instance.set("room_data", json.dumps(room_data))
+    redis_instance = get_redis_client()
+    await redis_instance.json().delete("room_data", f'$.{room_id}.avatars[?(@.player_id == "{player_id}")]')
 
 async def update_room_owner(room_id, player_id):
-    redis_instance = await get_redis_client()
-
-    room_data = json.loads(await redis_instance.get("room_data"))
-    room_owner = None
-
-    for room in room_data:
-        if room["room_id"] == room_id:
-            room["avatars"] = [avatar for avatar in room["avatars"] if avatar["player_id"] != player_id]
-            room["room_owner"] = room["avatars"][0]["player_id"]
-            room["avatars"][0]["prepared"] = True
-            room_owner = room["room_owner"]
-            break
-
-    await redis_instance.set("room_data", json.dumps(room_data))
-    return room_owner
+    redis_instance = get_redis_client()
+    await redis_instance.json().set("room_data", f'$.{room_id}.room_owner', player_id);
+    await redis_instance.json().set("room_data", f'$.{room_id}.avatars[0]', True);
+    return player_id
 
 async def is_all_prepared(room_id):
-    redis_instance = await get_redis_client()
+    redis_instance = get_redis_client()
 
-    room_data = json.loads(await redis_instance.get("room_data"))
+    result = await redis_instance.json().get("room_data", f'$.{room_id}.avatars')
+    if len(result) == 0:
+        return RedisError.NOROOMFOUND
+    avatars = result[0]
 
-    for room in room_data:
-        if room["room_id"] == room_id:
-            if (len(room["avatars"]) > 1) and all(elem["prepared"] for elem in room["avatars"]):
-                return RedisError.PLAYERALLPREPARED
-            else:
-                return RedisError.NONE
-    return RedisError.NOROOMFOUND
+    if (len(avatars) > 1) and all(elem["prepared"] for elem in avatars):
+        return RedisError.PLAYERALLPREPARED
+    else:
+        return RedisError.NONE
 
 
 # update room data
 async def update_max_player_num_in_one_room(room_id, max_player_num) -> RedisError:
-    redis_instance = await get_redis_client()
-
-    room_data = json.loads(await redis_instance.get("room_data"))
-
-    for room in room_data:
-        if room["room_id"] == room_id:
-            if max_player_num > MAX_NUM_PLAYER:
-                return RedisError.MAXROOMPLAYERSREACHED
-            room["max_player"] = max_player_num
-            await redis_instance.set("room_data", json.dumps(room_data))
-            return RedisError.NONE
-    return RedisError.NOROOMFOUND
+    if max_player_num > MAX_NUM_PLAYER:
+        return RedisError.MAXROOMPLAYERSREACHED
+    redis_instance = get_redis_client()
+    await redis_instance.json().set("room_data", f'$.{room_id}.max_player', max_player_num)
+    return RedisError.NONE
 
 async def update_game_mode_in_one_room(room_id, mode) -> RedisError:
     if mode not in SUPPORTED_MODES:
         return RedisError.MODENOTSUPPORTED
 
-    redis_instance = await get_redis_client()
-    room_data = json.loads(await redis_instance.get("room_data"))
-
-    for room in room_data:
-        if room["room_id"] == room_id:
-            room["mode"] = mode
-            await redis_instance.set("room_data", json.dumps(room_data))
-            return RedisError.NONE
-    return RedisError.NOROOMFOUND
+    redis_instance = get_redis_client()
+    await redis_instance.json().set("room_data", f'$.{room_id}.mode', mode)
+    return RedisError.NONE
 
 async def update_prepared_one_player_in_one_room(room_id, player_id):
-    redis_instance = await get_redis_client()
-    room_data = json.loads(await redis_instance.get("room_data"))
+    redis_instance = get_redis_client()
+    await redis_instance.json().set("room_data", f'$.{room_id}.avatars[?(@.player_id == "{player_id}")].prepared', True)
+    result = await redis_instance.json().get("room_data", f'$.{room_id}.avatars')
+    if len(result) == 0:
+        return RedisError.NOROOMFOUND
+    avatars = result[0]
 
-    for room in room_data:
-        if room["room_id"] == room_id:
-            for player in room["avatars"]:
-                if player["player_id"] == player_id:
-                    player["prepared"] = True
-                    await redis_instance.set("room_data", json.dumps(room_data))
-                    if all(elem["prepared"] for elem in room["avatars"]):
-                        return RedisError.PLAYERALLPREPARED
-                    else:
-                        return RedisError.NONE
-            return RedisError.NOPLAYERFOUND
-    return RedisError.NOROOMFOUND
+    if all(elem["prepared"] for elem in avatars):
+        return RedisError.PLAYERALLPREPARED
+    else:
+        return RedisError.NONE
 
 async def get_owner_id(room_id) -> str:
-    redis_instance = await get_redis_client()
-
-    room_data = json.loads(await redis_instance.get("room_data"))
-
-    for room in room_data:
-        if room["room_id"] == room_id:
-            return room["room_ownder"]
-    return ""
+    redis_instance = get_redis_client()
+    result = await redis_instance.json().get("room_data", f'$.{room_id}.room_owner')
+    if len(result) == 0:
+        return ""
+    room_owner = result[0]
+    return room_owner
 
 def init_ball() -> dict:
     ball = dict()
@@ -361,34 +208,50 @@ def init_ball() -> dict:
     return {"ball": ball}
 
 async def generate_matches(room_id, self_player_id) -> list[str]:
-    redis_instance = await get_redis_client()
-    room_data = json.loads(await redis_instance.get("room_data"))
+    redis_instance = get_redis_client()
+    [room] = await redis_instance.json().get("room_data", f'$.{room_id}')
     first_layer_player_id = None
 
-    for room in room_data:
-        if room["room_id"] == room_id:
-            players = room["avatars"]
-            player_nums = len(players)
-            match_nums = (player_nums + 1) // 2
-            temp_player_list = [p["player_id"] for p in players]
-            if (player_nums % 2 != 0):
-                temp_player_list.append("ai")
-            random.shuffle(temp_player_list)
-            matches = []
-            for idx in range(match_nums):
-                match = dict()
-                match["ready"] = 0
-                if (idx <= match_nums//2):
-                    match["players"] = [temp_player_list[2*idx], temp_player_list[2*idx+1]]
-                else:
-                    match["players"] = []
-                match.update(init_ball())
-                match["winner"] = ""
-                matches.append(match)
-            first_layer_player_id = temp_player_list
-            room["matches"] = matches
-            room["ai"] = {"score": 0}
-            break
+    players = room["avatars"]
+    player_nums = len(players)
+    match_nums = (player_nums + 1) // 2
+    temp_player_list = [p["player_id"] for p in players]
+    if (player_nums % 2 != 0):
+        temp_player_list.append("ai")
+    random.shuffle(temp_player_list)
+    matches = []
+    for idx in range(match_nums):
+        match = dict()
+        match["ready"] = 0
+        if (idx <= match_nums//2):
+            match["players"] = [temp_player_list[2*idx], temp_player_list[2*idx+1]]
+        else:
+            match["players"] = []
+        match.update(init_ball())
+        match["winner"] = ""
+        matches.append(match)
+    first_layer_player_id = temp_player_list
+    await redis_instance.json().set("room_data", f'$.{room_id}.matches', matches)
+    await redis_instance.json().set("room_data", f'$.{room_id}.ai', {"score": 0})
 
-    await redis_instance.set("room_data", json.dumps(room_data))
     return first_layer_player_id
+
+async def set_player_ready_for_match(room_id, match_index, player_id):
+    redis_instance = get_redis_client()
+    await redis_instance.json().numincrby("room_data", f'$.{room_id}.matches[{match_index}].ready', 1)
+    await redis_instance.json().set("player_data", f'$.{player_id}.score', 0)
+
+async def set_ball_bounce(room_id, match_index, ball):
+    redis_instance = get_redis_client()
+    await redis_instance.json().mset([
+        ("room_data", f'$.{room_id}.matches[{match_index}].ball.position', ball['position']),
+        ("room_data", f'$.{room_id}.matches[{match_index}].ball.velocity', ball['velocity'])
+    ])
+
+async def set_match_winner(room_id, match_index, player_id):
+    redis_instance = get_redis_client()
+    await redis_instance.json().set("room_data", f'$.{room_id}.matches[{match_index}].winner', player_id)
+
+async def increase_ai_score(room_id):
+    redis_instance = get_redis_client()
+    await redis_instance.json().numincrby("room_data", f'$.{room_id}.ai.score', 1)
