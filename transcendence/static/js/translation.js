@@ -3,24 +3,26 @@ let isI18nInitialized = false;
 export async function initializeI18n() {
     if (isI18nInitialized) return;
     try {
+		const savedLanguage = localStorage.getItem("language") || "en";
         await i18next
             .use(i18nextHttpBackend)
             .init({
-                lng: "en", // Default language
+                lng: savedLanguage, // use saved language or default to english
                 fallbackLng: "en",
                 ns: ["translation"], // Default namespace
                 defaultNS: "translation",
                 backend: {
                     loadPath: "/static/locales/{{lng}}.json", 
                 },
-                debug: true, // Set to false in production
+                debug: false, // Set to false in production
             });
 
         isI18nInitialized = true; 
 		updateGlobalTranslations();
 
-        i18next.on("languageChanged", () => {
+        i18next.on("languageChanged", (newLanguage) => { 
             updateGlobalTranslations();
+			localStorage.setItem("language", newLanguage);
             const speechBubbles = document.querySelectorAll(".speech-bubble p");
             speechBubbles.forEach(bubble => {
                 bubble.textContent = i18next.t("lobby-room.ready-bubble-txt");
