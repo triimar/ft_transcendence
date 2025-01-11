@@ -14,15 +14,20 @@ export async function initializeI18n() {
                 backend: {
                     loadPath: "/static/locales/{{lng}}.json", 
                 },
-                debug: false, // Set to false in production
+                debug: false, // Set to false in producti
             });
 
         isI18nInitialized = true; 
 		updateGlobalTranslations();
 
+		// Set the initial lang attribute on the <html> tag
+        document.documentElement.lang = i18next.language;
+
         i18next.on("languageChanged", (newLanguage) => { 
-            updateGlobalTranslations();
 			localStorage.setItem("language", newLanguage);
+			document.documentElement.lang = newLanguage;
+            
+			updateGlobalTranslations();
             const speechBubbles = document.querySelectorAll(".speech-bubble p");
             speechBubbles.forEach(bubble => {
                 bubble.textContent = i18next.t("lobby-room.ready-bubble-txt");

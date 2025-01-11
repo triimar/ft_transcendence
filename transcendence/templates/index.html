@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 	<title>Transcendence!</title>
 	<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
@@ -46,17 +46,17 @@
 			</div>
 		</div>
 		<div id="notification-popup" class="ui">
-			<p id="notification-popup-text">Error</p>
+			<p id="notification-popup-text"></p>
 		</div>
-		<footer style="width: 70%; margin-top: auto; display: flex; flex-direction: column; align-items: center;" class="ui">
-			<p>:PONG © 2024</p>
+		<footer role="contentinfo" style="width: 70%; margin-top: auto; display: flex; flex-direction: column; align-items: center;" class="ui">
+			<p aria-hidden="true">:PONG © 2024</p>
 			<p id="footer-authors" style="font-size: 0.5em;"></p>
 			</div>
 		</footer>
 	</main>
 </body>
 <template id="page-error">
-	<h1 id="page-error-txt"></h1>
+	<h1 id="page-error-txt" tabindex="0"></h1>
 </template>
 <template id="page-login">
 	
@@ -70,15 +70,15 @@
 		<td-language-selector class="ui" style="align-self: flex-end;"></td-language-selector>
 		<td-logo style="margin-left: 1em;"></td-logo>
 		<div style="display: flex; flex-direction: row;">
-			<td-button id="btn-login-guest" class="ui"><p id="login-guest" class="ui-text"></p></td-button>
-			<td-button id="btn-login-intra" class="ui"><p id="login-intra" class="ui-text"></p></td-button>
+			<td-button id="btn-login-guest" class="ui" tabindex="0" ><p id="login-guest" class="ui-text"></p></td-button>
+			<td-button id="btn-login-intra" class="ui" tabindex="0"><p id="login-intra" class="ui-text"></p></td-button>
 		</div>
 	</div>
 </template>
 <template id="page-game">
 	<td-navigation-bar>
 		<td-language-selector class="ui"></td-language-selector>
-		<td-button id="leave-room-btn" class="ui ui-text"><p id="exit-game"></p></td-button>
+		<td-button class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
 	<td-game-board class="ui" style="box-sizing: content-box;"></td-game-board>
@@ -86,7 +86,7 @@
 <template id="page-ai-game">
 	<td-navigation-bar>
 		<td-language-selector class="ui"></td-language-selector>
-		<td-button id="leave-room-btn" class="ui ui-text"><p id="exit-game"></p></td-button>
+		<td-button class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
 	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
@@ -327,7 +327,7 @@
 			aspect-ratio: 2;
 		}
 
-		#blocker, canvas {
+		* {
 			position: absolute;
 		}
 
@@ -340,12 +340,8 @@
 			opacity: 1;
 		}
 	</style>
-	<div id="blocker" class="show" style="width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; justify-content: center; align-items: center;">
+	<div id="blocker" class="show" style="width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center;">
 		<p id="countdown" style="color: white;"></p>
-		<div id="winner-container" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
-			<td-avatar id="winner"></td-avatar>
-			<p style="margin: 0 color: white;">Wins!</p>
-		</div>
 	</div>
 	<canvas style="width: 100%;"  width="1200" height="600"></canvas>
 </template>
@@ -467,10 +463,6 @@
             background: var(--td-ui-font-color, black);
             color: var(--td-ui-background-color, white);
         }
-        select:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
-        }
 		select option {
             font-family: inherit; 
             font-size: inherit; 
@@ -478,7 +470,7 @@
             color: var(--td-ui-font-color, black); 
         }
     </style>
-    <select id="language-selector">
+    <select id="language-selector" tabindex="0" aria-label="Select preferred language">
         <option value="en">EN</option>
         <option value="de">DE</option>
         <option value="es">ES</option>
