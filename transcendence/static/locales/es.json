@@ -1,41 +1,41 @@
 {
 	"login": {
-		"guest": "Acceso como invitado",
-		"intra": "Intra login"
+		"guest": "Ingresar como invitado",
+		"intra": "Iniciar sesión con intra"
 	},
 	"footer": {
         "authors": "Hecho por Hei Yiu, Maria, Sangyao, Sol y Triin"
     },
 	"popups": {
-		"custom-avatar" : "Customize your avatar es",
-		"logout" : "LOGOUT es",
-		"confirm-logout-txt": "es Are you sure you want to leave?",
-		"agree-txt": "es YES",
-		"decline-txt": "es NO"
+		"custom-avatar" : "Personaliza tu ávatar",
+		"logout" : "Cerrar sesión",
+		"confirm-logout-txt": "¿Seguro que quieres salir?",
+		"agree-txt": "SI",
+		"decline-txt": "NO"
 	},
 	"lobby-room": {
-		"prepare-btn-txt" : "es PREPARE?",
-		"prepared-btn-txt" : "es PREPARED",
-		"prepare-btn-wait" : "es Wait for other players",
-		"ready-bubble-txt" : "es Ready!",
-		"prepare-btn-start": "es Start game",
-		"invitation-link-txt": "es Invitation link copied to clipboard"
+		"prepare-btn-txt" : "¿PREPARADO?",
+		"prepared-btn-txt" : "PREPARADO",
+		"prepare-btn-wait" : "Esperando a otros jugadores",
+		"ready-bubble-txt" : "¡Listo!",
+		"prepare-btn-start": "Empezar juego",
+		"invitation-link-txt": "Link de invitación copiado a portapapeles"
 	},
 	"error": {
-		"owner-left": "es Room owner has left. You become the new owner",
-		"connection-lost": "es Connection Lost. Restarting connection...",
-		"connection-lost-3-times": "es Connection Lost.",
-		"page-not-found": "Page unknown es",
-		"room_not_found": "es Room id not found",
-		"player_not_found": "es Player id not found",
-		"max_players_reached": "es Max number of players reached. Cannot join room",
-		"mode_not_supported": "es Mode not supported"
+		"owner-left": "El dueño de la sala se ha ido. Tú eres el nuevo dueño",
+		"connection-lost": "Se perdió la conexión. Reconectando...",
+		"connection-lost-3-times": "Conexión perdida.",
+		"page-not-found": "Página no encontrada",
+		"room_not_found": "Id de sala no encontrado",
+		"player_not_found": "Id de jugador no encontrado",
+		"max_players_reached": "Se ha alcanzado el máximo número de jugadores. No se pudo entrar a la sala",
+		"mode_not_supported": "Modo no compatible"
 	},
 	"label": {
-        "people": "{{count}} ES PEOPLE"
+        "people": "{{count}} JUGADORES"
     },
-	"tree-btn-txt": "Tournament tree es",
-	"add-room": "ADD ROOM es",
-	"exit-room": "EXIT ROOM es",
-	"exit-game": "EXIT GAME es"
+	"tree-btn-txt": "Árbol del torneo",
+	"add-room": "AÑADIR SALA",
+	"exit-room": "SALIR DE LA SALA",
+	"exit-game": "SALIR DEL JUEGO"
 }

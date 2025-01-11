@@ -22,7 +22,7 @@
 		"invitation-link-txt": "Invitation link copied to clipboard"
 	},
 	"error": {
-		"owner-left": "Room owner has left. You become the new owner",
+		"owner-left": "Room owner has left. You became the new owner",
 		"connection-lost": "Connection Lost. Restarting connection...",
 		"connection-lost-3-times": "Connection Lost.",
 		"page-not-found": "Page unknown",
