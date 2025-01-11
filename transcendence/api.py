@@ -6,7 +6,7 @@ from random import random
 from django.conf import settings
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
-from .user import assign_random_avatar, assign_random_background_color, create_new_user, save_user_cache
+from .user import assign_random_avatar, assign_random_background_color, create_new_user 
 from .db_async_queries import user_exists, get_uuid
 from .redis_data import add_one_player, get_one_player
 

@@ -14,16 +14,16 @@ async def add_user(uuid, login, avatar, color):
             logging.error(f"Failed to insert user {login}: {e}")
 
 
-async def user_exists(uuid):
+async def user_exists(login):
     try:
         pool = await get_db_connection()
         async with (pool.acquire()) as conn:
-            query = "SELECT EXISTS(SELECT 1 FROM transcendence_users WHERE uuid=$1)"
-            result = await conn.fetchval(query, uuid)
-            print(result)
+            query = "SELECT EXISTS(SELECT 1 FROM transcendence_users WHERE login = $1)"
+            result = await conn.fetchval(query, login)
+            print("User exists: ", result)
             return result
     except Exception as e:
-        logging.error(f"Failed to check if user with uuid {uuid} exists: {e}")
+        logging.error(f"Failed to check if user with login {login} exists: {e}")
 
 async def get_uuid(login):
     try:
@@ -31,7 +31,7 @@ async def get_uuid(login):
         async with (pool.acquire()) as conn:
             query = "SELECT uuid FROM transcendence_users WHERE login=$1"
             result = await conn.fetchval(query, login)
-            print(result)
+            print("UUID: ", result)
             return result
     except Exception as e:
         logging.error(f"Failed to get uuid for user {login}: {e}")
@@ -42,7 +42,7 @@ async def avatar_exists(avatar):
         async with (pool.acquire()) as conn:
             query = "SELECT EXISTS (SELECT 1 FROM transcendence_users WHERE avatar = $1);"
             result = await conn.fetchval(query, avatar)
-            print(result)
+            print("Avatar exists: ", result)
             return result
     except Exception as e:
             logging.error(f"Failed to check if avatar {avatar} exists: {e}")
@@ -53,7 +53,7 @@ async def color_exists(color):
         async with (pool.acquire()) as conn:
             query = "SELECT EXISTS (SELECT 1 FROM transcendence_users WHERE color = $1);"
             result = await conn.fetchval(query, color)
-            print(result)
+            print("Color exists: ", result)
             return result
     except Exception as e:
         logging.error(f"Failed to check if color {color} exists: {e}")

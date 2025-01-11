@@ -70,8 +70,6 @@ services:
       - transcendence
     ports:
       - "8000:8000"
-    volumes:
-      - ./transcendence:/app/transcendence
     restart: always
 
   pgadmin:
