@@ -187,10 +187,14 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             case {"type": "end_game_countdown"}:
                 room = data.get_one_room_data(self.room_group_name)
                 # update players in future matches in the room
-                next_match_id = (len(self.first_layer_player_id) + self.match_id) / 2
                 current_winner_id = room["matches"][self.match_id]["winner"]
-                room["matches"][next_match_id]["players"].append(current_winner_id)
-                await data.update_room(room)
+                if (self.match_id != room["matches"][-1]["match_id"]):
+                    next_match_id = (len(self.first_layer_player_id) + self.match_id) / 2
+                    room["matches"][next_match_id]["players"].append(current_winner_id)
+                    await data.update_room(room)
+                     # update self.match_id and self.match_group_name to new match_id
+                    self.match_id = next_match_id
+                    self.match_group_name = self.room_group_name + "_" + str(self.match_id)
                 # create list of player index for generating game tree
                 winner_list = [match["winner"] for match in room["matches"]]
                 winner_id_list = []
@@ -206,10 +210,6 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 # broadcast winner list to room page for game tree
                 event = {"type": "broadcast.endgame.countdown", "winner": winner_id_list}
                 await self.channel_layer.group_send(self.room_group_name, event)
-                # update self.match_id and self.match_group_name to new match_id
-                self.match_id = next_match_id
-                self.match_group_name = self.room_group_name + "_" + str(self.match_id)
-
 
     async def create_matches(self, room_id):
         room_data = await data.get_one_room_data(room_id)
