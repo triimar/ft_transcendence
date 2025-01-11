@@ -16,6 +16,8 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	countdown() {
+		let winnerContainer = this.shadow.querySelector("#winner-container");
+		winnerContainer.style.display = "none";
 		let blocker = this.shadow.querySelector("#blocker");
 		blocker.classList.add("show");
 		let countdownPromise = new Promise((resolve) => {
@@ -35,11 +37,33 @@ export default class ComponentGameBoard extends HTMLElement {
 		return countdownPromise.then(() => sleep(1000)).then(() => blocker.classList.remove("show"));
 	}
 
+	displayMatchResult(winner) {
+		const canvas = this.shadow.querySelector("canvas");
+		const ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		let winnerContainer = this.shadow.querySelector("#winner-container");
+		winnerContainer.style.display = "flex";
+		let avatarElement = this.shadow.querySelector("#winner");
+		avatarElement.setAttribute("avatar-name", winner["player_emoji"]);
+		avatarElement.setAttribute("avatar-background", '#' + winner["player_bg_color"]);
+		avatarElement.setAttribute("avatar-id", winner["player_id"]);
+
+		let blocker = this.shadow.querySelector("#blocker");
+		let countdownText = blocker.children[0];
+		countdownText.textContent = this.score.left + " : " + this.score.right;
+		blocker.classList.add("show");
+		window.cancelAnimationFrame(this.raf);
+		document.removeEventListener("keydown", this.keydownEventListener, true);
+		this.raf = null;
+	}
+
 	startMatch(message) {
 		let ball = message["ball"];
 		let side = message["side"];
 		let playerLeft = message["players"][0];
 		let playerRight = message["players"][1];
+		this.score.left = 0;
+		this.score.right = 0;
 		this.side = side;
 		this.ball.x = ball["position"]["x"];
 		this.ball.y = ball["position"]["y"];

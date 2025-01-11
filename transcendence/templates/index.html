@@ -327,7 +327,7 @@
 			aspect-ratio: 2;
 		}
 
-		* {
+		#blocker, canvas {
 			position: absolute;
 		}
 
@@ -340,8 +340,12 @@
 			opacity: 1;
 		}
 	</style>
-	<div id="blocker" class="show" style="width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center;">
+	<div id="blocker" class="show" style="width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; justify-content: center; align-items: center;">
 		<p id="countdown" style="color: white;"></p>
+		<div id="winner-container" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
+			<td-avatar id="winner"></td-avatar>
+			<p style="margin: 0 color: white;">Wins!</p>
+		</div>
 	</div>
 	<canvas style="width: 100%;"  width="1200" height="600"></canvas>
 </template>
