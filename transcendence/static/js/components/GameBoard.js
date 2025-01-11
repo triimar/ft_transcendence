@@ -61,7 +61,8 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	freezeMatch() {
-		if (this.raf != null) {
+		if (this.raf !== null) {
+			console.log("Freeze");
 			window.cancelAnimationFrame(this.raf);
 			document.removeEventListener("keydown", this.keydownEventListener, true);
 			this.raf = null;
@@ -69,9 +70,11 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	unfreezeMatch() {
-		if (this.raf == null) {
-			document.addEventListener("keydown", this.keydownEventListener, true);
-			this.raf = window.requestAnimationFrame(this.draw);
+		if (this.raf === null) {
+			console.log("Unfreeze");
+			document.addEventListener("keydown", this.keydownEventListener.bind(this), true);
+			this.raf = window.requestAnimationFrame(this.gameLoop);
+			this.lastTime = 0;
 		}
 	}
 
@@ -104,12 +107,12 @@ export default class ComponentGameBoard extends HTMLElement {
 	connectedCallback() {
 		const canvas = this.shadow.querySelector("canvas");
 		const ctx = canvas.getContext("2d");
-		const BALL_SPEED = 5;
+		const BALL_SPEED = 6;
 		const MAXBOUNCEANGLE = Math.PI/4;
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 15;
-		let lastTime = 0; // The timestamp of the last frame
+		this.lastTime = 0; // The timestamp of the last frame
 		// let serverTimeOffset = 0; // Difference between server and local clock
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
@@ -143,7 +146,6 @@ export default class ComponentGameBoard extends HTMLElement {
 			vy: BALL_SPEED,
 			size: 50,
 			isReset: true,
-			isSpeedingUp: true,
 			color: "blue",
 			draw()
 			{
@@ -157,7 +159,6 @@ export default class ComponentGameBoard extends HTMLElement {
 				this.vx = BALL_SPEED * side;
 				this.vy = BALL_SPEED;
 				this.isReset = true;
-				this.isSpeedingUp = false;
 				this.vx = 1 * side;
 			}
 		};
@@ -215,18 +216,6 @@ export default class ComponentGameBoard extends HTMLElement {
 		};
 
 		function moving() {
-			if (this.ball.vx != PADDLE_SPEED && this.ball.vx != -PADDLE_SPEED && !this.ball.isSpeedingUp)
-			{
-				this.ball.isSpeedingUp = true;
-				setTimeout((function() {
-					if (this.ball.vx > 0 && this.ball.vx != PADDLE_SPEED)
-						this.ball.vx++;
-					else if (this.ball.vx != -PADDLE_SPEED)
-						this.ball.vx--;
-					this.ball.isSpeedingUp = false;
-				}).bind(this), 1000);
-			}
-
 			this.ball.x += this.ball.vx;
 			this.ball.y += this.ball.vy;
 		  	//Bounce off the ceiling/floor
@@ -249,8 +238,9 @@ export default class ComponentGameBoard extends HTMLElement {
 			//Left wall collision
 			if (this.ball.x + this.ball.vx < 0)
 				{
-				if (this.side != 0)
+				if (this.side != 0) {
 					this.scorePoint();
+				}
 				this.ball.reset(1);
 				this.paddleLeft.reset();
 				this.paddleRight.reset();
@@ -343,10 +333,10 @@ export default class ComponentGameBoard extends HTMLElement {
 			}).bind(this);
 			
 			this.gameLoop = (function(timeStamp) {
-				if (!lastTime) lastTime = Date.now();
+				if (!this.lastTime) this.lastTime = Date.now();
 	
-				const deltaTime = timeStamp - lastTime;
-				lastTime = timeStamp;
+				const deltaTime = timeStamp - this.lastTime;
+				this.lastTime = timeStamp;
 	
 				accumulatedTime += deltaTime;
 				if (accumulatedTime < 0) accumulatedTime = 0;
