@@ -38,6 +38,31 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		return countdownPromise.then(() => sleep(1000)).then(() => blocker.classList.remove("show"));
 	}
 
+	displayMatchResult(winner) {
+		const canvas = this.shadow.querySelector("canvas");
+		const ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		let winnerContainer = this.shadow.querySelector("#winner-container");
+		winnerContainer.style.display = "flex";
+		let avatarElement = this.shadow.querySelector("#winner");
+		if (winner == "ai") {
+			avatarElement.setAttribute("avatar-name", "AI");
+			avatarElement.setAttribute("avatar-background", this.ai.color);
+			avatarElement.setAttribute("avatar-id", "ai");
+		} else {
+			avatarElement.setAttribute("avatar-name", winner["player_emoji"]);
+			avatarElement.setAttribute("avatar-background", '#' + winner["player_bg_color"]);
+			avatarElement.setAttribute("avatar-id", winner["player_id"]);
+		}
+		let blocker = this.shadow.querySelector("#blocker");
+		let countdownText = blocker.children[0];
+		countdownText.textContent = this.score.left + " : " + this.score.right;
+		blocker.classList.add("show");
+		window.cancelAnimationFrame(this.raf);
+		document.removeEventListener("keydown", this.keydownEventListener, true);
+		this.raf = null;
+	}
+
 	pointScored(side) {
 		if (side == 0) {
 			this.score.player++;
@@ -190,7 +215,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			vy: AI_SPEED,
 			height: PADDLE_H,
 			width: PADDLE_W,
-			color: "pink",
+			color: "#ff5da2",
 			draw()
 			{
 				ctx.fillStyle = this.color;
@@ -198,7 +223,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				ctx.font="60px Monomaniac One";
 				ctx.textAlign="center"; 
 				ctx.textBaseline = "middle";
-				ctx.fillStyle = "#FFFFFF";
 				ctx.fillText("=*.*=", this.x + this.width/2, this.y + this.height/2);
 			},
 			reset()
