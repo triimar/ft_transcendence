@@ -11,7 +11,7 @@
 </head>
 <body>
 	<main>
-		<div class="content-container"></div>
+		<div class="content-container" aria-hidden="false"></div>
 		<div id="tournament-tree-popup" class="fullscreen-popup">
 			<div class="ui" style="background: var(--td-ui-background-color);">
 				<td-button class="ui close-btn" onclick="document.querySelector('#tournament-tree-popup').classList.remove('show');"><p>X</p></td-button>
@@ -24,7 +24,7 @@
 				</td-tournament-tree>
 			</div>
 		</div>
-		<div id="avatar-info-popup" class="fullscreen-popup">
+		<div id="avatar-info-popup" class="fullscreen-popup" aria-hidden="true" role="dialog" aria-labelledby="dialog-title" tabindex="-1">
 			<div id="avatar-info" class="ui" style="width: 24em; aspect-ratio: 1.9; position: relative">
 				<div style="position: absolute; width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
 					<p id="id-card-text" style="grid-column: 1 / 4; grid-row: 1;">Visitor Identity card</p>
@@ -34,7 +34,7 @@
 					<form action="" style="grid-column: 2; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: space-between; padding-left: 0.2em;">
 						<div style="display: grid; grid-template-columns: minmax(13ch, auto) 1fr; grid-template-rows: 1fr minmax(auto, 3fr); gap: 0.2em; padding-right: 0.2em;">
 								<label for="name" id="id-card-name-text">Name:</label>
-								<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" style="outline: none; border: 0.1em solid var(--td-ui-font-color)">
+								<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" aria-describedby="id-card-name-text" style="outline: none; border: 0.1em solid var(--td-ui-font-color)">
 								<label for="background" id="id-card-background-text">Background:</label>
 								<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
 									<div style="background: #ff4d6d" color="#ff4d6d"></div>
@@ -51,11 +51,11 @@
 							<p id="avatar-apply-change-text" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">APPLY</p>
 						</td-button>
 					</form>
-					<td-button id="logout-btn" class="ui" style="grid-column: 1; grid-row: 3;" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');">
+					<td-button id="logout-btn" class="ui" style="grid-column: 1; grid-row: 3;" onclick="closePopup('avatar-info-popup')">
 						<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
 					</td-button>
 				</div>
-				<td-button class="ui close-btn"><p>X</p></td-button>
+				<td-button class="ui close-btn" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
 			</div>
 		</div>
 		<div id="confirm-to-logout-popup" class="fullscreen-popup">
@@ -76,7 +76,7 @@
 				<p id="footer-authors" style="font-size: 0.5em;"></p>
 			</div>
 			<td-language-selector class="ui"></td-language-selector>
-			<td-lever class="ui" style="height: 100%; min-height: 1.85em; max-height: 3em; aspect-ratio: 0.5;" onclick="let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');document.documentElement.style.setProperty('--td-ui-background-color', fgColor);document.documentElement.style.setProperty('--td-ui-font-color', bgColor);"></td-lever>
+			<td-lever class="ui" style="height: 100%; min-height: 1.85em; max-height: 3em; aspect-ratio: 0.5;" aria-label="Switch between dark mode and light mode" onclick="let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');document.documentElement.style.setProperty('--td-ui-background-color', fgColor);document.documentElement.style.setProperty('--td-ui-font-color', bgColor);"></td-lever>
 		</footer>
 	</main>
 </body>
@@ -94,8 +94,8 @@
 	<div id="login-box" style="display: flex; flex-direction: column;" class="ui">
 		<td-logo style="margin-left: 1em;"></td-logo>
 		<div style="display: flex; flex-direction: row;">
-			<td-button id="btn-login-guest" class="ui" tabindex="0" ><p id="login-guest" class="ui-text"></p></td-button>
-			<td-button id="btn-login-intra" class="ui" tabindex="0"><p id="login-intra" class="ui-text"></p></td-button>
+			<td-button id="btn-login-guest" class="ui" aria-label="Login as guest"><p id="login-guest" class="ui-text"></p></td-button>
+			<td-button id="btn-login-intra" class="ui" aria-label="Login with intra"><p id="login-intra" class="ui-text"></p></td-button>
 		</div>
 	</div>
 </template>
@@ -139,7 +139,7 @@
 		}
 	</style>
 	<td-navigation-bar>
-		<td-button id="add-room-btn" class="ui"><p id="add-room" class="ui-text"></p></td-button>
+		<td-button id="add-room-btn" class="ui" aria-label="Add room!" tabindex="0"><p id="add-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 </template>
 <template id="component-lobby-room">
@@ -330,7 +330,7 @@
 		<td-logo></td-logo>
 		<div id="buttons-container">
 			<slot></slot>
-			<div class="ui" id="avatar" style="cursor: pointer;" onclick="document.querySelector('#avatar-info-popup').classList.add('show');">
+			<div class="ui" id="avatar" style="cursor: pointer;" tabindex="0" aria-label="Your avatar. Click for further options" onclick="openPopup('avatar-info-popup')" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openPopup('avatar-info-popup'); }">
 				<td-avatar class="dummy-avatar"></td-avatar>
 			</div>
 		</div>
@@ -489,7 +489,7 @@
             color: var(--td-ui-font-color, black); 
         }
     </style>
-    <select id="language-selector" tabindex="0" aria-label="Select preferred language">
+    <select id="language-selector" aria-label="Select preferred language">
         <option value="en">EN</option>
         <option value="de">DE</option>
         <option value="es">ES</option>
