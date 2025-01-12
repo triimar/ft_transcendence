@@ -11,7 +11,7 @@ async def add_user(uuid, login, avatar, color):
             """
             await conn.execute(query, uuid, login, avatar, color)
     except Exception as e:
-            logging.error(f"Failed to insert user {login}: {e}")
+        logging.error(f"Failed to insert user {login}: {e}")
 
 
 async def user_exists(login):
@@ -24,6 +24,7 @@ async def user_exists(login):
             return result
     except Exception as e:
         logging.error(f"Failed to check if user with login {login} exists: {e}")
+        return False
 
 async def get_uuid(login):
     try:
@@ -35,6 +36,7 @@ async def get_uuid(login):
             return result
     except Exception as e:
         logging.error(f"Failed to get uuid for user {login}: {e}")
+        return None
     
 async def avatar_exists(avatar):
     try:
@@ -45,7 +47,8 @@ async def avatar_exists(avatar):
             print("Avatar exists: ", result)
             return result
     except Exception as e:
-            logging.error(f"Failed to check if avatar {avatar} exists: {e}")
+        logging.error(f"Failed to check if avatar {avatar} exists: {e}")
+        return False
 
 async def color_exists(color):
     try:
@@ -57,6 +60,7 @@ async def color_exists(color):
             return result
     except Exception as e:
         logging.error(f"Failed to check if color {color} exists: {e}")
+        return False
 
 async def update_color_and_avatar(uuid, color, avatar):
     try:
