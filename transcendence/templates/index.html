@@ -25,22 +25,37 @@
 			</div>
 		</div>
 		<div id="avatar-info-popup" class="fullscreen-popup">
-			<div id="avatar-info" style="width: 20em; height: 70%; background: transparent;">
-				<td-button class="ui close-btn" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');"><p>X</p></td-button>
-				<div style="width: 100%; height: fit-content; display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 1fr 1em 1em 1em 1fr; background: var(--td-ui-background-color); border: var(--td-ui-font-color) var(--td-border-size) solid;">
-					<p id="id-card-text" style="grid-column: 1 / 4; grid-row: 1;">Identity card</p>
-					<div style="grid-column: 1; grid-row: 2 / 5; display: flex; justify-content: center; align-items: center;">
+			<div id="avatar-info" class="ui" style="width: 24em; aspect-ratio: 1.9; position: relative">
+				<div style="position: absolute; width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
+					<p id="id-card-text" style="grid-column: 1 / 4; grid-row: 1;">Visitor Identity card</p>
+					<div style="grid-column: 1; grid-row: 2; display: flex; justify-content: center; align-items: start;">
 						<td-avatar class="dummy-avatar"></td-avatar>
 					</div>
-					<p id="id-card-name-text" style="grid-column: 2; grid-row: 2;">Name:</p>
-					<p id="id-card-name" style="grid-column: 3; grid-row: 2;" contenteditable="plaintext-only"></p>
-					<p id="id-card-background-text" style="grid-column: 2; grid-row: 3;">Background:</p>
-					<div id="id-card-background" style="grid-column: 3; grid-row: 3;"></div>
-					<p id="id-card-type-text" style="grid-column: 2; grid-row: 4;">Type: Visitor or Intra traveller</p>
-					<td-button id="logout-btn" class="ui" style="grid-column: 2; grid-row: 5;" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');">
+					<form action="" style="grid-column: 2; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: space-between; padding-left: 0.2em;">
+						<div style="display: grid; grid-template-columns: minmax(13ch, auto) 1fr; grid-template-rows: 1fr minmax(auto, 3fr); gap: 0.2em; padding-right: 0.2em;">
+								<label for="name" id="id-card-name-text">Name:</label>
+								<input type="text" name="name" id="id-card-name">
+								<label for="background" id="id-card-background-text">Background:</label>
+								<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+								</div>
+						</div>
+						<td-button id="avatar-apply-change-btn" class="ui">
+							<p id="avatar-apply-change-text" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">APPLY</p>
+						</td-button>
+					</form>
+					<td-button id="logout-btn" class="ui" style="grid-column: 1; grid-row: 3;" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');">
 						<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
 					</td-button>
 				</div>
+				<td-button class="ui close-btn" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');"><p>X</p></td-button>
 			</div>
 		</div>
 		<div id="confirm-to-logout-popup" class="fullscreen-popup">
