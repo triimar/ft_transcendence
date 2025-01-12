@@ -7,6 +7,9 @@ const GameMode = {
 	Bomb: "bomb",
 	Remix: "remix"
 };
+
+const BALANCE_FACTOR = 10;
+
 export default class ComponentAIGameBoard extends HTMLElement {
 	constructor() {
 		super();
@@ -39,19 +42,19 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		if (side == 0) {
 			this.score.player++;
 			if (this.gameMode === GameMode.Balance) {
-				if (this.paddleLeft.size - 5 >= this.MIN_PADDLE_SIZE)
-					this.paddleLeft.size -= 5;
-				if (this.ai.size + 5 <= this.MAX_PADDLE_SIZE)
-					this.ai += 5;
+				if (this.paddleLeft.height - BALANCE_FACTOR >= this.MIN_PADDLE_SIZE)
+					this.paddleLeft.height -= BALANCE_FACTOR;
+				if (this.ai.height + BALANCE_FACTOR <= this.MAX_PADDLE_SIZE)
+					this.ai.height += BALANCE_FACTOR;
 			}
 		}
 		else {
 			this.score.ai++;
 			if (this.gameMode === GameMode.Balance) {
-				if (this.ai.size - 5 >= this.MIN_PADDLE_SIZE)
-					this.ai.size -= 5;
-				if (this.paddleLeft.size + 5 <= this.MAX_PADDLE_SIZE)
-					this.paddleLeft += 5;
+				if (this.ai.height - BALANCE_FACTOR >= this.MIN_PADDLE_SIZE)
+					this.ai.height -= BALANCE_FACTOR;
+				if (this.paddleLeft.height + BALANCE_FACTOR <= this.MAX_PADDLE_SIZE)
+					this.paddleLeft.height += BALANCE_FACTOR;
 			}
 		}
 	}
@@ -81,6 +84,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
+		this.gameMode = GameMode.Balance;
 	}
 
 	connectedCallback() {
@@ -92,8 +96,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 10;
 		const AI_SPEED = 8.5;
-		this.MAX_PADDLE_SIZE = canvas.height/3;
-		this.MIN_PADDLE_SIZE = canvas.height/6;
+		this.MAX_PADDLE_SIZE = canvas.height/2;
+		this.MIN_PADDLE_SIZE = canvas.height/10;
 		this.lastLoop = 0; // The timestamp of the last frame
 		// let serverTimeOffset = 0; // Difference between server and local clock
 		let accumulatedTime = 0; // Accumulated time for fixed updates
@@ -174,9 +178,9 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			},
 			reset()
 			{
-				this.y = canvas.height/2 - PADDLE_H/2;
-				this.height = PADDLE_H;
-				this.width = PADDLE_W;
+				this.y = canvas.height/2 - this.height/2;
+				// this.height = PADDLE_H;
+				// this.width = PADDLE_W;
 			}
 		};
 
@@ -200,8 +204,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			reset()
 			{
 				this.y = canvas.height/2 - PADDLE_H/2;
-				this.height = PADDLE_H;
-				this.width = PADDLE_W;
+				// this.height = PADDLE_H;
+				// this.width = PADDLE_W;
 				integral = 0;
 				previousError = 0;
 			}

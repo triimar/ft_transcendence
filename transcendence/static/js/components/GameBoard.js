@@ -7,6 +7,9 @@ const GameMode = {
 	Bomb: "bomb",
 	Remix: "remix"
 };
+
+const BALANCE_FACTOR = 10;
+
 export default class ComponentGameBoard extends HTMLElement {
 	constructor() {
 		super();
@@ -65,7 +68,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleRight.draw();
 		this.paddleLeft.draw();
 
-		console.log(this.side);
+		// console.log(this.side);
+		this.gameMode = GameMode.Balance;
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
@@ -101,22 +105,25 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	pointScored(side) {
+		console.log(this.paddleLeft.height);
+		console.log(this.paddleRight.height);
+		console.log("MIN: " + this.MIN_PADDLE_SIZE + ", MAX: " + this.MAX_PADDLE_SIZE);
 		if (side == 0) {
 			this.score.left++;
 			if (this.gameMode === GameMode.Balance) {
-				if (this.paddleLeft.size - 5 >= this.MIN_PADDLE_SIZE)
-					this.paddleLeft.size -= 5;
-				if (this.paddleRight.size + 5 <= this.MAX_PADDLE_SIZE)
-					this.paddleRight += 5;
+				if (this.paddleLeft.height - BALANCE_FACTOR >= this.MIN_PADDLE_SIZE)
+					this.paddleLeft.height -= BALANCE_FACTOR;
+				if (this.paddleRight.height + BALANCE_FACTOR <= this.MAX_PADDLE_SIZE)
+					this.paddleRight.height += BALANCE_FACTOR;
 			}
 		}
 		else {
 			this.score.right++;
 			if (this.gameMode === GameMode.Balance) {
-				if (this.paddleRight.size - 5 >= this.MIN_PADDLE_SIZE)
-					this.paddleRight.size -= 5;
-				if (this.paddleLeft.size + 5 <= this.MAX_PADDLE_SIZE)
-					this.paddleLeft += 5;
+				if (this.paddleRight.height - BALANCE_FACTOR >= this.MIN_PADDLE_SIZE)
+					this.paddleRight.height -= BALANCE_FACTOR;
+				if (this.paddleLeft.height + BALANCE_FACTOR <= this.MAX_PADDLE_SIZE)
+					this.paddleLeft.height += BALANCE_FACTOR;
 			}
 		}
 	}
@@ -137,8 +144,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 15;
-		this.MAX_PADDLE_SIZE = canvas.height/3;
-		this.MIN_PADDLE_SIZE = canvas.height/6;
+		this.MAX_PADDLE_SIZE = canvas.height/2;
+		this.MIN_PADDLE_SIZE = canvas.height/10;
 		this.gameMode = GameMode.Default;
 		this.lastTime = 0; // The timestamp of the last frame
 		// let serverTimeOffset = 0; // Difference between server and local clock
@@ -208,9 +215,9 @@ export default class ComponentGameBoard extends HTMLElement {
 			},
 			reset()
 			{
-				this.y = canvas.height/2 - PADDLE_H/2;
-				this.height = PADDLE_H;
-				this.width = PADDLE_W;
+				this.y = canvas.height/2 - this.height/2;
+				// this.height = PADDLE_H;
+				// this.width = PADDLE_W;
 			}
 		};
 
@@ -234,9 +241,9 @@ export default class ComponentGameBoard extends HTMLElement {
 			},
 			reset()
 			{
-				this.y = canvas.height/2 - PADDLE_H/2;
-				this.height = PADDLE_H;
-				this.width = PADDLE_W;
+				this.y = canvas.height/2 - this.height/2;
+				// this.height = PADDLE_H;
+				// this.width = PADDLE_W;
 			}
 		};
 
