@@ -10,6 +10,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         self.lobby_group_name = 'lobby_group'
         self.room_group_name = None
         self.match_id = None
+        self.first_layer_player_id = None
 
         # Join the lobby group
         await self.channel_layer.group_add(
@@ -22,28 +23,38 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        if self.room_group_name is not None:
-            room_id = self.room_group_name
-            player_id = self.player_id
-            current_room = await data.get_one_room_data(room_id)
-            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-            if len(current_room["avatars"]) != 1:
-                if current_room["room_owner"] == player_id:
-                    new_room_owner = await data.update_room_owner(room_id, player_id)
-                    event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "new_room_owner": new_room_owner}
+        if not self.first_player_player_id:
+            # game not started
+            if self.room_group_name is not None:
+                room_id = self.room_group_name
+                player_id = self.player_id
+                current_room = await data.get_one_room_data(room_id)
+                await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+                if len(current_room["avatars"]) != 1:
+                    if current_room["room_owner"] == player_id:
+                        new_room_owner = await data.update_room_owner(room_id, player_id)
+                        event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "new_room_owner": new_room_owner}
+                    else:
+                        await data.delete_one_player_from_room(room_id,player_id)
+                        event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "room_owner": current_room["room_owner"]}
+                    match(await data.is_all_prepared(room_id)):
+                        case data.RedisError.PLAYERALLPREPARED:
+                            event_leave_room.update({"all_prepared": True})
+                        case data.RedisError.NONE:
+                            event_leave_room.update({"all_prepared": False})
+                    await self.channel_layer.group_send(self.room_group_name, event_leave_room)
                 else:
-                    await data.delete_one_player_from_room(room_id,player_id)
-                    event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "room_owner": current_room["room_owner"]}
-                match(await data.is_all_prepared(room_id)):
-                    case data.RedisError.PLAYERALLPREPARED:
-                        event_leave_room.update({"all_prepared": True})
-                    case data.RedisError.NONE:
-                        event_leave_room.update({"all_prepared": False})
-                await self.channel_layer.group_send(self.room_group_name, event_leave_room)
-            else:
-                await data.delete_one_room(room_id)
-                event_leave_room = {"type": "broadcast.leave.room", "delete_room": True, "room_id": room_id, "player_id": player_id}
-            await self.channel_layer.group_send(self.lobby_group_name, event_leave_room)
+                    await data.delete_one_room(room_id)
+                    event_leave_room = {"type": "broadcast.leave.room", "delete_room": True, "room_id": room_id, "player_id": player_id}
+                await self.channel_layer.group_send(self.lobby_group_name, event_leave_room)
+        else:
+            # game already started
+            event_leave_match = {"type": "broadcast.leave.match", "player_id": player_id}
+            match_group_name = self.room_group_name + "_" + str(self.match_id)
+            await self.channel_layer.group_send(match_group_name, event_leave_match)
+
+
+
         # Leave the current group(s)
         for group in self.joined_group:
             await self.channel_layer.group_discard(
@@ -201,7 +212,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             self.match_id = match_id
             match_group_name = self.room_group_name + "_" + str(self.match_id)
             await self.channel_layer.group_add(match_group_name, self.channel_name)
-            self.joined_group += ["match"]
+            if "match" not in self.joined_match:
+                self.joined_group += ["match"]
             # get winners list
             winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
             # broadcast to room group for the tournamnet tree
@@ -446,9 +458,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         for i, player in enumerate(players):
             if player['player_id'] == self.player_id:
                 self.match_id = i // 2
-        #         match_group_name = self.room_group_name + "_" + str(self.match_id)
-        #         await self.channel_layer.group_add(match_group_name, self.channel_name)
-        #         self.joined_group += ["match"]
+                match_group_name = self.room_group_name + "_" + str(self.match_id)
+                await self.channel_layer.group_add(match_group_name, self.channel_name)
+                self.joined_group += ["match"]
                 break
         text_data = json.dumps({"type": "b_start_game", "players": players})
         await self.send(text_data=text_data)
@@ -463,4 +475,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def broadcast_join_match(self, event):
         winners = event["winners"]
         text_data = json.dumps({"type": "b_join_match", "winners": winners})
+        await self.send(text_data=text_data)
+
+    async def broadcast_leave_match(self, event):
+        left_opponent = event["player_id"]
+        text_data = json.dumps({"type": "b_leave_match", "left_opponent": left_opponent})
         await self.send(text_data=text_data)
