@@ -184,6 +184,14 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.ai_score_point(self.player_id)
             case {"type": "ai_score_ai"}:
                 await self.ai_score_point("ai")
+            case {"type": "player_avatar_change", "emoji": emoji, "bg_color": bg_color}:
+                await data.update_avatar(self.player_id, emoji, bg_color)
+                event = {"type": "broadcast.update.avatar", 'player_id': self.player_id, 'emoji': emoji, 'bg_color': bg_color}
+                if self.room_group_name is not None:
+                    await self.channel_layer.group_send(self.room_group_name, event)
+                else:
+                    text_data = json.dumps({"type": "ack_avatar_change", "emoji": emoji, "bg_color": bg_color})
+                    await self.send(text_data=text_data)
 
     async def start_match(self):
         await data.set_player_ready_for_match(self.room_group_name, self.match_id, self.player_id)
@@ -352,4 +360,11 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 self.joined_group += ["match"]
                 break
         text_data = json.dumps({"type": "b_start_game", "players": players})
+        await self.send(text_data=text_data)
+
+    async def broadcast_update_avatar(self, eventf):
+        player_id = event["player_id"]
+        emoji = event["emoji"]
+        bg_color = event["bg_color"]
+        text_data = json.dumps({"type": "b_avatar_change", "player_id": player_id, "emoji": emoji, "bg_color": bg_color})
         await self.send(text_data=text_data)
