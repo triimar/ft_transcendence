@@ -182,5 +182,5 @@ main {
 #color-selection-container > * {
 	width: 2em;
 	height: 2em;
-	border: 0.1em solid black;
+	border: 0.1em solid var(--td-ui-font-color);
 }
