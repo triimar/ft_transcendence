@@ -1,7 +1,7 @@
 {
 	"login": {
-		"guest": "게스트로 로그인하기",
-		"intra": "인트라 아이디로 로그인하기"
+		"guest": "게스트 로그인",
+		"intra": "인트라 로그인"
 	},
 	"footer": {
         "authors": "Hei Yiu, Maria, Sangyao, Sol 그리고 Triin의 프로젝트"
