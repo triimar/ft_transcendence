@@ -6,3 +6,4 @@ class ErrorMessages(Enum):
     MAX_PLAYERS_REACHED = "error.max_players_reached"
     MODE_NOT_SUPPORTED = "error.mode_not_supported"
     PLAYER_NOT_IN_ROOM = "error.player_not_in_room"
+    GAME_ALREADY_STARTED = "error.game_already_started"

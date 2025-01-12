@@ -21,6 +21,7 @@ class RedisError(Enum):
     MAXROOMPLAYERSREACHED = 3
     MODENOTSUPPORTED = 4
     PLAYERALLPREPARED = 5
+    GAMEALREADYSTARTED = 6
 
 BALL_VELOCITY_X = [-1, 1]
 BALL_VELOCITY_Y = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
@@ -67,6 +68,8 @@ async def add_player_to_room(room_id, player_id) -> RedisError:
             return RedisError.NONE
     if room["max_player"] <= len(room["avatars"]):
         return RedisError.MAXROOMPLAYERSREACHED
+    if len(room["matches"] != 0):
+        return RedisError.GAMEALREADYSTARTED
     await redis_instance.json().arrappend("room_data", f'$.{room_id}.avatars', {"player_id": player_id, "prepared": False})
     print(f"Player {player_id} added to {room['room_id']}.")
     return RedisError.NONE
@@ -103,7 +106,8 @@ async def add_new_room(room_id, owner_id) -> dict:
         "avatars": [
             {"player_id": owner_id, "prepared": True}
         ],
-        "max_player": 2
+        "max_player": 2,
+        "matches": []
     }
 
     await redis_instance.json().set("room_data", f'$.{room_id}', new_room)

@@ -63,14 +63,13 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     await self.send(text_data=json.dumps({"type": "ack_init", "rooms": room_list}))
             case {"type": "join_room",  "room_id": room_id, "player_id": player_id}:
                 self.room_group_name = room_id
-                # Remove this consumer from lobby group
-                await self.channel_layer.group_discard(
-                    self.lobby_group_name,
-                    self.channel_name)
-                #TODO: check if len(room[matches]) != 0 # which means the tournament is already started
-                # ack_join_room back to lobby page with redirect keys
+
                 match (await data.add_player_to_room(room_id=room_id, player_id=player_id)):
                     case data.RedisError.NONE:
+                        # Remove this consumer from lobby group
+                        await self.channel_layer.group_discard(
+                            self.lobby_group_name,
+                            self.channel_name)
                         avatar = await data.get_one_player(player_id=player_id)
                         event_join_room = {"type": "broadcast.join.room", "room_id": room_id, "avatar": avatar}
                         await self.channel_layer.group_send(self.lobby_group_name, event_join_room)
@@ -92,6 +91,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
                     case data.RedisError.MAXROOMPLAYERSREACHED:
                         await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.MAX_PLAYERS_REACHED.value, "redirect_hash": "main"}))
+                    # check if len(room[matches]) != 0 # which means the tournament is already started
+                    case data.RedisError.GAMEALREADYSTARTED:
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.GAME_ALREADY_STARTED.value, "redirect_hash": "main"}))
             case {"type": "add_room","owner_id": owner_id}:
                 room_id = shortuuid.ShortUUID().random(length=15)
                 self.room_group_name = room_id
