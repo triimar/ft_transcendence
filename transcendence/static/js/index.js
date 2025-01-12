@@ -25,6 +25,32 @@ const pageMapping = {
 
 let isTriggerHashChange = true;
 async function main() {
+	// Note(HeiYiu): global event listeners
+	{
+		let avatarChangeButton = document.getElementById("avatar-apply-change-btn");
+		let colorSelectionContainer = document.getElementById("color-selection-container");
+		let avatarNameTextInput = document.getElementById("id-card-name");
+
+		avatarNameTextInput.addEventListener("input", (e) => {
+			let avatarElement = document.querySelector("#avatar-info td-avatar");
+			avatarElement.setAttribute("avatar-name", e.target.value);
+		}, true);
+		colorSelectionContainer.addEventListener("click", (e) => {
+			if (e.target != colorSelectionContainer) {
+				for (let colorOption of colorSelectionContainer.children) {
+					colorOption.classList.remove("chosen");
+				}
+				e.target.classList.add("chosen");
+				let avatarElement = document.querySelector("#avatar-info td-avatar");
+				avatarElement.setAttribute("avatar-background", e.target.getAttribute("color"));
+			}
+		});
+		avatarChangeButton.addEventListener("click", () => {
+			let emoji = avatarNameTextInput.value;
+			let background = document.querySelector("#color-selection-container > .chosen")?.getAttribute("color");
+			myself.changeAvatar(emoji, background);
+		}, true);
+	}
 	await initializeI18n(); // Ensure translations are initialized
 	document.myself = myself; // only for debugging
 	const contentContainer = document.getElementsByClassName("content-container")[0];
