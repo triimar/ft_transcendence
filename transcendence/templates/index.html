@@ -70,10 +70,12 @@
 		<div id="notification-popup" class="ui">
 			<p id="notification-popup-text">Error</p>
 		</div>
-		<footer style="width: 70%; margin-top: auto; display: flex; flex-direction: column; align-items: center;" class="ui">
-			<p>:PONG © 2024</p>
-			<p id="footer-authors" style="font-size: 0.5em;"></p>
+		<footer style="width: 70%; margin-top: auto; display: flex;align-items: center; justify-content: space-between" class="ui">
+			<div style="display: flex; flex-direction: column; align-items: center; flex-grow: 1;">
+				<p>:PONG © 2024</p>
+				<p id="footer-authors" style="font-size: 0.5em;"></p>
 			</div>
+			<td-language-selector class="ui"></td-language-selector>
 		</footer>
 	</main>
 </body>
@@ -89,7 +91,6 @@
 		}
 	</style>
 	<div id="login-box" style="display: flex; flex-direction: column;" class="ui">
-		<td-language-selector class="ui" style="align-self: flex-end;"></td-language-selector>
 		<td-logo style="margin-left: 1em;"></td-logo>
 		<div style="display: flex; flex-direction: row;">
 			<td-button id="btn-login-guest" class="ui"><p id="login-guest" class="ui-text"></p></td-button>
@@ -99,7 +100,6 @@
 </template>
 <template id="page-game">
 	<td-navigation-bar>
-		<td-language-selector class="ui"></td-language-selector>
 		<td-button id="leave-room-btn" class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
@@ -107,7 +107,6 @@
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
-		<td-language-selector class="ui"></td-language-selector>
 		<td-button id="leave-room-btn" class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
@@ -120,7 +119,6 @@
 		}
 	</style>
 	<td-navigation-bar>
-		<td-language-selector class="ui"></td-language-selector>
 		<td-button id="leave-room-btn" class="ui"><p id="exit-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 	<td-lobby-room room-join-disabled class="ui">
@@ -140,7 +138,6 @@
 		}
 	</style>
 	<td-navigation-bar>
-		<td-language-selector class="ui"></td-language-selector>
 		<td-button id="add-room-btn" class="ui"><p id="add-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 </template>
@@ -475,13 +472,14 @@
         select {
             font-family: inherit; /* Inherit from :host */
             font-size: inherit;
-            padding: 0.5em;
+            padding: 0.2em;
             width: 150px;
             background: var(--td-ui-background-color, white);
             color: var(--td-ui-font-color, black);
             cursor: pointer;
             transition: background 0.3s, color 0.3s;
 			appearance: none; /* Reset native styles */
+			border: none;
             -webkit-appearance: none; /* For Safari/Chrome */
             -moz-appearance: none; /* For Firefox */
         }
