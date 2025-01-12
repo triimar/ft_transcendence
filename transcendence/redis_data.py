@@ -113,7 +113,7 @@ async def add_new_room(room_id, owner_id) -> dict:
 async def get_one_player(player_id) -> dict|None:
     redis_instance = get_redis_client()
     result = await redis_instance.json().get("player_data", f'$.{player_id}')
-    if len(result) >= 0:
+    if len(result) > 0:
         return result[0]
     else:
         return None
