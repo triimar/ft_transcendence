@@ -399,7 +399,7 @@ class Visitor {
 				gameboard.ballBounced(message);
 			} break;
 			case "b_match_win": {
-				let gameboard = this.page.container.querySelector("td-game-board");
+				let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
 				gameboard.displayMatchResult(message["winner"]);
 			} break;
 			case "b_ai_scored_point": {

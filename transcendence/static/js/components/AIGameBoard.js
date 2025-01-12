@@ -45,18 +45,19 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		let winnerContainer = this.shadow.querySelector("#winner-container");
 		winnerContainer.style.display = "flex";
 		let avatarElement = this.shadow.querySelector("#winner");
+		let blocker = this.shadow.querySelector("#blocker");
+		let countdownText = blocker.children[0];
 		if (winner == "ai") {
 			avatarElement.setAttribute("avatar-name", "AI");
 			avatarElement.setAttribute("avatar-background", this.ai.color);
 			avatarElement.setAttribute("avatar-id", "ai");
+			countdownText.textContent = this.score.player + " : " + this.score.ai;
 		} else {
 			avatarElement.setAttribute("avatar-name", winner["player_emoji"]);
 			avatarElement.setAttribute("avatar-background", '#' + winner["player_bg_color"]);
 			avatarElement.setAttribute("avatar-id", winner["player_id"]);
+			countdownText.textContent = this.score.left + " : " + this.score.right;
 		}
-		let blocker = this.shadow.querySelector("#blocker");
-		let countdownText = blocker.children[0];
-		countdownText.textContent = this.score.left + " : " + this.score.right;
 		blocker.classList.add("show");
 		window.cancelAnimationFrame(this.raf);
 		document.removeEventListener("keydown", this.keydownEventListener, true);
@@ -223,6 +224,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				ctx.font="60px Monomaniac One";
 				ctx.textAlign="center"; 
 				ctx.textBaseline = "middle";
+				ctx.fillStyle = "#FFFFFF";
 				ctx.fillText("=*.*=", this.x + this.width/2, this.y + this.height/2);
 			},
 			reset()
