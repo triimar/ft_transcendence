@@ -275,17 +275,19 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def ai_score_point(self, id):
         room = await data.get_one_room_data(self.room_group_name)
         match_data = room["matches"][self.match_id]
-        player = None
+        score = 0
         if id != "ai":
             player = await data.get_one_player(self.player_id)
             player['score'] += 1
+            score = player['score']
             await data.update_player(player)
             event = {"type": "broadcast.match.win", "winner": player}
         else:
             player = room['ai']
+            score = player['score'] + 1
             await data.increase_ai_score(self.room_group_name)
             event = {"type": "broadcast.match.win", "winner": "ai"}
-        if player['score'] == 11:
+        if score == 11:
             await data.set_match_winner(self.room_group_name, self.match_id, id)
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
         else:
