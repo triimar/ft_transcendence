@@ -58,6 +58,20 @@ class Visitor {
 		}
 	}
 
+	changeAvatar(newEmoji, newBackgroundColor) {
+		if (this.gameIndex != null) {
+			this.displayPopupMessage("You cannot change avatar during a game");
+		} else if (newEmoji.length != 3) {
+			this.displayPopupMessage("Avatar's face can only have 3 characters");
+		} else if (!["#ff4d6d", "#045d75", "#4ba3c7", "#007f5f", "#ffe156", "#a01a58", "#ff5da2", "#001f54"].includes(newBackgroundColor)) {
+			this.displayPopupMessage("Avatar's color is not in the color palette");
+		} else {
+			this.avatar_emoji = newEmoji;
+			this.avatar_bg_color = newBackgroundColor;
+			this.sendMessageAvatarChange(newEmoji, newBackgroundColor);
+		}
+	}
+
 	getLoginMethod() {
 		return localStorage.getItem("login_method");
 	}
@@ -562,6 +576,15 @@ class Visitor {
 	sendMessagePlayerMatchReady() {
 		let message = {
 			type: "player_match_ready"
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageAvatarChange(emoji, backgroundColor) {
+		let message = {
+			type: "player_avatar_change",
+			emoji: emoji,
+			bg_color: backgroundColor
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
