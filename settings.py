@@ -58,7 +58,6 @@ SESSION_CACHE_ALIAS = 'default'
 
 # Application definition
 INSTALLED_APPS = [
-    'daphne',
     'transcendence',
     'channels',
     'django.contrib.sites',
