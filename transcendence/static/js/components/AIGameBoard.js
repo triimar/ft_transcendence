@@ -1,4 +1,12 @@
 import { myself, sleep } from "../myself.js";
+
+const GameMode = {
+	Default: "",
+	Balance: "balance",
+	Shoot: "shoot",
+	Bomb: "bomb",
+	Remix: "remix"
+};
 export default class ComponentAIGameBoard extends HTMLElement {
 	constructor() {
 		super();
@@ -27,6 +35,35 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		return countdownPromise.then(() => sleep(1000)).then(() => blocker.classList.remove("show"));
 	}
 
+	pointScored(side) {
+		if (side == 0) {
+			this.score.player++;
+			if (this.gameMode === GameMode.Balance) {
+				if (this.paddleLeft.size - 5 >= this.MIN_PADDLE_SIZE)
+					this.paddleLeft.size -= 5;
+				if (this.ai.size + 5 <= this.MAX_PADDLE_SIZE)
+					this.ai += 5;
+			}
+		}
+		else {
+			this.score.ai++;
+			if (this.gameMode === GameMode.Balance) {
+				if (this.ai.size - 5 >= this.MIN_PADDLE_SIZE)
+					this.ai.size -= 5;
+				if (this.paddleLeft.size + 5 <= this.MAX_PADDLE_SIZE)
+					this.paddleLeft += 5;
+			}
+		}
+	}
+
+	updateBall(message) {
+		let ball = message["ball"];
+		this.ball.x = ball["position"]["x"];
+		this.ball.y = ball["position"]["y"];
+		this.ball.vx = ball["velocity"]["vx"];
+		this.ball.vy = ball["velocity"]["vy"];
+	}
+
 	startMatch(message) {
 		let ball = message["ball"];
 		let player = message["player"];
@@ -40,6 +77,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		this.ball.draw();
 		this.paddleLeft.draw();
 		this.ai.draw();
+		this.lastTime = Date.now();
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
@@ -54,10 +92,13 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 10;
 		const AI_SPEED = 8.5;
+		this.MAX_PADDLE_SIZE = canvas.height/3;
+		this.MIN_PADDLE_SIZE = canvas.height/6;
 		this.lastLoop = 0; // The timestamp of the last frame
 		// let serverTimeOffset = 0; // Difference between server and local clock
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
+		this.gameMode = GameMode.Default;
 
 		// PID constants
 		const Kp = 2.0;  // Proportional constant
@@ -72,6 +113,21 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+
+		this.score = {
+			player: 0,
+			ai: 0,
+			color: "black",
+			draw()
+			{
+				ctx.fillStyle = this.color;
+				ctx.globalAlpha = 0.2;
+				ctx.font = '200px Monomaniac One';
+				ctx.fillText(this.player.toString(), canvas.width / 3 - ctx.measureText(this.player.toString()).width / 2, canvas.height / 2);
+				ctx.fillText(this.ai.toString(), canvas.width - (canvas.width / 3 - ctx.measureText(this.ai.toString()).width / 2), canvas.height / 2);
+				ctx.globalAlpha = 1;
+			}
 		}
 
 		this.ball = {
@@ -153,8 +209,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 		function update_paddle_ai() {
 			const now = Date.now();
-			const dt = (now - lastTime) / 1000; // Convert ms to seconds
-			lastTime = now;
+			const dt = (now - this.lastTime) / 1000; // Convert ms to seconds
+			this.lastTime = now;
 
 			const rt = 0.1; //reaction time to see ahead of the ball
 			const predictedBallY = this.ball.y + this.ball.size / 2 + this.ball.vy * 0.1;
@@ -182,6 +238,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				this.ball.reset(-1);
 				this.paddleLeft.reset();
 				this.ai.reset();
+				this.pointScored(0);
+				this.scorePointPlayer();
 				//TODO send message player scored
 			}
 			//Left wall collision
@@ -190,6 +248,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				this.ball.reset(1);
 				this.paddleLeft.reset();
 				this.ai.reset();
+				this.pointScored(1);
+				this.scorePointAI();
 				//TODO: send message ai scored
 			}
 
@@ -265,6 +325,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 		this.draw = (function() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			this.score.draw();
 			this.paddleLeft.draw();
 			this.ai.draw();
 			this.ball.draw();
@@ -330,7 +391,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 		// this.ball.draw();
 		// this.paddleLeft.draw();
-		let lastTime = Date.now();
 
 		// raf = window.requestAnimationFrame(this.draw);
 	}
@@ -341,7 +401,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 	scorePointPlayer() {
 		myself.sendMessage(JSON.stringify({
-			'type': 'ai_score_ai'
+			'type': 'ai_score_player'
 		}))
 	}
 

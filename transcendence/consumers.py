@@ -208,10 +208,12 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def broadcast_start_match(self, event):
         ball = event["ball"]
         players = event["players"]
+        room = await data.get_one_room_data(self.room_group_name)
+        mode = room["mode"]
         side = 1
         if event['side0_player_id'] == self.player_id:
             side = 0
-        text_data = json.dumps({"type": "b_start_match", "ball": ball, "side": side, "players": players})
+        text_data = json.dumps({"type": "b_start_match", "ball": ball, "side": side, "players": players, "mode": mode})
         await self.send(text_data=text_data)
 
     async def bounce_ball(self, ball):
@@ -286,6 +288,15 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         if player['score'] == 11:
             await data.set_match_winner(self.room_group_name, self.match_id, id)
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
+        else:
+            ball = await data.reset_ball(self.room_group_name, self.match_id)
+            event = {"type": "broadcast.ai.score", "ball": ball}
+            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
+
+    async def broadcast_ai_score(self, event):
+        ball = event["ball"]
+        text_data = json.dumps({"type": "b_ai_scored_point", 'ball': ball})
+        await self.send(text_data=text_data)
 
 # functions for dealing with events
     async def broadcast_join_room(self, event):
