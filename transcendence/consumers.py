@@ -9,7 +9,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.lobby_group_name = 'lobby_group'
         self.room_group_name = None
-        self.match_group_name = None
+        self.match_id = None
 
         # Join the lobby group
         await self.channel_layer.group_add(
@@ -67,6 +67,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_discard(
                     self.lobby_group_name,
                     self.channel_name)
+                #TODO: check if len(room[matches]) != 0 # which means the tournament is already started
+                # ack_join_room back to lobby page with redirect keys
                 match (await data.add_player_to_room(room_id=room_id, player_id=player_id)):
                     case data.RedisError.NONE:
                         avatar = await data.get_one_player(player_id=player_id)
@@ -170,8 +172,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         first_layer_player.append(await data.get_one_player(id))
                 event_start_game = {"type":"broadcast.start.game", "players": first_layer_player}
                 await self.channel_layer.group_send(self.room_group_name, event_start_game)
-            case {"type": "join_match", "room_id": room_id, "player_id": player_id}:
-                await self.join_match(room_id, player_id) # TODO
+            case {"type": "join_match", "room_id": room_id, "player_id": player_id, "match_id": match_id}:
+                await self.join_match(room_id,match_id, player_id)
             case {"type": "player_match_ready"}:
                 await self.start_match()
             case {"type": "bounce_ball", "ball": ball}:
@@ -191,6 +193,63 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     await self.channel_layer.group_send(self.room_group_name, event)
                 text_data = json.dumps({"type": "ack_avatar_change", "emoji": emoji, "bg_color": bg_color})
                 await self.send(text_data=text_data)
+
+    async def join_match(self, room_id, match_id, player_id):
+        if self.first_layer_player_id:
+            self.match_id = match_id
+            match_group_name = self.room_group_name + "_" + str(self.match_id)
+            await self.channel_layer.group_add(match_group_name, self.channel_name)
+            self.joined_group += ["match"]
+            # get winners list
+            winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
+            # broadcast to room group for the tournamnet tree
+            event = {"type": "broadcast.join.match", "winners": winner_id_list}
+            await self.channel_layer.group_send(self.room_group_name, event)
+        else:
+            # rejoin, needs all neccesry information
+
+            room = await data.get_one_room_data(self.room_group_name)
+
+            if not data.is_in_room(player_id, room):
+                await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_IN_ROOM.value, "redirect_hash": "main"}))
+                self.player_id = player_id
+            else:
+                correct_match_id = data.get_last_match_id(player_id, room)
+                single_game_state = room["matches"][correct_match_id]
+                player_info_state = next((player for player in room["avatars"] if player['player_id'] == player_id), None)
+                # if rejoined consumer has ai opponent
+                if "ai" in single_game_state["players"]:
+                    redirect_hash = f"room{room_id}-ai-game{correct_match_id}"
+                    ai_score = room["ai"]
+                else:
+                    redirect_hash = f"room{room_id}-game{correct_match_id}"
+                    ai_score = ""
+                self.first_layer_player_id = data.get_first_layer_player(room)
+                # create first layer player for generating game tree
+                first_layer_player  = []
+                for id in self.first_layer_player_id:
+                    if id == "ai":
+                        first_layer_player.append({"player_id": "ai"})
+                    else:
+                        player = next((player for player in room["avatars"] if player['player_id'] == id), None)
+                        first_layer_player.append(player)
+                # create list of player index for generating game tree
+                winner_list = [match["winner"] for match in room["matches"]]
+                winner_id_list = []
+                for w in winner_list:
+                    if w != "":
+                        winner_id_list.append(self.first_layer_player_id.index(w))
+                    else:
+                        winner_id_list.append(-1)
+                await self.send(text_data=json.dumps({"type": "ack_join_match", "players": first_layer_player, "winners": winner_id_list,"game_state": single_game_state, "player_info": player_info_state, "ai": ai_score, "redirect_hash": redirect_hash}))
+                self.player_id = player_id
+                self.room_group_name = room_id
+                self.match_id = correct_match_id
+                await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
+                match_group_name = self.room_group_name + "_" + str(self.match_id)
+                await self.channel_layer.group_add(match_group_name, self.channel_name)
+                await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+                self.joined_group = ["room", "match"]
 
     async def start_match(self):
         await data.set_player_ready_for_match(self.room_group_name, self.match_id, self.player_id)
@@ -385,9 +444,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         for i, player in enumerate(players):
             if player['player_id'] == self.player_id:
                 self.match_id = i // 2
-                self.match_group_name = self.room_group_name + "_" + str(self.match_id)
-                await self.channel_layer.group_add(self.match_group_name, self.channel_name)
-                self.joined_group += ["match"]
+        #         match_group_name = self.room_group_name + "_" + str(self.match_id)
+        #         await self.channel_layer.group_add(match_group_name, self.channel_name)
+        #         self.joined_group += ["match"]
                 break
         text_data = json.dumps({"type": "b_start_game", "players": players})
         await self.send(text_data=text_data)
@@ -397,4 +456,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         emoji = event["emoji"]
         bg_color = event["bg_color"]
         text_data = json.dumps({"type": "b_avatar_change", "player_id": player_id, "emoji": emoji, "bg_color": bg_color})
+        await self.send(text_data=text_data)
+
+    async def broadcast_join_match(self, event):
+        winners = event["winners"]
+        text_data = json.dumps({"type": "b_join_match", "winners": winners})
         await self.send(text_data=text_data)

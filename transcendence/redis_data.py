@@ -278,3 +278,40 @@ async def update_avatar(player_id, emoji, background_color):
         ("player_data", f'$.{player_id}.player_emoji', emoji),
         ("player_data", f'$.{player_id}.player_bg_color', background_color)
     ])
+
+def is_in_room(player_id, room: dict):
+    return any(avatar["player_id"] == player_id for avatar in room["avtars"])
+
+def get_last_match_id(room: dict, player_id):
+    for idx, match in enumerate(reversed(room["matches"])):
+        if player_id in match["players"]:
+            return len(match) - idx + 1
+
+def get_first_layer_player(room: dict):
+    first_layer_matches_len = (len(room["avatars"]) + 1) // 2
+    first_layer_player_id = []
+    for match in room["matches"][:first_layer_matches_len]:
+        first_layer_player_id.extend(match["players"])
+
+async def get_winners_list(room_id, first_layer_player_id: list[str]):
+    # get winners list
+    room = await get_one_room_data(room_id)
+    # create list of player index for generating game tree
+    winner_list = [match["winner"] for match in room["matches"]]
+    winner_id_list = []
+    for w in winner_list:
+        if w != "":
+            winner_id_list.append(first_layer_player_id.index(w))
+        else:
+            winner_id_list.append(-1)
+
+    return winner_id_list
+
+async def is_last_game(match_id, room_id):
+    room = await get_one_room_data(room_id)
+    return match_id == (len(room["matches"]) - 1)
+
+async def set_player_in_next_match(room_id, match_id, winner_id):
+    redis_instance = get_redis_client()
+
+    await redis_instance.json().arrappend("room_data", f'$.{room_id}.matches[{match_id}].players', winner_id)
