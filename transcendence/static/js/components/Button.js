@@ -8,9 +8,7 @@ export default class ComponentButton extends HTMLElement {
 
 	connectedCallback() {
 		this.setAttribute("role", "button");
-		// this.children.forEach(element => {
-		// 	element.setAttribute("role", "none")
-		// });
+		this.setAttribute("tabindex", "0")
 		Array.from(this.children).forEach((child) => {
 			if (child.tagName === "P") {
 				child.setAttribute("role", "none");
