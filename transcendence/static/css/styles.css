@@ -182,5 +182,8 @@ main {
 #color-selection-container > * {
 	width: 2em;
 	height: 2em;
-	border: 0.1em solid var(--td-ui-font-color);
+}
+
+#color-selection-container > *.chosen {
+	border: 0.3em solid var(--td-ui-font-color);
 }
