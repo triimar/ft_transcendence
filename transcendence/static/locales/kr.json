@@ -7,7 +7,6 @@
         "authors": "Made by Hei Yiu, Maria, Sangyao, Sol and Triin"
     },
 	"popups": {
-		"custom-avatar" : "Customize your avatar",
 		"logout" : "LOGOUT",
 		"confirm-logout-txt": "Are you sure you want to leave?",
 		"agree-txt": "YES",

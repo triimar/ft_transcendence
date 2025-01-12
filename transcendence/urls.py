@@ -7,7 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.transcendence, name='transcendence'),
     path('api/trigger_auth/', oauth_redirect, name='oauth_redirect'),
-    path('api/callback/', oauth_callback, name='oauth_callback'),
+    path('api/auth_request/', oauth_callback, name='oauth_callback'),
     path('api/check_auth/', check_auth, name='check_auth'),
     path('api/guest_login/', guest_login, name='guest_login'),
     path('api/myself/', avatar_information, name='avatar_information'),

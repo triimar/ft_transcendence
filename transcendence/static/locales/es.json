@@ -7,7 +7,6 @@
         "authors": "Hecho por Hei Yiu, Maria, Sangyao, Sol y Triin"
     },
 	"popups": {
-		"custom-avatar" : "Personaliza tu ávatar",
 		"logout" : "Cerrar sesión",
 		"confirm-logout-txt": "¿Seguro que quieres salir?",
 		"agree-txt": "SI",

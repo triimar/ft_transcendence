@@ -113,7 +113,7 @@ async def add_new_room(room_id, owner_id) -> dict:
 async def get_one_player(player_id) -> dict|None:
     redis_instance = get_redis_client()
     result = await redis_instance.json().get("player_data", f'$.{player_id}')
-    if len(result) >= 0:
+    if len(result) > 0:
         return result[0]
     else:
         return None
@@ -143,11 +143,15 @@ async def delete_one_player_from_room(room_id, player_id):
     redis_instance = get_redis_client()
     await redis_instance.json().delete("room_data", f'$.{room_id}.avatars[?(@.player_id == "{player_id}")]')
 
-async def update_room_owner(room_id, player_id):
+async def update_room_owner(room_id, left_player_id):
     redis_instance = get_redis_client()
-    await redis_instance.json().set("room_data", f'$.{room_id}.room_owner', player_id);
-    await redis_instance.json().set("room_data", f'$.{room_id}.avatars[0]', True);
-    return player_id
+    result = await redis_instance.json().get("room_data", f'$.{room_id}.avatars[1].player_id');
+    if len(result) > 0:
+        new_player_id = result[0]
+    await redis_instance.json().delete("room_data", f'$.{room_id}.avatars[?(@.player_id == "{left_player_id}")]')
+    await redis_instance.json().set("room_data", f'$.{room_id}.room_owner', new_player_id);
+    await redis_instance.json().set("room_data", f'$.{room_id}.avatars[0].prepared', True);
+    return new_player_id
 
 async def is_all_prepared(room_id):
     redis_instance = get_redis_client()

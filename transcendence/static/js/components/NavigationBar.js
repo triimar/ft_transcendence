@@ -9,13 +9,6 @@ export default class ComponentNavigationBar extends HTMLElement {
 
 	connectedCallback() {
 		this.shadow.querySelector("td-logo").addEventListener("click", () => {window.location.hash = "#main"});
-		this.modeSwitcherFunc = (() => {
-			let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');
-			let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');
-			document.documentElement.style.setProperty('--td-ui-background-color', fgColor);
-			document.documentElement.style.setProperty('--td-ui-font-color', bgColor);
-		}).bind(this);
-		this.shadow.querySelector("#mode").addEventListener("click", this.modeSwitcherFunc, true);
 
 		this.logoutFunc = () => {
 			if (myself.roomId == null) {
@@ -47,7 +40,6 @@ export default class ComponentNavigationBar extends HTMLElement {
 	}
 
 	disconnectedCallback() {
-		this.shadow.querySelector("#mode").removeEventListener("click", this.modeSwitcherFunc, true);
 		document.querySelector("#logout-btn").removeEventListener("click", this.logoutFunc, true);
 	}
 }

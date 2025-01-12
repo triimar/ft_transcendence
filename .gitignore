@@ -34,3 +34,7 @@ htmlcov/
 # db folders
 db_redis
 db_sql
+pgadmin
+
+# test files
+tests
