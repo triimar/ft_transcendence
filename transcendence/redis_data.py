@@ -271,3 +271,10 @@ async def set_match_winner(room_id, match_index, player_id):
 async def increase_ai_score(room_id):
     redis_instance = get_redis_client()
     await redis_instance.json().numincrby("room_data", f'$.{room_id}.ai.score', 1)
+
+async def update_avatar(player_id, emoji, background_color):
+    redis_instance = get_redis_client()
+    await redis_instance.json().mset([
+        ("player_data", f'$.{player_id}.player_emoji', emoji),
+        ("player_data", f'$.{player_id}.player_bg_color', background_color)
+    ])
