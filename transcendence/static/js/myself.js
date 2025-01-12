@@ -420,6 +420,12 @@ class Visitor {
 				let gameboard = this.page.container.querySelector("td-ai-game-board");
 				gameboard.updateBall(message);
 			} break;
+			case "b_avatar_change": {
+				// only in room page
+			} break;
+			case "ack_avatar_change": {
+				// only in lobby or room page
+			} break;
 			case "error": {
 				this.displayPopupMessage(i18next.t(message.message_key));
 				if (message["redirect_hash"]) {
