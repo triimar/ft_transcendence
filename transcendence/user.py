@@ -4,7 +4,8 @@ from .db_async_queries import add_user, avatar_exists, color_exists
 from .redis_data import add_one_player
 
 async def assign_random_background_color():
-    color = ''.join(map(str, [random.choice('0123456789ABCDEF') for i in range(6)]))
+    arr = ["ff4d6d", "045d75", "4ba3c7", "007f5f", "ffe156", "a01a58", "ff5da2", "001f54"]
+    color = arr[random.randint(0, 7)]
     return color
 
 async def assign_random_avatar():
