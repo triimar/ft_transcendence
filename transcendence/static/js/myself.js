@@ -379,7 +379,7 @@ class Visitor {
 				if (!gameboard) {
 					gameboard = document.createElement("td-ai-game-board");
 					this.page.container.appendChild(matchElement);
-					console.log("Created gameboard");
+					console.log("Created ai gameboard");
 				}
 				gameboard.startMatch(message);
 			} break;
@@ -397,6 +397,10 @@ class Visitor {
 				let gameboard = this.page.container.querySelector("td-game-board");
 				gameboard.pointScored(message["player"]);
 				gameboard.ballBounced(message);
+			} break;
+			case "b_ai_scored_point": {
+				let gameboard = this.page.container.querySelector("td-ai-game-board");
+				gameboard.updateBall(message);
 			} break;
 			case "error": {
 				this.displayPopupMessage(i18next.t(message.message_key));

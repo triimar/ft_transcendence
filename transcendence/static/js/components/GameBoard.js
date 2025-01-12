@@ -1,4 +1,12 @@
 import { myself, sleep } from "../myself.js";
+
+const GameMode = {
+	Default: "",
+	Balance: "balance",
+	Shoot: "shoot",
+	Bomb: "bomb",
+	Remix: "remix"
+};
 export default class ComponentGameBoard extends HTMLElement {
 	constructor() {
 		super();
@@ -40,6 +48,9 @@ export default class ComponentGameBoard extends HTMLElement {
 		let side = message["side"];
 		let playerLeft = message["players"][0];
 		let playerRight = message["players"][1];
+		let gameMode = message["game_mode"];
+		if (gameMode !== null)
+			this.gameMode = gameMode;
 		this.side = side;
 		this.ball.x = ball["position"]["x"];
 		this.ball.y = ball["position"]["y"];
@@ -90,10 +101,24 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	pointScored(side) {
-		if (side == 0)
+		if (side == 0) {
 			this.score.left++;
-		else
+			if (this.gameMode === GameMode.Balance) {
+				if (this.paddleLeft.size - 5 >= this.MIN_PADDLE_SIZE)
+					this.paddleLeft.size -= 5;
+				if (this.paddleRight.size + 5 <= this.MAX_PADDLE_SIZE)
+					this.paddleRight += 5;
+			}
+		}
+		else {
 			this.score.right++;
+			if (this.gameMode === GameMode.Balance) {
+				if (this.paddleRight.size - 5 >= this.MIN_PADDLE_SIZE)
+					this.paddleRight.size -= 5;
+				if (this.paddleLeft.size + 5 <= this.MAX_PADDLE_SIZE)
+					this.paddleLeft += 5;
+			}
+		}
 	}
 
 	ballBounced(message) {
@@ -112,6 +137,9 @@ export default class ComponentGameBoard extends HTMLElement {
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 15;
+		this.MAX_PADDLE_SIZE = canvas.height/3;
+		this.MIN_PADDLE_SIZE = canvas.height/6;
+		this.gameMode = GameMode.Default;
 		this.lastTime = 0; // The timestamp of the last frame
 		// let serverTimeOffset = 0; // Difference between server and local clock
 		let accumulatedTime = 0; // Accumulated time for fixed updates
