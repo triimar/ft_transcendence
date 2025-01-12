@@ -76,6 +76,7 @@
 				<p id="footer-authors" style="font-size: 0.5em;"></p>
 			</div>
 			<td-language-selector class="ui"></td-language-selector>
+			<td-lever class="ui" style="height: 100%; min-height: 1.85em; max-height: 3em; aspect-ratio: 0.5;" onclick="let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');document.documentElement.style.setProperty('--td-ui-background-color', fgColor);document.documentElement.style.setProperty('--td-ui-font-color', bgColor);"></td-lever>
 		</footer>
 	</main>
 </body>
@@ -329,7 +330,6 @@
 		<td-logo></td-logo>
 		<div id="buttons-container">
 			<slot></slot>
-			<td-lever class="ui" id="mode"></td-lever>
 			<div class="ui" id="avatar" style="cursor: pointer;" onclick="document.querySelector('#avatar-info-popup').classList.add('show');">
 				<td-avatar class="dummy-avatar"></td-avatar>
 			</div>
@@ -419,17 +419,16 @@
 
 		:host {
 			background: var(--td-ui-background-color);
-			width: 2em !important;
 			box-sizing: content-box !important;
 			cursor: pointer;
 		}
 
 		.on {
-			transform: translate(100%, 0);
+			transform: translate(0, 100%);
 		}
 
 		 #handle {
-			height: 1em;
+			width: 100%;
 			aspect-ratio: 1 / 1;
 			background: var(--td-ui-toggle-color);
 			transition: transform 0.5s;
