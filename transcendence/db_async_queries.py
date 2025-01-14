@@ -13,7 +13,6 @@ async def add_user(uuid, login, avatar, color):
     except Exception as e:
         logging.error(f"Failed to insert user {login}: {e}")
 
-
 async def user_exists(login):
     try:
         pool = await get_db_connection()

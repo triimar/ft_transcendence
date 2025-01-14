@@ -26,6 +26,7 @@ async def init_db_connection():
 async def get_db_connection():
     global connection
     if connection is None:
+        print("Asyncpg connection pool not initialized correctly. Trying again ...")
         await init_db_connection()
     return connection
 
