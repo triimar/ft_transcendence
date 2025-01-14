@@ -11,7 +11,7 @@
 </head>
 <body>
 	<main>
-		<div class="content-container" aria-hidden="false"></div>
+		<div class="content-container" aria-hidden="false"></div>>
 		<div id="tournament-tree-popup" class="fullscreen-popup" aria-hidden="true">
 			<div class="ui" aria-label="Tournament tree" style="background: var(--td-ui-background-color);">
 				<td-button class="ui close-btn" aria-label="Close the popup" onclick="closePopup('tournament-tree-popup')"><p>X</p></td-button>
@@ -59,12 +59,12 @@
 			</div>
 		</div>
 		<div id="confirm-to-logout-popup" class="fullscreen-popup" aria-hidden="true">
-			<p id="confirm-logout-txt" tabindex="0"></p>
+			<p id="confirm-logout-txt"></p>
 			<div class="ui" style="width: fit-content; background: var(--td-ui-background-color); padding: 1em; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5em;">
 				<p id="confirm-logout-txt"></p>
 				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 1em;">
-					<td-button id="logout-yes-btn" class="ui" aria-labelledby="agree-txt" onclick="closePopup('confirm-to-logout-popup')"><p id="agree-txt" style="padding: 0 0.5em;"></p></td-button>
-					<td-button id="logout-no-btn" class="ui" aria-labelledby="decline-txt" onclick="closePopup('confirm-to-logout-popup')"><p id="decline-txt" style="padding: 0 0.5em;"></p></td-button>
+					<td-button id="logout-yes-btn" class="ui" onclick="closePopup('confirm-to-logout-popup')"><p id="agree-txt" style="padding: 0 0.5em;"></p></td-button>
+					<td-button id="logout-no-btn" class="ui" onclick="closePopup('confirm-to-logout-popup')"><p id="decline-txt" style="padding: 0 0.5em;"></p></td-button>
 				</div>
 			</div>
 		</div>
