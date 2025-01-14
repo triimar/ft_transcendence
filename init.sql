@@ -6,4 +6,3 @@ CREATE TABLE transcendence_users (
     color VARCHAR(6) NOT NULL CHECK (color ~ '^[a-fA-F0-9]{6}$')
 );
 
-GRANT ALL PRIVILEGES ON TABLE transcendence_users TO postgres;

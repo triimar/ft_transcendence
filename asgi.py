@@ -38,14 +38,14 @@ async def lifespan_scope(scope, receive, send):
             message = await receive()
 
             if message['type'] == 'lifespan.startup':
-                print("Application is starting up...")
+                print("[lifespan] Application is starting up...")
                 collect_static_files()
                 await init_db_connection()
                 # TODO: sync db to redis
                 await send({'type': 'lifespan.startup.complete'})
             
             elif message['type'] == 'lifespan.shutdown':
-                print("Application is shutting down...")
+                print("[lifespan] Application is shutting down...")
                 # TODO: sync redis to db
                 # TODO: how to clean up redis connections (should I?)
                 await close_asyncpg_pool()
