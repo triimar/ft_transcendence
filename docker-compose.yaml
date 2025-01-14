@@ -27,6 +27,7 @@ services:
       - transcendence
     expose:
       - 6379
+    stop_grace_period: 20s 
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping"]
@@ -43,13 +44,15 @@ services:
       - 5432
     volumes:
       - db_sql:/var/lib/postgresql/data
-    restart: always
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     shm_size: 128mb
     environment:
       POSTGRES_DB: transcendence
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       PGUSER: postgres
+    stop_grace_period: 20s 
+    restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 2s
@@ -71,11 +74,13 @@ services:
       - transcendence
     ports:
       - "8000:8000"
+    stop_grace_period: 20s 
     restart: always
 
   pgadmin:
     depends_on:
-      - db_sql
+      db_sql:
+        condition: service_healthy
     container_name: pgadmin
     image: dpage/pgadmin4
     environment:
@@ -87,4 +92,5 @@ services:
       - "5050:80"
     volumes:
       - pgadmin:/var/lib/pgadmin
+    stop_grace_period: 20s 
     restart: always
