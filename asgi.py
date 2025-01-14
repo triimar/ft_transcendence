@@ -1,13 +1,11 @@
 import os
 import django
-from time import sleep
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 from django.core.management import call_command
-from transcendence.redis_client import _redis_client
 from transcendence.db_connection import init_db_connection, close_asyncpg_pool
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
@@ -41,20 +39,18 @@ async def lifespan_scope(scope, receive, send):
 
             if message['type'] == 'lifespan.startup':
                 print("Application is starting up...")
-                print("hi")
                 collect_static_files()
                 await init_db_connection()
-                # Perform any startup tasks (e.g., connect to Redis, etc.)
-                # Example: await _redis_client.connect() if needed
+                # TODO: sync db to redis
                 await send({'type': 'lifespan.startup.complete'})
             
             elif message['type'] == 'lifespan.shutdown':
                 print("Application is shutting down...")
+                # TODO: sync redis to db
+                # TODO: how to clean up redis connections (should I?)
                 await close_asyncpg_pool()
-                # Perform cleanup tasks (e.g., close Redis connections)
-                # await _redis_client.close()  # Clean up Redis connection pool
                 await send({'type': 'lifespan.shutdown.complete'})
-                return  # Exit the lifespan loop after shutdown
+                return  # exit the lifespan loop after shutdown
 
 application = ProtocolTypeRouter(
     {
