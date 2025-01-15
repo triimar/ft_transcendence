@@ -38,8 +38,7 @@ class PageConfirmLeave {
 				this.confirmPopupRedirectPageHash = window.location.hash;
 			}
 			history.replaceState(null, document.title, this.previousHref);
-			let confirmToLogOutPopup = document.querySelector("#confirm-to-logout-popup");
-			confirmToLogOutPopup.classList.add("show");
+			openPopup("confirm-to-logout-popup")
 			return false;
 		}
 		return true;
