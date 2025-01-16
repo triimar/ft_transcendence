@@ -38,6 +38,32 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		return countdownPromise.then(() => sleep(1000)).then(() => blocker.classList.remove("show"));
 	}
 
+	displayMatchResult(winner) {
+		const canvas = this.shadow.querySelector("canvas");
+		const ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		let winnerContainer = this.shadow.querySelector("#winner-container");
+		winnerContainer.style.display = "flex";
+		let avatarElement = this.shadow.querySelector("#winner");
+		let blocker = this.shadow.querySelector("#blocker");
+		let countdownText = blocker.children[0];
+		if (winner == "ai") {
+			avatarElement.setAttribute("avatar-name", "AI");
+			avatarElement.setAttribute("avatar-background", this.ai.color);
+			avatarElement.setAttribute("avatar-id", "ai");
+			countdownText.textContent = this.score.player + " : " + this.score.ai;
+		} else {
+			avatarElement.setAttribute("avatar-name", winner["player_emoji"]);
+			avatarElement.setAttribute("avatar-background", '#' + winner["player_bg_color"]);
+			avatarElement.setAttribute("avatar-id", winner["player_id"]);
+			countdownText.textContent = this.score.left + " : " + this.score.right;
+		}
+		blocker.classList.add("show");
+		window.cancelAnimationFrame(this.raf);
+		document.removeEventListener("keydown", this.keydownEventListener, true);
+		this.raf = null;
+	}
+
 	pointScored(side) {
 		if (side == 0) {
 			this.score.player++;
@@ -196,8 +222,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			vy: AI_SPEED,
 			height: PADDLE_H,
 			width: PADDLE_W,
-			color: "pink",
 			moveFactor: 0,
+			color: "#ff5da2",
 			draw()
 			{
 				ctx.fillStyle = this.color;

@@ -25,20 +25,42 @@
 			</div>
 		</div>
 		<div id="avatar-info-popup" class="fullscreen-popup">
-			<div id="avatar-info" class="ui" style="width: 20em; height: 70%;">
-				<td-button class="ui close-btn" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');"><p>X</p></td-button>
-				<div style="width: 100%; height: fit-content; display: flex; flex-direction: column; justify-content: start; align-items: center; gap: 0.3rem;">
-					<p id="custom-avatar" style="margin: 0;"></p>
-					<td-avatar class="dummy-avatar"></td-avatar>
-					<td-button id="logout-btn" class="ui" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');">
+			<div id="avatar-info" class="ui" style="width: 24em; aspect-ratio: 1.9; position: relative">
+				<div style="position: absolute; width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
+					<p id="id-card-text" style="grid-column: 1 / 4; grid-row: 1;">Visitor Identity card</p>
+					<div style="grid-column: 1; grid-row: 2; display: flex; justify-content: center; align-items: start;">
+						<td-avatar class="dummy-avatar"></td-avatar>
+					</div>
+					<form action="" style="grid-column: 2; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: space-between; padding-left: 0.2em;">
+						<div style="display: grid; grid-template-columns: minmax(13ch, auto) 1fr; grid-template-rows: 1fr minmax(auto, 3fr); gap: 0.2em; padding-right: 0.2em;">
+								<label for="name" id="id-card-name-text">Name:</label>
+								<input type="text" name="name" id="id-card-name">
+								<label for="background" id="id-card-background-text">Background:</label>
+								<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+									<div></div>
+								</div>
+						</div>
+						<td-button id="avatar-apply-change-btn" class="ui">
+							<p id="avatar-apply-change-text" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">APPLY</p>
+						</td-button>
+					</form>
+					<td-button id="logout-btn" class="ui" style="grid-column: 1; grid-row: 3;" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');">
 						<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
 					</td-button>
 				</div>
+				<td-button class="ui close-btn" onclick="document.querySelector('#avatar-info-popup').classList.remove('show');"><p>X</p></td-button>
 			</div>
 		</div>
 		<div id="confirm-to-logout-popup" class="fullscreen-popup">
+			<p id="confirm-logout-txt"></p>
 			<div class="ui" style="width: fit-content; background: var(--td-ui-background-color); padding: 1em; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5em;">
-				<p id="confirm-logout-txt"></p>
 				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 1em;">
 					<td-button id="logout-yes-btn" class="ui" onclick="document.querySelector('#confirm-to-logout-popup').classList.remove('show');"><p id="agree-txt" style="padding: 0 0.5em;"></p></td-button>
 					<td-button id="logout-no-btn" class="ui" onclick="document.querySelector('#confirm-to-logout-popup').classList.remove('show');"><p id="decline-txt" style="padding: 0 0.5em;"></p></td-button>
@@ -48,10 +70,13 @@
 		<div id="notification-popup" class="ui">
 			<p id="notification-popup-text">Error</p>
 		</div>
-		<footer style="width: 70%; margin-top: auto; display: flex; flex-direction: column; align-items: center;" class="ui">
-			<p>:PONG © 2024</p>
-			<p id="footer-authors" style="font-size: 0.5em;"></p>
+		<footer style="width: 70%; margin-top: auto; display: flex;align-items: center; justify-content: space-between" class="ui">
+			<div style="display: flex; flex-direction: column; align-items: center; flex-grow: 1;">
+				<p>:PONG © 2024</p>
+				<p id="footer-authors" style="font-size: 0.5em;"></p>
 			</div>
+			<td-language-selector class="ui"></td-language-selector>
+			<td-lever class="ui" style="height: 100%; min-height: 1.85em; max-height: 3em; aspect-ratio: 0.5;" onclick="let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');document.documentElement.style.setProperty('--td-ui-background-color', fgColor);document.documentElement.style.setProperty('--td-ui-font-color', bgColor);"></td-lever>
 		</footer>
 	</main>
 </body>
@@ -67,7 +92,6 @@
 		}
 	</style>
 	<div id="login-box" style="display: flex; flex-direction: column;" class="ui">
-		<td-language-selector class="ui" style="align-self: flex-end;"></td-language-selector>
 		<td-logo style="margin-left: 1em;"></td-logo>
 		<div style="display: flex; flex-direction: row;">
 			<td-button id="btn-login-guest" class="ui"><p id="login-guest" class="ui-text"></p></td-button>
@@ -77,16 +101,14 @@
 </template>
 <template id="page-game">
 	<td-navigation-bar>
-		<td-language-selector class="ui"></td-language-selector>
-		<td-button class="ui ui-text"><p id="exit-game"></p></td-button>
+		<td-button id="leave-room-btn" class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
 	<td-game-board class="ui" style="box-sizing: content-box;"></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
-		<td-language-selector class="ui"></td-language-selector>
-		<td-button class="ui ui-text"><p id="exit-game"></p></td-button>
+		<td-button id="leave-room-btn" class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui ui-text" onclick="document.querySelector('#tournament-tree-popup').classList.add('show');"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
 	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
@@ -98,7 +120,6 @@
 		}
 	</style>
 	<td-navigation-bar>
-		<td-language-selector class="ui"></td-language-selector>
 		<td-button id="leave-room-btn" class="ui"><p id="exit-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 	<td-lobby-room room-join-disabled class="ui">
@@ -118,7 +139,6 @@
 		}
 	</style>
 	<td-navigation-bar>
-		<td-language-selector class="ui"></td-language-selector>
 		<td-button id="add-room-btn" class="ui"><p id="add-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 </template>
@@ -310,7 +330,6 @@
 		<td-logo></td-logo>
 		<div id="buttons-container">
 			<slot></slot>
-			<td-lever class="ui" id="mode"></td-lever>
 			<div class="ui" id="avatar" style="cursor: pointer;" onclick="document.querySelector('#avatar-info-popup').classList.add('show');">
 				<td-avatar class="dummy-avatar"></td-avatar>
 			</div>
@@ -327,7 +346,7 @@
 			aspect-ratio: 2;
 		}
 
-		* {
+		#blocker, canvas {
 			position: absolute;
 		}
 
@@ -340,8 +359,12 @@
 			opacity: 1;
 		}
 	</style>
-	<div id="blocker" class="show" style="width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center;">
+	<div id="blocker" class="show" style="width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; justify-content: center; align-items: center;">
 		<p id="countdown" style="color: white;"></p>
+		<div id="winner-container" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
+			<td-avatar id="winner"></td-avatar>
+			<p style="margin: 0 color: white;">Wins!</p>
+		</div>
 	</div>
 	<canvas style="width: 100%;"  width="1200" height="600"></canvas>
 </template>
@@ -396,17 +419,16 @@
 
 		:host {
 			background: var(--td-ui-background-color);
-			width: 2em !important;
 			box-sizing: content-box !important;
 			cursor: pointer;
 		}
 
 		.on {
-			transform: translate(100%, 0);
+			transform: translate(0, 100%);
 		}
 
 		 #handle {
-			height: 1em;
+			width: 100%;
 			aspect-ratio: 1 / 1;
 			background: var(--td-ui-toggle-color);
 			transition: transform 0.5s;
@@ -449,13 +471,14 @@
         select {
             font-family: inherit; /* Inherit from :host */
             font-size: inherit;
-            padding: 0.5em;
+            padding: 0.2em;
             width: 150px;
             background: var(--td-ui-background-color, white);
             color: var(--td-ui-font-color, black);
             cursor: pointer;
             transition: background 0.3s, color 0.3s;
 			appearance: none; /* Reset native styles */
+			border: none;
             -webkit-appearance: none; /* For Safari/Chrome */
             -moz-appearance: none; /* For Firefox */
         }

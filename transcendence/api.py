@@ -1,29 +1,14 @@
 import requests
-import uuid
+import shortuuid
 import jwt
 import time
 from random import random
 from django.conf import settings
-from .user import assign_random_avatar, assign_random_background_color, check_if_new_user, create_new_user, save_user_cache
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
+from .user import assign_random_avatar, assign_random_background_color, create_new_user 
+from .db_async_queries import user_exists, get_uuid
 from .redis_data import add_one_player, get_one_player
-
-# TODO: borrow a new api
-
-# TODO: user management
-# check the database for the user
-# if user does not exist, create a new user
-# get the user id from the database
-
-# TODO: assign a random avatar and background color to the user
-# only for the new login
-# update the redis cache and the database with the user data
-
-# TODO: make the login button work
-
-# TODO: make the logout button work
-# delete the jwt token from the cookie
 
 def logout(request):
     pass
@@ -43,7 +28,8 @@ async def avatar_information(request):
         return JsonResponse({'error': 'Cannot find player'}, status=404)
 
 async def guest_login(request):
-    guest_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, str(random())))
+    guest_id = shortuuid.ShortUUID().random(length=22)
+
     now = int(time.time())
     
     payload = {
@@ -55,12 +41,11 @@ async def guest_login(request):
 
     jwt_token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
-    avatar = assign_random_avatar()
-    color = assign_random_background_color()
+    avatar = await assign_random_avatar()
+    color = await assign_random_background_color()
     await add_one_player(guest_id, avatar, color)
-    # save_user_cache(guest_id, avatar, color, guest=True)
 
-    # redirect to the main page with jwt token as cookie set
+    # return json response while setting jwt token as cookie
     response = JsonResponse(payload)
     response.set_cookie(
         key='jwt', 
@@ -95,7 +80,7 @@ async def oauth_callback(request):
         'client_id': settings.OAUTH2_PROVIDER['CLIENT_ID'],
         'client_secret': settings.OAUTH2_PROVIDER['CLIENT_SECRET'],
         'code': code,
-        'redirect_uri': 'http://localhost:8000/api/callback',
+        'redirect_uri': 'http://localhost:8000/api/auth_request',
     }
 
     # post request to get the access token
@@ -104,29 +89,24 @@ async def oauth_callback(request):
     if access_token_response.status_code != 200:
         return JsonResponse({'error': 'Failed to obtain access token from OAuth'}, status=400)
 
-    # access_token = access_token_response.json().get('access_token')
+    access_token = access_token_response.json().get('access_token')
 
     # use the access token to fetch user data
-    # user_data_response = requests.get(
-    #     'https://api.intra.42.fr/v2/me', 
-    #     headers = {'Authorization': f'Bearer {access_token}'}
-    # )
+    user_data_response = requests.get(
+        'https://api.intra.42.fr/v2/me',
+        headers = {'Authorization': f'Bearer {access_token}'}
+    )
 
-    # if user_data_response.status_code != 200:
-    #     return JsonResponse({'error': 'Failed to fetch user data from 42 API'}, status=400)
+    if user_data_response.status_code != 200:
+        return JsonResponse({'error': 'Failed to fetch user data from 42 API'}, status=400)
 
-    # user_login = user_data_response.json().get('login')
+    user_login = user_data_response.json().get('login')
 
-#    if check_if_new_user(user_login):
-#        create_new_user(user_login)
-
-    # TODO(HeiYiu): Check if user exists
-    intra_user_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, access_token_response.json().get('access_token')))
-    player = await get_one_player(intra_user_uuid)
-    if player is None:
-        avatar = assign_random_avatar()
-        color = assign_random_background_color()
-        await add_one_player(intra_user_uuid, avatar, color)
+    if (await user_exists(user_login) == True):
+        intra_user_uuid = await get_uuid(user_login)
+    else:
+        intra_user_uuid = shortuuid.ShortUUID().random(length=22)
+        await create_new_user(intra_user_uuid, user_login)
 
     payload = {
         'id': intra_user_uuid,
@@ -154,7 +134,7 @@ def oauth_redirect(request):
         'https://api.intra.42.fr/oauth/authorize?'
         f'client_id={settings.OAUTH2_PROVIDER["CLIENT_ID"]}'
         '&response_type=code'
-        '&redirect_uri=http://localhost:8000/api/callback'
+        '&redirect_uri=http://localhost:8000/api/auth_request'
         '&scope=public'
     )
     return redirect(authorization_url)

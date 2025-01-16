@@ -178,3 +178,9 @@ main {
 	border-top-color: var(--td-ui-background-color);
 	border-left: 0;
 }
+
+#color-selection-container > * {
+	width: 2em;
+	height: 2em;
+	border: 0.1em solid black;
+}

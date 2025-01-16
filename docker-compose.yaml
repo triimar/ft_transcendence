@@ -11,6 +11,13 @@ volumes:
       o: "bind"
       type: none
       device: ./db_sql
+  pgadmin:
+    name: pgadmin
+    driver: local
+    driver_opts:
+      o: "bind"
+      type: none
+      device: ./pgadmin
 
 services:
   db_redis:
@@ -36,7 +43,6 @@ services:
       - 5432
     volumes:
       - db_sql:/var/lib/postgresql/data
-      - ./db_init.sql:/docker-entrypoint-initdb.d/db_init.sql
     restart: always
     shm_size: 128mb
     environment:
@@ -46,9 +52,9 @@ services:
       PGUSER: postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
-      interval: 3s
-      timeout: 5s
-      retries: 3
+      interval: 2s
+      timeout: 30s
+      retries: 10
 
   app:
     depends_on:
@@ -66,4 +72,18 @@ services:
       - "8000:8000"
     restart: always
 
-
+  pgadmin:
+    depends_on:
+      - db_sql
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: eunskim@student.42heilbronn.de
+      PGADMIN_DEFAULT_PASSWORD: password
+    networks:
+      - transcendence
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    restart: always

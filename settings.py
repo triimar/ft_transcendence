@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
-from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -80,7 +79,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -88,8 +86,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 OAUTH2_PROVIDER = {
-    'CLIENT_ID': 'u-s4t2ud-2c74cb6c9f554597b5c7d047ce0c48014e0b52ad290228c6d520a09f588d1602',
-    'CLIENT_SECRET': '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',
+    'CLIENT_ID': 'u-s4t2ud-9c42ba9cfb7ad3fef02e176bef186ce227179755037a62ce93acd234de440dd6',
+    'CLIENT_SECRET': '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',
     'SCOPES': {'public': 'Public access'},
 }
 
@@ -136,14 +134,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
-
-LANGUAGES = [
-    ('en', _('English')),
-    ('de', _('German')),
-    ('es', _('Spanish')),
-]
-
-LOCALE_PATHS = [BASE_DIR / 'locale']
 
 # default
 LANGUAGE_CODE = 'en-us'
