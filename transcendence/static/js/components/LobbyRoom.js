@@ -9,10 +9,23 @@ export default class ComponentLobbyRoom extends HTMLElement {
 	}
 
 	connectedCallback() {
+		this.setAttribute("tabindex", "0");
+		let max = this.getAttribute("room-max");
+		if (max) this.setAttribute("aria-label", `Room with maximum ${max} players`);
+		else this.setAttribute("aria-label", `Room`)
 		let id = this.shadow.querySelector("#lobby-room-id");
+		id.setAttribute("aria-label", "Copy the room's invitation link!")
+		id.setAttribute("tabindex", "0")
+		id.setAttribute("role", "button");
 		id.addEventListener("click", () => {
 			navigator.clipboard.writeText(location.origin + "/#room" + id.textContent);
 			myself.displayPopupMessage(i18next.t("lobby-room.invitation-link-txt"));
+		});
+		id.addEventListener("keydown", (event) => {
+			if (event.key === "Enter" || event.key === " ") {
+				event.preventDefault(); // Prevent space from scrolling
+				id.click(); // Simulate a click event
+			}
 		});
 	}
 
@@ -89,6 +102,7 @@ export default class ComponentLobbyRoom extends HTMLElement {
 			let id = this.shadow.querySelector("#lobby-room-id");
 			window.location.href = "#room" + id.textContent;
 		});
+		button.setAttribute("aria-label", "Join the room!")
 		if (this.joinDisabled) {
 			button.setAttribute("tabindex", "-1")
 			button.setAttribute("disabled", "");}
