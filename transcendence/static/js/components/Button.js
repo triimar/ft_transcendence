@@ -11,13 +11,14 @@ export default class ComponentButton extends HTMLElement {
 		this.setAttribute("tabindex", "0")
 		Array.from(this.children).forEach((child) => {
 			if (child.tagName === "P") {
-				child.setAttribute("role", "none");
+				child.setAttribute("aria-hidden", "true");
 			}
 		});
 
 		this.addEventListener("keydown", (e) => {
-			if ((e.key === "Enter") || (e.key === " ")) {
-				this.click();
+			if ((!this.hasAttribute("disabled")) && ((e.key === "Enter") || (e.key === " "))) {
+				e.preventDefault(); 
+				this.dispatchEvent(new Event("click", { bubbles: true }));
 			}
 		});
 	}
