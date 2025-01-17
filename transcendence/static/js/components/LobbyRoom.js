@@ -24,11 +24,13 @@ export default class ComponentLobbyRoom extends HTMLElement {
 			let join_buttons = this.querySelectorAll(".join-button");
 			if (this.joinDisabled) {
 				for (let join_button of join_buttons) {
-					button.setAttribute("disabled", "");
+					join_button.setAttribute("disabled", "");
+					join_button.setAttribute("tabindex", "-1");
 				}
 			} else {
 				for (let join_button of join_buttons) {
-					button.removeAttribute("disabled");
+					join_button.removeAttribute("disabled");
+					join_button.setAttribute("tabindex", "0");
 				}
 			}
 			break;
@@ -87,7 +89,9 @@ export default class ComponentLobbyRoom extends HTMLElement {
 			let id = this.shadow.querySelector("#lobby-room-id");
 			window.location.href = "#room" + id.textContent;
 		});
-		if (this.joinDisabled) button.setAttribute("disabled", "");
+		if (this.joinDisabled) {
+			button.setAttribute("tabindex", "-1")
+			button.setAttribute("disabled", "");}
 		const template = document.getElementById("icon-lobby-room-join");
 		button.appendChild(template.content.cloneNode(true));
 		return button;

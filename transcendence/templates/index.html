@@ -13,8 +13,8 @@
 	<main>
 		<div class="content-container" aria-hidden="false"></div>
 		<div id="tournament-tree-popup" class="fullscreen-popup" aria-hidden="true">
-			<div class="ui" style="background: var(--td-ui-background-color);">
-				<td-button class="ui close-btn" onclick="closePopup('tournament-tree-popup')"><p>X</p></td-button>
+			<div class="ui" aria-label="Tournament tree" style="background: var(--td-ui-background-color);">
+				<td-button class="ui close-btn" aria-label="Close the popup" onclick="closePopup('tournament-tree-popup')"><p>X</p></td-button>
 				<td-tournament-tree style="
 				display: flex;
 				flex-direction: column;
@@ -24,7 +24,7 @@
 				</td-tournament-tree>
 			</div>
 		</div>
-		<div id="avatar-info-popup" class="fullscreen-popup" aria-hidden="true" role="dialog" aria-labelledby="dialog-title" tabindex="-1">
+		<div id="avatar-info-popup" class="fullscreen-popup" aria-hidden="true" role="dialog">
 			<div id="avatar-info" class="ui" style="width: 24em; aspect-ratio: 1.9; position: relative">
 				<div style="position: absolute; width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
 					<p id="id-card-text" style="grid-column: 1 / 4; grid-row: 1;">Visitor Identity card</p>
@@ -48,18 +48,18 @@
 								</div>
 						</div>
 						<td-button id="avatar-apply-change-btn" class="ui">
-							<p id="avatar-apply-change-text" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">APPLY</p>
+							<p id="avatar-apply-change-text" aria-label="Apply changes" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;">APPLY</p>
 						</td-button>
 					</form>
 					<td-button id="logout-btn" class="ui" style="grid-column: 1; grid-row: 3;" onclick="closePopup('avatar-info-popup')">
 						<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
 					</td-button>
 				</div>
-				<td-button class="ui close-btn" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
+				<td-button class="ui close-btn" aria-label="Close the popup" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
 			</div>
 		</div>
 		<div id="confirm-to-logout-popup" class="fullscreen-popup" aria-hidden="true">
-			<p id="confirm-logout-txt"></p>
+			<p id="confirm-logout-txt" tabindex="0"></p>
 			<div class="ui" style="width: fit-content; background: var(--td-ui-background-color); padding: 1em; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5em;">
 				<p id="confirm-logout-txt"></p>
 				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 1em;">
@@ -68,7 +68,7 @@
 				</div>
 			</div>
 		</div>
-		<div id="notification-popup" class="ui">
+		<div role="alert" aria-live="assertive" id="notification-popup" class="ui">
 			<p id="notification-popup-text"></p>
 		</div>
 		<footer role="contentinfo" style="width: 70%; margin-top: auto; display: flex;align-items: center; justify-content: space-between" class="ui">
@@ -82,10 +82,9 @@
 	</main>
 </body>
 <template id="page-error">
-	<h1 id="page-error-txt" tabindex="0"></h1>
+	<h1 id="page-error-txt" aria-labelledby="page-error-txt" tabindex="0"></h1>
 </template>
-<template id="page-login">
-	
+<template id="page-login">	
 	<style>
 		*:has(#login-box) {
 			justify-content: center;
@@ -102,15 +101,15 @@
 </template>
 <template id="page-game">
 	<td-navigation-bar>
-		<td-button id="leave-room-btn" class="ui ui-text"><p id="exit-game"></p></td-button>
-		<td-button class="ui ui-text" onclick="openPopup('tournament-tree-popup')"><p id="tree-btn-txt"></p></td-button>
+		<td-button id="leave-room-btn" aria-haspopup="true" class="ui ui-text"><p id="exit-game"></p></td-button>
+		<td-button class="ui ui-text" aria-haspopup="true" onclick="openPopup('tournament-tree-popup')"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
 	<td-game-board class="ui" style="box-sizing: content-box;"></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
-		<td-button id="leave-room-btn" class="ui ui-text"><p id="exit-game"></p></td-button>
-		<td-button class="ui ui-text" onclick="openPopup('tournament-tree-popup')"><p id="tree-btn-txt"></p></td-button>
+		<td-button id="leave-room-btn" aria-haspopup="true" class="ui ui-text"><p id="exit-game"></p></td-button>
+		<td-button class="ui ui-text" aria-haspopup="true" onclick="openPopup('tournament-tree-popup')"><p id="tree-btn-txt"></p></td-button>
 	</td-navigation-bar>
 	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
 </template>
@@ -121,14 +120,13 @@
 		}
 	</style>
 	<td-navigation-bar>
-		<td-button id="leave-room-btn" class="ui"><p id="exit-room" class="ui-text"></p></td-button>
+		<td-button id="leave-room-btn" aria-haspopup="true" class="ui"><p id="exit-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 	<td-lobby-room room-join-disabled class="ui">
 		<td-button id="prepare-btn" class="ui" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button"><p id="prepare-btn-txt"></p></td-button>
 	</td-lobby-room>
 	<td-room-setting-size id="room-size-buttons" class="ui" style="display: none"></td-room-setting-size>
 	<div class="ui ui-text"><p>More game options coming soon</p></div>
-	<div class="ui"><td-tournament-tree></td-tournament-tree></div>
 </template>
 <template id="page-main">
 	<style>
@@ -226,8 +224,8 @@
 		}
 	</style>
 	<div style="display: flex; flex-direction: row;">
-		<td-button class="ui" id="dec-button"><p style="user-select: none;">-</p></td-button>
-		<td-button class="ui" id="inc-button"><p style="user-select: none;">+</p></td-button>
+		<td-button class="ui" id="dec-button"><p style="user-select: none;" aria-label="Decrease the number of players">-</p></td-button>
+		<td-button class="ui" id="inc-button"><p style="user-select: none;" aria-label="Increase the number of players">+</p></td-button>
 	</div>
 	<p style="margin-right: 0.4em; user-select: none;" id="label"></p>
 </template>
@@ -331,8 +329,8 @@
 		<td-logo></td-logo>
 		<div id="buttons-container">
 			<slot></slot>
-			<div class="ui" id="avatar" style="cursor: pointer;" tabindex="0" aria-label="Your avatar. Click for further options" onclick="openPopup('avatar-info-popup')" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openPopup('avatar-info-popup'); }">
-				<td-avatar class="dummy-avatar"></td-avatar>
+			<div class="ui" id="avatar" style="cursor: pointer;" tabindex="0" role="button" aria-haspopup="true" aria-label="Your avatar. Click for further options" onclick="openPopup('avatar-info-popup')" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openPopup('avatar-info-popup'); }">
+				<td-avatar class="dummy-avatar" role="none"></td-avatar>
 			</div>
 		</div>
 	</nav>
