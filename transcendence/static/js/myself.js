@@ -212,6 +212,9 @@ class Visitor {
 					this.roomOwnerIsMyself = true;
 					let prepareButton = this.page.container.querySelector("#prepare-btn");
 					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
+					prepareButton.children[0].setAttribute("id", "prepare-btn-wait")
+					prepareButton.children[0].setAttribute("aria-hidden", "false")
+					prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-wait")
 					prepareButton.setAttribute("disabled", "");
 					let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 					roomSizeButtons.style.display = "flex";
@@ -258,6 +261,8 @@ class Visitor {
 							let prepareButton = this.page.container.querySelector("#prepare-btn");
 							if (message["all_prepared"]) {
 								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
+								prepareButton.children[0].setAttribute("id", "prepare-btn-start")
+								prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-start")
 								prepareButton.removeAttribute("disabled");
 								prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 								prepareButton.addEventListener("click", () => {
@@ -265,6 +270,9 @@ class Visitor {
 								}, {once: true});
 							} else {
 								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
+								prepareButton.children[0].setAttribute("id", "prepare-btn-wait")
+								prepareButton.children[0].setAttribute("aria-hidden", "false")
+								prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-wait")
 								prepareButton.setAttribute("disabled", "");
 							}
 							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
@@ -323,6 +331,8 @@ class Visitor {
 				if (this.roomOwnerIsMyself && message["all_prepared"]) {
 					let prepareButton = this.page.container.querySelector("#prepare-btn");
 					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
+					prepareButton.children[0].setAttribute("id", "prepare-btn-start")
+					prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-start")
 					prepareButton.removeAttribute("disabled");
 					prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 					prepareButton.addEventListener("click", (e) => {
