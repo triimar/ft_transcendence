@@ -96,6 +96,7 @@ async function main() {
 			if (myself.gameInde == null) {
 				let emoji = avatarNameTextInput.value;
 				let background = document.querySelector("#color-selection-container > .chosen")?.getAttribute("color");
+				background = background.slice(1); // Note(HeiYiu): remove #
 				myself.changeAvatar(emoji, background);
 			} else {
 				myself.displayPopupMessage("You cannot change avatar after game starts");

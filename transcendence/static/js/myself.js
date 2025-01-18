@@ -70,7 +70,7 @@ class Visitor {
 			this.displayPopupMessage("Avatar's color is not in the color palette");
 		} else {
 			this.avatar_emoji = newEmoji;
-			this.avatar_bg_color = newBackgroundColor;
+			this.avatar_bg_color = '#' + newBackgroundColor;
 			this.sendMessageAvatarChange(newEmoji, newBackgroundColor);
 		}
 	}
