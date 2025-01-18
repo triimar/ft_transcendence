@@ -22,6 +22,7 @@ export async function initializeI18n() {
 
 		// Set the initial lang attribute on the <html> tag
         document.documentElement.lang = i18next.language;
+		
 
         i18next.on("languageChanged", (newLanguage) => { 
 			localStorage.setItem("language", newLanguage);
