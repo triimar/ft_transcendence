@@ -92,7 +92,6 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleRight.draw();
 		this.paddleLeft.draw();
 
-		// console.log(this.side);
 		this.gameMode = GameMode.Balance;
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
@@ -129,9 +128,6 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	pointScored(side) {
-		console.log(this.paddleLeft.height);
-		console.log(this.paddleRight.height);
-		console.log("MIN: " + this.MIN_PADDLE_SIZE + ", MAX: " + this.MAX_PADDLE_SIZE);
 		if (side == 0) {
 			this.score.left++;
 			if (this.gameMode === GameMode.Balance) {
@@ -172,13 +168,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.MIN_PADDLE_SIZE = canvas.height/10;
 		this.gameMode = GameMode.Default;
 		this.lastTime = 0; // The timestamp of the last frame
-		// let serverTimeOffset = 0; // Difference between server and local clock
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
-
-		function sleep(ms) {
-			return new Promise(resolve => setTimeout(resolve, ms));
-		}
 
 		this.score = {
 			left: 0,
@@ -240,8 +231,6 @@ export default class ComponentGameBoard extends HTMLElement {
 			reset()
 			{
 				this.y = canvas.height/2 - this.height/2;
-				// this.height = PADDLE_H;
-				// this.width = PADDLE_W;
 			}
 		};
 
@@ -266,8 +255,6 @@ export default class ComponentGameBoard extends HTMLElement {
 			reset()
 			{
 				this.y = canvas.height/2 - this.height/2;
-				// this.height = PADDLE_H;
-				// this.width = PADDLE_W;
 			}
 		};
 
@@ -393,7 +380,37 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.draw();
 			this.raf = window.requestAnimationFrame(this.gameLoop);
 		}).bind(this);
-		
+
+		// Add touch event listeners to the canvas
+		canvas.addEventListener("touchstart", (e) => {
+			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
+			this.movePaddleTo(touchY);
+		});
+
+		canvas.addEventListener("touchmove", (e) => {
+			e.preventDefault(); // Prevent scrolling while playing
+			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
+			this.movePaddleTo(touchY);
+		});
+
+		// Helper function to move the paddle to a specific y-coordinate
+		this.movePaddleTo = (touchY) => {
+			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
+			const relativeY = touchY - canvasRect.top; // Adjust touchY to the canvas coordinate system
+
+			// Set the paddle's y position, ensuring it stays within bounds
+			this.getMyPaddle().y = relativeY - this.getMyPaddle().height / 2;
+			if (this.getMyPaddle().y < 0) {
+				this.getMyPaddle().y = 0;
+			}
+			if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height) {
+				this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
+			}
+
+			// Trigger the paddle move action
+			this.paddleMove();
+		};
+
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
 				// Prevent the default action (scrolling)
@@ -414,11 +431,6 @@ export default class ComponentGameBoard extends HTMLElement {
 						this.getMyPaddle().y = 0;
 					this.paddleMove();
 					break;
-				case " ":
-					window.cancelAnimationFrame(this.raf);
-					break;
-				case "Enter":
-					this.raf = window.requestAnimationFrame(this.gameLoop);
 				default:
 					return;
 			}
@@ -431,6 +443,9 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	updateBall() {
+		// Only one player is able to update the ball position
+		if (this.side === 0)
+			return
 		myself.sendMessage(JSON.stringify({
 			'type': 'bounce_ball',
 			'ball': {
