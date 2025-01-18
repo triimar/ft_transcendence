@@ -335,6 +335,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
                 # update self.match_id to new match_id
                 self.match_id = next_match_id
+            await data.reset_players_score(self.room_group_name, self.match_id)
 
 
 
@@ -386,6 +387,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     # update self.match_id to new match_id
                     self.match_id = next_match_id
                 await data.set_player_in_next_match(self.room_group_name, next_match_id, winner_id)
+            await data.reset_players_score(self.room_group_name, self.match_id)
 
 
 # functions for dealing with events

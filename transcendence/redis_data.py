@@ -136,7 +136,7 @@ async def get_one_match(room_id, match_id) -> dict|None:
 # Update playar data with new player data
 async def add_one_player(player_id, player_emoji, player_bg_color):
     redis_instance = get_redis_client()
-    await redis_instance.json().set("player_data", f'$.{player_id}', {"player_id": player_id, "player_emoji": player_emoji, "player_bg_color": player_bg_color});
+    await redis_instance.json().set("player_data", f'$.{player_id}', {"player_id": player_id, "player_emoji": player_emoji, "player_bg_color": player_bg_color})
 
 # leave room
 async def delete_one_room(room_id) -> None:
@@ -149,12 +149,12 @@ async def delete_one_player_from_room(room_id, player_id):
 
 async def update_room_owner(room_id, left_player_id):
     redis_instance = get_redis_client()
-    result = await redis_instance.json().get("room_data", f'$.{room_id}.avatars[1].player_id');
+    result = await redis_instance.json().get("room_data", f'$.{room_id}.avatars[1].player_id')
     if len(result) > 0:
         new_player_id = result[0]
     await redis_instance.json().delete("room_data", f'$.{room_id}.avatars[?(@.player_id == "{left_player_id}")]')
-    await redis_instance.json().set("room_data", f'$.{room_id}.room_owner', new_player_id);
-    await redis_instance.json().set("room_data", f'$.{room_id}.avatars[0].prepared', True);
+    await redis_instance.json().set("room_data", f'$.{room_id}.room_owner', new_player_id)
+    await redis_instance.json().set("room_data", f'$.{room_id}.avatars[0].prepared', True)
     return new_player_id
 
 async def is_all_prepared(room_id):
@@ -300,3 +300,18 @@ async def set_player_in_next_match(room_id, match_id, winner_id):
     redis_instance = get_redis_client()
 
     await redis_instance.json().arrappend("room_data", f'$.{room_id}.matches[{match_id}].players', winner_id)
+
+async def reset_players_scores(room_id, match_id):
+    redis_instance = get_redis_client()
+
+    match = await get_one_match(room_id, match_id)
+
+    for player_id in match["players"]:
+        if "ai" == player_id:
+            await redis_instance.json().set("room_data", f'$.{room_id}.ai', {"score": 0})
+            continue
+        await redis_instance.json().mset([
+            ("player_data", f'$.{player_id}.position', 50),
+            ("player_data", f'$.{player_id}.size', 15),
+            ("player_data", f'$.{player_id}.score', 0),
+        ])
