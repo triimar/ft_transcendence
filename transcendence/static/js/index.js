@@ -50,6 +50,23 @@ async function main() {
 			let background = document.querySelector("#color-selection-container > .chosen")?.getAttribute("color");
 			myself.changeAvatar(emoji, background);
 		}, true);
+		let closeButton = document.querySelector("#avatar-info .close-btn");
+		closeButton.addEventListener("click", () => {
+			let popupElement = document.querySelector("#avatar-info-popup");
+			popupElement.classList.remove("show");
+			let avatarElement = document.querySelector("#avatar-info td-avatar");
+			avatarElement.setAttribute("avatar-name", myself.avatar_emoji);
+			avatarElement.setAttribute("avatar-background", myself.avatar_bg_color);
+			avatarNameTextInput.value = myself.avatar_emoji;
+			for (let colorOption of colorSelectionContainer.children) {
+				if (colorOption.getAttribute("color") == myself.avatar_bg_color) {
+					colorOption.classList.add("chosen");
+				}
+				else {
+					colorOption.classList.remove("chosen");
+				}
+			}
+		});
 	}
 	await initializeI18n(); // Ensure translations are initialized
 	document.myself = myself; // only for debugging
