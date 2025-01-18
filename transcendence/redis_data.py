@@ -1,18 +1,10 @@
 from enum import Enum
 import redis
 import random
-from .transcendence_dictionary import player_data_sample, room_data_sample
 from .redis_client import get_redis_client
 
 MAX_NUM_PLAYER = 8
 SUPPORTED_MODES = ["balance", "shoot","bomb","remix"]
-
-# Connect to Redis
-redis_instance = redis.Redis(host='db_redis', port=6379, db=0)
-
-# Use redis JSON to store json documents
-redis_instance.json().set("room_data", "$", room_data_sample)
-redis_instance.json().set("player_data", "$", player_data_sample)
 
 class RedisError(Enum):
 		NONE = 0

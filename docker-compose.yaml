@@ -68,7 +68,6 @@ services:
         condition: service_healthy
     container_name: app
     image: app
-    stop_signal: SIGINT
     build:
       context: .
     networks:

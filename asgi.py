@@ -7,9 +7,8 @@ from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 from django.core.management import call_command
 from transcendence.db_connection import init_db_connection, close_asyncpg_pool
-from transcendence.db_async_queries import select_all_users
+from transcendence.sync_db import sync_db_to_redis, sync_redis_to_db
 from transcendence.redis_client import get_redis_client
-from transcendence.redis_data import add_one_player
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 
@@ -44,13 +43,12 @@ async def lifespan_scope(scope, receive, send):
 								print("[lifespan] Application is starting up...")
 								collect_static_files()
 								await init_db_connection()
-								# TODO: sync db to redis
-								await select_all_users()
+								await sync_db_to_redis()		
 								await send({'type': 'lifespan.startup.complete'})
 						
 						elif message['type'] == 'lifespan.shutdown':
 								print("[lifespan] Application is shutting down...")
-								# TODO: sync redis to db
+								await sync_redis_to_db()
 								await get_redis_client().close()
 								print("Redis connection closed")
 								await close_asyncpg_pool()
