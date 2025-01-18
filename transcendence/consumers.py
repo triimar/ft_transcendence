@@ -222,7 +222,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         else:
             # rejoin, needs all neccesry information
 
-            room = await data.get_one_room_data(self.room_group_name)
+            room = await data.get_one_room_data(room_id)
 
             if not data.is_in_room(player_id, room):
                 await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_IN_ROOM.value, "redirect_hash": "main"}))
