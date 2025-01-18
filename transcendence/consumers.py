@@ -23,7 +23,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        if not self.first_player_player_id:
+        if not self.first_layer_player_id:
             # game not started
             if self.room_group_name is not None:
                 room_id = self.room_group_name
@@ -270,7 +270,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             self.match_id = match_id
             match_group_name = self.room_group_name + "_" + str(self.match_id)
             await self.channel_layer.group_add(match_group_name, self.channel_name)
-            if "match" not in self.joined_match:
+            if "match" not in self.joined_group:
                 self.joined_group += ["match"]
             # get winners list
             winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
