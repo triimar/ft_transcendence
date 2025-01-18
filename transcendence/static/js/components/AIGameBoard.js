@@ -1,3 +1,15 @@
+import { myself, sleep } from "../myself.js";
+
+const GameMode = {
+	Default: "",
+	Balance: "balance",
+	Shoot: "shoot",
+	Bomb: "bomb",
+	Remix: "remix"
+};
+
+const BALANCE_FACTOR = 10;
+
 export default class ComponentAIGameBoard extends HTMLElement {
 	constructor() {
 		super();
@@ -6,15 +18,117 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		this.shadow.appendChild(template.content.cloneNode(true));
 	}
 
+	countdown() {
+		let blocker = this.shadow.querySelector("#blocker");
+		blocker.classList.add("show");
+		let countdownPromise = new Promise((resolve) => {
+			let seconds = 5;
+			let intervalId = setInterval(() => {
+				let countdownText = blocker.children[0];
+				if (seconds == 0) {
+					countdownText.textContent = "Start";
+					clearInterval(intervalId);
+					resolve();
+				} else {
+					countdownText.textContent = seconds;
+					seconds--;
+				}
+			}, 1000);
+		});
+		return countdownPromise.then(() => sleep(1000)).then(() => blocker.classList.remove("show"));
+	}
+
+	displayMatchResult(winner) {
+		const canvas = this.shadow.querySelector("canvas");
+		const ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		let winnerContainer = this.shadow.querySelector("#winner-container");
+		winnerContainer.style.display = "flex";
+		let avatarElement = this.shadow.querySelector("#winner");
+		let blocker = this.shadow.querySelector("#blocker");
+		let countdownText = blocker.children[0];
+		if (winner == "ai") {
+			avatarElement.setAttribute("avatar-name", "AI");
+			avatarElement.setAttribute("avatar-background", this.ai.color);
+			avatarElement.setAttribute("avatar-id", "ai");
+			countdownText.textContent = this.score.player + " : " + this.score.ai;
+		} else {
+			avatarElement.setAttribute("avatar-name", winner["player_emoji"]);
+			avatarElement.setAttribute("avatar-background", '#' + winner["player_bg_color"]);
+			avatarElement.setAttribute("avatar-id", winner["player_id"]);
+			countdownText.textContent = this.score.left + " : " + this.score.right;
+		}
+		blocker.classList.add("show");
+		window.cancelAnimationFrame(this.raf);
+		document.removeEventListener("keydown", this.keydownEventListener, true);
+		this.raf = null;
+	}
+
+	pointScored(side) {
+		if (side == 0) {
+			this.score.player++;
+			if (this.gameMode === GameMode.Balance) {
+				if (this.paddleLeft.height - BALANCE_FACTOR >= this.MIN_PADDLE_SIZE)
+					this.paddleLeft.height -= BALANCE_FACTOR;
+				if (this.ai.height + BALANCE_FACTOR <= this.MAX_PADDLE_SIZE)
+					this.ai.height += BALANCE_FACTOR;
+			}
+		}
+		else {
+			this.score.ai++;
+			if (this.gameMode === GameMode.Balance) {
+				if (this.ai.height - BALANCE_FACTOR >= this.MIN_PADDLE_SIZE)
+					this.ai.height -= BALANCE_FACTOR;
+				if (this.paddleLeft.height + BALANCE_FACTOR <= this.MAX_PADDLE_SIZE)
+					this.paddleLeft.height += BALANCE_FACTOR;
+			}
+		}
+	}
+
+	updateBall(message) {
+		let ball = message["ball"];
+		this.ball.x = ball["position"]["x"];
+		this.ball.y = ball["position"]["y"];
+		this.ball.vx = ball["velocity"]["vx"];
+		this.ball.vy = ball["velocity"]["vy"];
+	}
+
+	startMatch(message) {
+		let ball = message["ball"];
+		let player = message["player"];
+		this.ball.x = ball["position"]["x"];
+		this.ball.y = ball["position"]["y"];
+		this.ball.vx = ball["velocity"]["vx"];
+		this.ball.vy = ball["velocity"]["vy"];
+		this.paddleLeft.name = player["player_emoji"];
+		this.paddleLeft.color = '#' + player["player_bg_color"];
+
+		this.ball.draw();
+		this.paddleLeft.draw();
+		this.ai.draw();
+		this.lastTime = Date.now();
+
+		document.addEventListener("keydown", this.keydownEventListener, true);
+		this.raf = window.requestAnimationFrame(this.gameLoop);
+		this.gameMode = GameMode.Balance;
+	}
+
 	connectedCallback() {
 		const canvas = this.shadow.querySelector("canvas");
 		const ctx = canvas.getContext("2d");
-		const BALL_SPEED = 5;
+		const BALL_SPEED = 6;
 		const MAXBOUNCEANGLE = Math.PI/4;
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 10;
 		const AI_SPEED = 8.5;
+		this.MAX_PADDLE_SIZE = canvas.height/2;
+		this.MIN_PADDLE_SIZE = canvas.height/10;
+		this.lastLoop = 0; // The timestamp of the last frame
+		// let serverTimeOffset = 0; // Difference between server and local clock
+		let accumulatedTime = 0; // Accumulated time for fixed updates
+		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
+		this.gameMode = GameMode.Default;
 
 		// PID constants
 		const Kp = 2.0;  // Proportional constant
@@ -26,13 +140,27 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		let previousError = 0;
 
 		let raf;
-		let pause = false;
 
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
 
-		const ball = {
+		this.score = {
+			player: 0,
+			ai: 0,
+			color: "black",
+			draw()
+			{
+				ctx.fillStyle = this.color;
+				ctx.globalAlpha = 0.2;
+				ctx.font = '200px Monomaniac One';
+				ctx.fillText(this.player.toString(), canvas.width / 3 - ctx.measureText(this.player.toString()).width / 2, canvas.height / 2);
+				ctx.fillText(this.ai.toString(), canvas.width - (canvas.width / 3 - ctx.measureText(this.ai.toString()).width / 2), canvas.height / 2);
+				ctx.globalAlpha = 1;
+			}
+		}
+
+		this.ball = {
 			x: canvas.width / 2,
 			y: canvas.height / 2,
 			vx: BALL_SPEED,
@@ -52,13 +180,11 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			this.y = canvas.height / 2;
 			this.vx = BALL_SPEED * side;
 			this.vy = BALL_SPEED;
-			this.isReset = true;
-			this.isSpeedingUp = false;
 			this.vx = 1 * side;
 			}
 		};
 
-		const paddleLeft = {
+		this.paddleLeft = {
 			name: "._.",
 			x: 0,
 			y: canvas.height/2 - PADDLE_H/2,
@@ -78,19 +204,19 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			},
 			reset()
 			{
-				this.y = canvas.height/2 - PADDLE_H/2;
-				this.height = PADDLE_H;
-				this.width = PADDLE_W;
+				this.y = canvas.height/2 - this.height/2;
+				// this.height = PADDLE_H;
+				// this.width = PADDLE_W;
 			}
 		};
 
-		const ai = {
+		this.ai = {
 			x: canvas.width - PADDLE_W,
 			y: canvas.height/2 - PADDLE_H/2,
 			vy: AI_SPEED,
 			height: PADDLE_H,
 			width: PADDLE_W,
-			color: "pink",
+			color: "#ff5da2",
 			draw()
 			{
 				ctx.fillStyle = this.color;
@@ -104,8 +230,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			reset()
 			{
 				this.y = canvas.height/2 - PADDLE_H/2;
-				this.height = PADDLE_H;
-				this.width = PADDLE_W;
+				// this.height = PADDLE_H;
+				// this.width = PADDLE_W;
 				integral = 0;
 				previousError = 0;
 			}
@@ -113,144 +239,146 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 		function update_paddle_ai() {
 			const now = Date.now();
-			const dt = (now - lastTime) / 1000; // Convert ms to seconds
-			lastTime = now;
+			const dt = (now - this.lastTime) / 1000; // Convert ms to seconds
+			this.lastTime = now;
 
 			const rt = 0.1; //reaction time to see ahead of the ball
-			const predictedBallY = ball.y + ball.size / 2 + ball.vy * 0.1;
-			const error = predictedBallY - (ai.y + ai.height/2);
+			const predictedBallY = this.ball.y + this.ball.size / 2 + this.ball.vy * 0.1;
+			const error = predictedBallY - (this.ai.y + this.ai.height/2);
 			integral += error * dt;
 			const deriv = (error - previousError) / dt;
-			const newPos = ((error * Kp) + (integral * Ki) + (deriv * Kd)) * ai.vy;
-			ai.y += newPos / canvas.height;
+			const newPos = ((error * Kp) + (integral * Ki) + (deriv * Kd)) * this.ai.vy;
+			this.ai.y += newPos / canvas.height;
 			previousError = error;
 		}
 
 		function moving_ai() {
-			if (ball.vx != BALL_SPEED && ball.vx != -BALL_SPEED && !ball.isSpeedingUp)
-			{
-				ball.isSpeedingUp = true;
-				setTimeout(function() {
-					if (ball.vx > 0 && ball.vx != BALL_SPEED)
-						ball.vx++;
-					else if (ball.vx != -BALL_SPEED)
-						ball.vx--;
-					ball.isSpeedingUp = false;
-				}, 1000);
-			}
-
-			ball.x += ball.vx;
-			ball.y += ball.vy;
-			
+			this.ball.x += this.ball.vx;
+			this.ball.y += this.ball.vy;
 			//Bounce off the ceiling/floor
 			if (
-				ball.y + ball.vy > canvas.height - ball.size ||
-				ball.y + ball.vy <= 0)
+				this.ball.y + this.ball.vy > canvas.height - this.ball.size ||
+				this.ball.y + this.ball.vy <= 0)
 			{
-				ball.vy = -ball.vy;
+				this.ball.vy = -this.ball.vy;
 			}
 			//Right wall collision
-			if (ball.x + ball.vx > canvas.width - ball.size)
+			if (this.ball.x + this.ball.vx > canvas.width - this.ball.size)
 			{
-				ball.reset(-1);
-				paddleLeft.reset();
-				ai.reset();
+				this.ball.reset(-1);
+				this.paddleLeft.reset();
+				this.ai.reset();
+				this.pointScored(0);
+				this.scorePointPlayer();
+				//TODO send message player scored
 			}
 			//Left wall collision
-			if (ball.x + ball.vx < 0)
+			if (this.ball.x + this.ball.vx < 0)
 			{
-				ball.reset(1);
-				paddleLeft.reset();
-				ai.reset();
+				this.ball.reset(1);
+				this.paddleLeft.reset();
+				this.ai.reset();
+				this.pointScored(1);
+				this.scorePointAI();
+				//TODO: send message ai scored
 			}
 
 			//Left paddle collisions
-			if (ball.x + ball.vx < paddleLeft.width + paddleLeft.x &&
-				ball.y + ball.vy < paddleLeft.y + paddleLeft.height &&
-				ball.y + ball.vy + ball.size > paddleLeft.y && ball.vx < 0)
+			if (this.ball.x + this.ball.vx < this.paddleLeft.width + this.paddleLeft.x &&
+				this.ball.y + this.ball.vy < this.paddleLeft.y + this.paddleLeft.height &&
+				this.ball.y + this.ball.vy + this.ball.size > this.paddleLeft.y && this.ball.vx < 0)
 			{
 				//Horizontal collision
-				if (ball.x + ball.vx + ball.size > paddleLeft.width + paddleLeft.x)
+				if (this.ball.x + this.ball.vx + this.ball.size > this.paddleLeft.width + this.paddleLeft.x)
 				{
-					var relativeIntersection = (ball.y + ball.size/2 + ball.vy) - (paddleLeft.y + paddleLeft.height / 2);
-					var normalizedRelativeIntersectionY = (relativeIntersection/(paddleLeft.height/2));
+					var relativeIntersection = (this.ball.y + this.ball.size/2 + this.ball.vy) - (this.paddleLeft.y + this.paddleLeft.height / 2);
+					var normalizedRelativeIntersectionY = (relativeIntersection/(this.paddleLeft.height/2));
 					var bounceAngle = normalizedRelativeIntersectionY * MAXBOUNCEANGLE;
-					var velocityY = ball.vy > 0 ? 1 : -1;
-					ball.vx = BALL_SPEED*Math.cos(bounceAngle);
-					ball.vy = BALL_SPEED*Math.sin(bounceAngle);
-					if ((ball.vy > 0 && velocityY === -1) || ball.vy < 0 && velocityY === 1)
-						ball.vy *= -1;
-					ball.vx = Math.abs(ball.vx);
+					var velocityY = this.ball.vy > 0 ? 1 : -1;
+					this.ball.vx = BALL_SPEED*Math.cos(bounceAngle);
+					this.ball.vy = BALL_SPEED*Math.sin(bounceAngle);
+					if ((this.ball.vy > 0 && velocityY === -1) || this.ball.vy < 0 && velocityY === 1)
+						this.ball.vy *= -1;
+					this.ball.vx = Math.abs(this.ball.vx);
 				}
-				else if (ball.y + ball.vy < paddleLeft.y) //Upper side collision
+				else if (this.ball.y + this.ball.vy < this.paddleLeft.y) //Upper side collision
 				{
-					ball.vx = -ball.vx;
-					if (ball.vy > 0)
-						ball.vy = -ball.vy;
+					this.ball.vx = -this.ball.vx;
+					if (this.ball.vy > 0)
+						this.ball.vy = -this.ball.vy;
 				}
-				else if (ball.y + ball.vy + ball.size > paddleLeft.y + paddleLeft.height) //Lower side collision
+				else if (this.ball.y + this.ball.vy + this.ball.size > this.paddleLeft.y + this.paddleLeft.height) //Lower side collision
 				{
-					ball.vx = -ball.vx;
-					if (ball.vy < 0)
-						ball.vy = -ball.vy;
+					this.ball.vx = -this.ball.vx;
+					if (this.ball.vy < 0)
+						this.ball.vy = -this.ball.vy;
 				}
 			}
 			
 			//AI paddle collisions
-			if (ball.x + ball.vx + ball.size > ai.x &&
-				ball.y + ball.vy < ai.y + ai.height &&
-				ball.y + ball.vy + ball.size > ai.y && ball.vx > 0)
+			if (this.ball.x + this.ball.vx + this.ball.size > this.ai.x &&
+				this.ball.y + this.ball.vy < this.ai.y + this.ai.height &&
+				this.ball.y + this.ball.vy + this.ball.size > this.ai.y && this.ball.vx > 0)
 			{
 				//Horizontal collision
-				if (ball.x + ball.vx < ai.x) {
-					var relativeIntersection = ((ball.y + ball.size/2) + ball.vy) - (ai.y + ai.height/2);
-					var normalizedRelativeIntersectionY = (relativeIntersection/(ai.height/2));
+				if (this.ball.x + this.ball.vx < this.ai.x) {
+					var relativeIntersection = ((this.ball.y + this.ball.size/2) + this.ball.vy) - (this.ai.y + this.ai.height/2);
+					var normalizedRelativeIntersectionY = (relativeIntersection/(this.ai.height/2));
 					var bounceAngle = normalizedRelativeIntersectionY * MAXBOUNCEANGLE;
-					var velocityY = ball.vy > 0 ? 1 : -1;
-					ball.vx = BALL_SPEED*Math.cos(bounceAngle);
-					ball.vy = BALL_SPEED*Math.sin(bounceAngle);
-					if ((ball.vy > 0 && velocityY === -1) || ball.vy < 0 && velocityY === 1)
-						ball.vy *= -1;
-					ball.vx = -Math.abs(ball.vx);
+					var velocityY = this.ball.vy > 0 ? 1 : -1;
+					this.ball.vx = BALL_SPEED*Math.cos(bounceAngle);
+					this.ball.vy = BALL_SPEED*Math.sin(bounceAngle);
+					if ((this.ball.vy > 0 && velocityY === -1) || this.ball.vy < 0 && velocityY === 1)
+						this.ball.vy *= -1;
+					this.ball.vx = -Math.abs(this.ball.vx);
 				}
-				else if (ball.y + ball.vy < ai.y) //Upper side collision
+				else if (this.ball.y + this.ball.vy < this.ai.y) //Upper side collision
 				{
-					ball.vx = -ball.vx;
-					if (ball.vy > 0)
-						ball.vy = -ball.vy;
+					this.ball.vx = -this.ball.vx;
+					if (this.ball.vy > 0)
+						this.ball.vy = -this.ball.vy;
 				}
-				else if (ball.y + ball.vy + ball.size > ai.y + ai.height) //Lower side collision
+				else if (this.ball.y + this.ball.vy + this.ball.size > this.ai.y + this.ai.height) //Lower side collision
 				{
-					ball.vx = -ball.vx;
-					if (ball.vy < 0)
-						ball.vy = -ball.vy;
+					this.ball.vx = -this.ball.vx;
+					if (this.ball.vy < 0)
+						this.ball.vy = -this.ball.vy;
 				}
 			}
 
-			update_paddle_ai();
-			if (ai.y < 0)
-				ai.y = 0;
-			if (ai.y > canvas.height - ai.height)
-				ai.y = canvas.height - ai.height;
+			update_paddle_ai.bind(this)();
+			if (this.ai.y < 0)
+				this.ai.y = 0;
+			if (this.ai.y > canvas.height - this.ai.height)
+				this.ai.y = canvas.height - this.ai.height;
 		}
 
-		async function draw() {
+		this.draw = (function() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			paddleLeft.draw();
-			ai.draw();
-			ball.draw();
-			if (ball.isReset)
-			{
-				pause = true;
-				ball.isReset = false;
-				setTimeout(function() {
-					pause = false;
-				}, 3000);
+			this.score.draw();
+			this.paddleLeft.draw();
+			this.ai.draw();
+			this.ball.draw();
+			// moving_ai.bind(this)();
+			// raf = window.requestAnimationFrame(this.draw);
+		}).bind(this);
+
+		this.gameLoop = (function(timeStamp) {
+			if (!this.lastLoop) this.lastLoop = Date.now();
+
+			const deltaTime = timeStamp - this.lastLoop;
+			this.lastLoop = timeStamp;
+
+			accumulatedTime += deltaTime;
+			if (accumulatedTime < 0) accumulatedTime = 0;
+			while (accumulatedTime >= updateInterval) {
+				moving_ai.bind(this)();
+				accumulatedTime -= updateInterval;
 			}
-			if (!pause)
-				moving_ai();
-			raf = window.requestAnimationFrame(draw);
-		}
+
+			this.draw();
+			this.raf = window.requestAnimationFrame(this.gameLoop);
+		}).bind(this);
 
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
@@ -260,21 +388,21 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			switch (e.key) {
 				case "ArrowDown":
 				case "s":
-					paddleLeft.y += paddleLeft.vy;
-					if (paddleLeft.y > canvas.height - paddleLeft.height)
-					paddleLeft.y = canvas.height - paddleLeft.height;
+					this.paddleLeft.y += this.paddleLeft.vy;
+					if (this.paddleLeft.y > canvas.height - this.paddleLeft.height)
+					this.paddleLeft.y = canvas.height - this.paddleLeft.height;
 				break;
 				case "ArrowUp":
 				case "w":
-					paddleLeft.y -= paddleLeft.vy;
-					if (paddleLeft.y < 0)
-						paddleLeft.y = 0;
+					this.paddleLeft.y -= this.paddleLeft.vy;
+					if (this.paddleLeft.y < 0)
+						this.paddleLeft.y = 0;
 					break;
 				case " ":
 					window.cancelAnimationFrame(raf);
 					break;
 				case "Enter":
-					raf = window.requestAnimationFrame(draw);
+					raf = window.requestAnimationFrame(this.gameLoop);
 				default:
 					return;
 			}
@@ -291,14 +419,25 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		});
 		*/
 
-		ball.draw();
-		paddleLeft.draw();
-		let lastTime = Date.now();
+		// this.ball.draw();
+		// this.paddleLeft.draw();
 
-		raf = window.requestAnimationFrame(draw);
+		// raf = window.requestAnimationFrame(this.draw);
 	}
 
 	disconnectedCallback() {
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+	}
+
+	scorePointPlayer() {
+		myself.sendMessage(JSON.stringify({
+			'type': 'ai_score_player'
+		}))
+	}
+
+	scorePointAI() {
+		myself.sendMessage(JSON.stringify({
+			'type': 'ai_score_ai'
+		}))
 	}
 }

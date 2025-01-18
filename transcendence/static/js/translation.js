@@ -56,7 +56,6 @@ export function updateGlobalTranslations() {
         { id: "login-guest", key: "login.guest" },
         { id: "login-intra", key: "login.intra" },
         { id: "prepare-btn-txt", key: "lobby-room.prepare-btn-txt" },
-        { id: "custom-avatar", key: "popups.custom-avatar" },
         { id: "logout", key: "popups.logout" },
         { id: "confirm-logout-txt", key: "popups.confirm-logout-txt" },
         { id: "agree-txt", key: "popups.agree-txt" },

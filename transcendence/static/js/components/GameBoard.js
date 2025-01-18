@@ -1,4 +1,15 @@
 import { myself, sleep } from "../myself.js";
+
+const GameMode = {
+	Default: "",
+	Balance: "balance",
+	Shoot: "shoot",
+	Bomb: "bomb",
+	Remix: "remix"
+};
+
+const BALANCE_FACTOR = 10;
+
 export default class ComponentGameBoard extends HTMLElement {
 	constructor() {
 		super();
@@ -62,6 +73,9 @@ export default class ComponentGameBoard extends HTMLElement {
 		let side = message["side"];
 		let playerLeft = message["players"][0];
 		let playerRight = message["players"][1];
+		let gameMode = message["game_mode"];
+		if (gameMode !== null)
+			this.gameMode = gameMode;
 		this.score.left = 0;
 		this.score.right = 0;
 		this.side = side;
@@ -78,14 +92,16 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleRight.draw();
 		this.paddleLeft.draw();
 
-		console.log(this.side);
+		// console.log(this.side);
+		this.gameMode = GameMode.Balance;
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
 	}
 
 	freezeMatch() {
-		if (this.raf != null) {
+		if (this.raf !== null) {
+			console.log("Freeze");
 			window.cancelAnimationFrame(this.raf);
 			document.removeEventListener("keydown", this.keydownEventListener, true);
 			this.raf = null;
@@ -93,9 +109,11 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	unfreezeMatch() {
-		if (this.raf == null) {
-			document.addEventListener("keydown", this.keydownEventListener, true);
-			this.raf = window.requestAnimationFrame(this.draw);
+		if (this.raf === null) {
+			console.log("Unfreeze");
+			document.addEventListener("keydown", this.keydownEventListener.bind(this), true);
+			this.raf = window.requestAnimationFrame(this.gameLoop);
+			this.lastTime = 0;
 		}
 	}
 
@@ -111,10 +129,27 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	pointScored(side) {
-		if (side == 0)
+		console.log(this.paddleLeft.height);
+		console.log(this.paddleRight.height);
+		console.log("MIN: " + this.MIN_PADDLE_SIZE + ", MAX: " + this.MAX_PADDLE_SIZE);
+		if (side == 0) {
 			this.score.left++;
-		else
+			if (this.gameMode === GameMode.Balance) {
+				if (this.paddleLeft.height - BALANCE_FACTOR >= this.MIN_PADDLE_SIZE)
+					this.paddleLeft.height -= BALANCE_FACTOR;
+				if (this.paddleRight.height + BALANCE_FACTOR <= this.MAX_PADDLE_SIZE)
+					this.paddleRight.height += BALANCE_FACTOR;
+			}
+		}
+		else {
 			this.score.right++;
+			if (this.gameMode === GameMode.Balance) {
+				if (this.paddleRight.height - BALANCE_FACTOR >= this.MIN_PADDLE_SIZE)
+					this.paddleRight.height -= BALANCE_FACTOR;
+				if (this.paddleLeft.height + BALANCE_FACTOR <= this.MAX_PADDLE_SIZE)
+					this.paddleLeft.height += BALANCE_FACTOR;
+			}
+		}
 	}
 
 	ballBounced(message) {
@@ -128,18 +163,18 @@ export default class ComponentGameBoard extends HTMLElement {
 	connectedCallback() {
 		const canvas = this.shadow.querySelector("canvas");
 		const ctx = canvas.getContext("2d");
-		const BALL_SPEED = 5;
+		const BALL_SPEED = 6;
 		const MAXBOUNCEANGLE = Math.PI/4;
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 15;
-		let lastTime = 0; // The timestamp of the last frame
+		this.MAX_PADDLE_SIZE = canvas.height/2;
+		this.MIN_PADDLE_SIZE = canvas.height/10;
+		this.gameMode = GameMode.Default;
+		this.lastTime = 0; // The timestamp of the last frame
 		// let serverTimeOffset = 0; // Difference between server and local clock
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
-
-
-		let pause = false;
 
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
@@ -167,7 +202,6 @@ export default class ComponentGameBoard extends HTMLElement {
 			vy: BALL_SPEED,
 			size: 50,
 			isReset: true,
-			isSpeedingUp: true,
 			color: "blue",
 			draw()
 			{
@@ -181,7 +215,6 @@ export default class ComponentGameBoard extends HTMLElement {
 				this.vx = BALL_SPEED * side;
 				this.vy = BALL_SPEED;
 				this.isReset = true;
-				this.isSpeedingUp = false;
 				this.vx = 1 * side;
 			}
 		};
@@ -206,9 +239,9 @@ export default class ComponentGameBoard extends HTMLElement {
 			},
 			reset()
 			{
-				this.y = canvas.height/2 - PADDLE_H/2;
-				this.height = PADDLE_H;
-				this.width = PADDLE_W;
+				this.y = canvas.height/2 - this.height/2;
+				// this.height = PADDLE_H;
+				// this.width = PADDLE_W;
 			}
 		};
 
@@ -232,25 +265,13 @@ export default class ComponentGameBoard extends HTMLElement {
 			},
 			reset()
 			{
-				this.y = canvas.height/2 - PADDLE_H/2;
-				this.height = PADDLE_H;
-				this.width = PADDLE_W;
+				this.y = canvas.height/2 - this.height/2;
+				// this.height = PADDLE_H;
+				// this.width = PADDLE_W;
 			}
 		};
 
 		function moving() {
-			if (this.ball.vx != PADDLE_SPEED && this.ball.vx != -PADDLE_SPEED && !this.ball.isSpeedingUp)
-			{
-				this.ball.isSpeedingUp = true;
-				setTimeout((function() {
-					if (this.ball.vx > 0 && this.ball.vx != PADDLE_SPEED)
-						this.ball.vx++;
-					else if (this.ball.vx != -PADDLE_SPEED)
-						this.ball.vx--;
-					this.ball.isSpeedingUp = false;
-				}).bind(this), 1000);
-			}
-
 			this.ball.x += this.ball.vx;
 			this.ball.y += this.ball.vy;
 		  	//Bounce off the ceiling/floor
@@ -273,8 +294,9 @@ export default class ComponentGameBoard extends HTMLElement {
 			//Left wall collision
 			if (this.ball.x + this.ball.vx < 0)
 				{
-				if (this.side != 0)
+				if (this.side != 0) {
 					this.scorePoint();
+				}
 				this.ball.reset(1);
 				this.paddleLeft.reset();
 				this.paddleRight.reset();
@@ -353,35 +375,24 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.paddleLeft.draw();
 			this.paddleRight.draw();
 			this.ball.draw();
-			// if (this.ball.isReset)
-			// {
-			// 	pause = true;
-			// 	this.ball.isReset = false;
-			// 	setTimeout(function() {
-				// 		pause = false;
-				// 	}, 3000);
-				// }
-				// if (!pause)
-				// 	moving.bind(this)();
-				// this.raf = window.requestAnimationFrame(this.draw);
-			}).bind(this);
+		}).bind(this);
 			
-			this.gameLoop = (function(timeStamp) {
-				if (!lastTime) lastTime = Date.now();
-	
-				const deltaTime = timeStamp - lastTime;
-				lastTime = timeStamp;
-	
-				accumulatedTime += deltaTime;
-				if (accumulatedTime < 0) accumulatedTime = 0;
-				while (accumulatedTime >= updateInterval) {
-					moving.bind(this)();
-					accumulatedTime -= updateInterval;
-				}
-	
-				this.draw();
-				this.raf = window.requestAnimationFrame(this.gameLoop);
-			}).bind(this);
+		this.gameLoop = (function(timeStamp) {
+			if (!this.lastTime) this.lastTime = Date.now();
+
+			const deltaTime = timeStamp - this.lastTime;
+			this.lastTime = timeStamp;
+
+			accumulatedTime += deltaTime;
+			if (accumulatedTime < 0) accumulatedTime = 0;
+			while (accumulatedTime >= updateInterval) {
+				moving.bind(this)();
+				accumulatedTime -= updateInterval;
+			}
+
+			this.draw();
+			this.raf = window.requestAnimationFrame(this.gameLoop);
+		}).bind(this);
 		
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {

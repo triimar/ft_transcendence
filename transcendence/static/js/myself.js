@@ -58,6 +58,20 @@ class Visitor {
 		}
 	}
 
+	changeAvatar(newEmoji, newBackgroundColor) {
+		if (this.gameIndex != null) {
+			this.displayPopupMessage("You cannot change avatar during a game");
+		} else if (newEmoji.length != 3) {
+			this.displayPopupMessage("Avatar's face can only have 3 characters");
+		} else if (!["#ff4d6d", "#045d75", "#4ba3c7", "#007f5f", "#ffe156", "#a01a58", "#ff5da2", "#001f54"].includes(newBackgroundColor)) {
+			this.displayPopupMessage("Avatar's color is not in the color palette");
+		} else {
+			this.avatar_emoji = newEmoji;
+			this.avatar_bg_color = newBackgroundColor;
+			this.sendMessageAvatarChange(newEmoji, newBackgroundColor);
+		}
+	}
+
 	getLoginMethod() {
 		return localStorage.getItem("login_method");
 	}
@@ -311,7 +325,9 @@ class Visitor {
 					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
 					prepareButton.removeAttribute("disabled");
 					prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
-					prepareButton.addEventListener("click", () => {
+					prepareButton.addEventListener("click", (e) => {
+						console.log("BUTTON PRESSED");
+						e.stopImmediatePropagation();
 						this.sendMessageStartGame(this.roomId);
 					}, {once: true});
 				}
@@ -320,51 +336,112 @@ class Visitor {
 				this.pageFinishedRendering = false;
 				let players = message["players"];
 				let gameIndex = 0;
+				let ai = false;
 				for (let [i, player] of players.entries()) {
 					if (player["player_id"] == this.id) {
-						gameIndex = i % 2;
-						window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
-						await this.waitForPageToRender();
+						gameIndex = Math.floor(i / 2);
+						if ((i % 2) == 0) {
+							if (players[i + 1]["player_id"] == "ai") {
+								ai = true;
+								window.location.href += `-ai-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+							}
+							else {
+								window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+							}
+						} else {
+							if (players[i - 1]["player_id"] == "ai") {
+								ai = true;
+								window.location.href += `-ai-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+							}
+							else {
+								window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+							}
+						}
 						document.querySelector("#tournament-tree-popup td-tournament-tree").initiateTournament(players);
-						let popup = document.querySelector("#tournament-tree-popup");
-						popup.classList.add('show');
-						await sleep(5000);
-						// Note(HeiYiu): show leaderboard with 5 seconds loading animation
-						popup.classList.remove('show');
-						let gameboard = this.page.container.querySelector("td-game-board");
-						await gameboard.countdown();
-						this.sendMessagePlayerMatchReady();
 						break;
 					}
 				}
 			} break;
+			case "ack_join_match": {
+				await this.waitForPageToRender();
+				let popup = document.querySelector("#tournament-tree-popup");
+				popup.classList.add('show');
+				await sleep(5000);
+				// Note(HeiYiu): show leaderboard with 5 seconds loading animation
+				popup.classList.remove('show');
+				if (!ai) {
+					let gameboard = this.page.container.querySelector("td-game-board");
+					await gameboard.countdown();
+				} else {
+					let gameboard = this.page.container.querySelector("td-ai-game-board");
+					await gameboard.countdown();
+				}
+				this.sendMessagePlayerMatchReady();
+			} break;
+			case "b_join_match": {
+
+			} break;
+			case "b_leave_match": {
+
+			} break;
 			case "b_start_match": {
-				console.log("recieved start match");
 				let gameboard = this.page.container.querySelector("td-game-board");
 				if (!gameboard) {
 					gameboard = document.createElement("td-game-board");
 					this.page.container.appendChild(matchElement);
-					console.log("Created gameboard");
+				}
+				gameboard.startMatch(message);
+			} break;
+			case "b_start_ai_match": {
+				let gameboard = this.page.container.querySelector("td-ai-game-board");
+				if (!gameboard) {
+					gameboard = document.createElement("td-ai-game-board");
+					this.page.container.appendChild(matchElement);
 				}
 				gameboard.startMatch(message);
 			} break;
 			case "b_paddle_move": {
-				console.log("paddle moved");
 				let gameboard = this.page.container.querySelector("td-game-board");
 				gameboard.oponentPaddleMoved(message["paddle"], message["position"])
 			} break;
 			case "b_bounce_ball": {
-				console.log("ball bounce");
 				let gameboard = this.page.container.querySelector("td-game-board");
 				gameboard.ballBounced(message);
 			} break;
 			case "b_scored_point": {
 				let gameboard = this.page.container.querySelector("td-game-board");
 				gameboard.pointScored(message["player"]);
+				gameboard.ballBounced(message);
 			} break;
 			case "b_match_win": {
-				let gameboard = this.page.container.querySelector("td-game-board");
+				let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
 				gameboard.displayMatchResult(message["winner"]);
+			} break;
+			case "b_ai_scored_point": {
+				let gameboard = this.page.container.querySelector("td-ai-game-board");
+				gameboard.updateBall(message);
+			} break;
+			case "b_avatar_change": {
+				// only in room page
+				let playerId = message["player_id"];
+				let emoji = message["emoji"];
+				let backgroundColor = message["bg_color"];
+				if (this.pageName == "room") {
+					let roomElement = this.page.container.querySelector("td-lobby-room");
+					roomElement.changeParticipant(emoji, backgroundColor, playerId);
+				}
+			} break;
+			case "ack_avatar_change": {
+				// only in lobby or room page
+				let emoji = message["emoji"];
+				let backgroundColor = message["bg_color"];
+				let avatarElement = document.querySelector("td-navigation-bar")?.shadow.querySelector("td-avatar");
+				avatarElement.setAttribute("avatar-name", emoji);
+				avatarElement.setAttribute("avatar-background", backgroundColor);
+				if (this.pageName == "room") {
+					let roomElement = this.page.container.querySelector("td-lobby-room");
+					roomElement.changeParticipant(emoji, backgroundColor, this.id);
+				}
 			} break;
 			case "error": {
 				this.displayPopupMessage(i18next.t(message.message_key));
@@ -512,6 +589,16 @@ class Visitor {
 		this.sendMessage(JSON.stringify(message));
 	}
 
+	sendMessageJoinMatch(roomId, gameIndex) {
+		let message = {
+			type: "join_match",
+			"room_id": roomId,
+			"player_id": this.id,
+			"match_id": gameIndex
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
 	sendMessageStartGameCountDown() {
 		let message = {
 			type: "start_game_countdown"
@@ -522,6 +609,15 @@ class Visitor {
 	sendMessagePlayerMatchReady() {
 		let message = {
 			type: "player_match_ready"
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageAvatarChange(emoji, backgroundColor) {
+		let message = {
+			type: "player_avatar_change",
+			emoji: emoji,
+			bg_color: backgroundColor
 		};
 		this.sendMessage(JSON.stringify(message));
 	}

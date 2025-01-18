@@ -9,13 +9,6 @@ export default class ComponentNavigationBar extends HTMLElement {
 
 	connectedCallback() {
 		this.shadow.querySelector("td-logo").addEventListener("click", () => {window.location.hash = "#main"});
-		this.modeSwitcherFunc = (() => {
-			let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');
-			let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');
-			document.documentElement.style.setProperty('--td-ui-background-color', fgColor);
-			document.documentElement.style.setProperty('--td-ui-font-color', bgColor);
-		}).bind(this);
-		this.shadow.querySelector("#mode").addEventListener("click", this.modeSwitcherFunc, true);
 
 		this.logoutFunc = () => {
 			if (myself.roomId == null) {
@@ -34,20 +27,29 @@ export default class ComponentNavigationBar extends HTMLElement {
 			}
 		};
 		document.querySelector("#logout-btn").addEventListener("click", this.logoutFunc, true);
-			// Note(HeiYiu): Change avatar
-			let avatarElement = document.createElement("td-avatar");
-			avatarElement.setAttribute("avatar-name", myself.avatar_emoji);
-			avatarElement.setAttribute("avatar-background", myself.avatar_bg_color);
-			avatarElement.setAttribute("avatar-id", myself.id);
-			avatarElement.setAttribute("slot", "avatar");
-			let dummyAvatars = [document.querySelector("#avatar-info-popup td-avatar"), this.shadow.querySelector("td-avatar")];
-			for (let dummyAvatar of dummyAvatars) {
-				dummyAvatar.parentNode.replaceChild(avatarElement.cloneNode(), dummyAvatar);
+		// Note(HeiYiu): Change avatar
+		let avatarElement = document.createElement("td-avatar");
+		avatarElement.setAttribute("avatar-name", myself.avatar_emoji);
+		avatarElement.setAttribute("avatar-background", myself.avatar_bg_color);
+		avatarElement.setAttribute("avatar-id", myself.id);
+		avatarElement.setAttribute("slot", "avatar");
+		let dummyAvatars = [document.querySelector("#avatar-info td-avatar"), this.shadow.querySelector("td-avatar")];
+		for (let dummyAvatar of dummyAvatars) {
+			dummyAvatar.parentNode.replaceChild(avatarElement.cloneNode(), dummyAvatar);
+		}
+		document.querySelector("#id-card-name").value = myself.avatar_emoji;
+		let colorContainer = document.querySelector("#color-selection-container");
+		for (let colorOption of colorContainer.children) {
+			if (colorOption.getAttribute("color") == myself.avatar_bg_color) {
+				colorOption.classList.add("chosen");
 			}
+			else {
+				colorOption.classList.remove("chosen");
+			}
+		}
 	}
 
 	disconnectedCallback() {
-		this.shadow.querySelector("#mode").removeEventListener("click", this.modeSwitcherFunc, true);
 		document.querySelector("#logout-btn").removeEventListener("click", this.logoutFunc, true);
 	}
 }

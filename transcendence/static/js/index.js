@@ -25,6 +25,53 @@ const pageMapping = {
 
 let isTriggerHashChange = true;
 async function main() {
+	// Note(HeiYiu): global event listeners
+	{
+		let avatarChangeButton = document.getElementById("avatar-apply-change-btn");
+		let colorSelectionContainer = document.getElementById("color-selection-container");
+		let avatarNameTextInput = document.getElementById("id-card-name");
+
+		avatarNameTextInput.addEventListener("input", (e) => {
+			let avatarElement = document.querySelector("#avatar-info td-avatar");
+			avatarElement.setAttribute("avatar-name", e.target.value);
+		}, true);
+		colorSelectionContainer.addEventListener("click", (e) => {
+			if (e.target != colorSelectionContainer) {
+				for (let colorOption of colorSelectionContainer.children) {
+					colorOption.classList.remove("chosen");
+				}
+				e.target.classList.add("chosen");
+				let avatarElement = document.querySelector("#avatar-info td-avatar");
+				avatarElement.setAttribute("avatar-background", e.target.getAttribute("color"));
+			}
+		});
+		avatarChangeButton.addEventListener("click", () => {
+			if (myself.gameInde == null) {
+				let emoji = avatarNameTextInput.value;
+				let background = document.querySelector("#color-selection-container > .chosen")?.getAttribute("color");
+				myself.changeAvatar(emoji, background);
+			} else {
+				myself.displayPopupMessage("You cannot change avatar after game starts");
+			}
+		}, true);
+		let closeButton = document.querySelector("#avatar-info .close-btn");
+		closeButton.addEventListener("click", () => {
+			let popupElement = document.querySelector("#avatar-info-popup");
+			popupElement.classList.remove("show");
+			let avatarElement = document.querySelector("#avatar-info td-avatar");
+			avatarElement.setAttribute("avatar-name", myself.avatar_emoji);
+			avatarElement.setAttribute("avatar-background", myself.avatar_bg_color);
+			avatarNameTextInput.value = myself.avatar_emoji;
+			for (let colorOption of colorSelectionContainer.children) {
+				if (colorOption.getAttribute("color") == myself.avatar_bg_color) {
+					colorOption.classList.add("chosen");
+				}
+				else {
+					colorOption.classList.remove("chosen");
+				}
+			}
+		});
+	}
 	await initializeI18n(); // Ensure translations are initialized
 	document.myself = myself; // only for debugging
 	const contentContainer = document.getElementsByClassName("content-container")[0];
@@ -197,8 +244,10 @@ function sendInitMessage(pageName, roomId, gameIndex) {
 	switch (pageName) {
 	case "error":
 	case "login":
+		break;
 	case "game":
 	case "ai-game":
+		myself.sendMessageJoinMatch(roomId, gameIndex);
 		break;
 	case "room":
 		myself.sendMessageJoinRoom(roomId);

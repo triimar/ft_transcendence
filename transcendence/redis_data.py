@@ -23,8 +23,8 @@ class RedisError(Enum):
     PLAYERALLPREPARED = 5
     GAMEALREADYSTARTED = 6
 
-BALL_VELOCITY_X = [-1, 1]
-BALL_VELOCITY_Y = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
+BALL_VELOCITY_X = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
+BALL_VELOCITY_Y = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
 
 async def get_full_room_data() -> list:
     redis_instance = get_redis_client()
@@ -68,7 +68,7 @@ async def add_player_to_room(room_id, player_id) -> RedisError:
             return RedisError.NONE
     if room["max_player"] <= len(room["avatars"]):
         return RedisError.MAXROOMPLAYERSREACHED
-    if len(room["matches"] != 0):
+    if len(room["matches"]) != 0:
         return RedisError.GAMEALREADYSTARTED
     await redis_instance.json().arrappend("room_data", f'$.{room_id}.avatars', {"player_id": player_id, "prepared": False})
     print(f"Player {player_id} added to {room['room_id']}.")
@@ -215,6 +215,18 @@ def init_ball() -> dict:
     ball.update({"size": 50})
     return {"ball": ball}
 
+async def reset_ball(room_id, match_index) -> dict:
+    redis_instance = get_redis_client()
+    await redis_instance.json().mset([
+        ("room_data", f'$.{room_id}.matches[{match_index}].ball.position', {'x': 600, 'y': 300}),
+        ("room_data", f'$.{room_id}.matches[{match_index}].ball.velocity', {"vx": random.choice(BALL_VELOCITY_X), "vy":random.choice(BALL_VELOCITY_Y)})
+    ])
+    result = await redis_instance.json().get("room_data", f'$.{room_id}.matches[{match_index}].ball')
+    if len(result) >= 0:
+        return result[0]
+    else:
+        return None
+
 async def generate_matches(room_id, self_player_id) -> list[str]:
     redis_instance = get_redis_client()
     [room] = await redis_instance.json().get("room_data", f'$.{room_id}')
@@ -264,19 +276,27 @@ async def increase_ai_score(room_id):
     redis_instance = get_redis_client()
     await redis_instance.json().numincrby("room_data", f'$.{room_id}.ai.score', 1)
 
+async def update_avatar(player_id, emoji, background_color):
+    redis_instance = get_redis_client()
+    await redis_instance.json().mset([
+        ("player_data", f'$.{player_id}.player_emoji', emoji),
+        ("player_data", f'$.{player_id}.player_bg_color', background_color)
+    ])
+
 def is_in_room(player_id, room: dict):
-    return any(avatar["player_id"] == player_id for avatar in room["avtars"])
+    return any(avatar["player_id"] == player_id for avatar in room["avatars"])
 
 def get_last_match_id(room: dict, player_id):
     for idx, match in enumerate(reversed(room["matches"])):
         if player_id in match["players"]:
-            return len(match) - idx + 1
+            return len(room["matches"]) - idx - 1
 
 def get_first_layer_player(room: dict):
     first_layer_matches_len = (len(room["avatars"]) + 1) // 2
     first_layer_player_id = []
     for match in room["matches"][:first_layer_matches_len]:
         first_layer_player_id.extend(match["players"])
+    return first_layer_player_id
 
 async def get_winners_list(room_id, first_layer_player_id: list[str]):
     # get winners list

@@ -178,3 +178,17 @@ main {
 	border-top-color: var(--td-ui-background-color);
 	border-left: 0;
 }
+
+#color-selection-container > * {
+	width: 2em;
+	height: 2em;
+}
+
+#color-selection-container > *.chosen {
+	border: 0.3em solid var(--td-ui-font-color);
+}
+
+.disable-click {
+	opacity: 0.5;
+	pointer-events: none;
+}

@@ -107,6 +107,17 @@ export default class ComponentLobbyRoom extends HTMLElement {
 		this.replaceChild(avatarElement, joinButtons[0]);
 	}
 
+	changeParticipant(avatarName, avatarBackground, avatarId) {
+		let participants = this.querySelectorAll("td-avatar");
+		for (let participant of participants) {
+			if (participant.getAttribute("avatar-id") == avatarId) {
+				participant.setAttribute("avatar-name", avatarName);
+				participant.setAttribute("avatar-background", avatarBackground);
+				break;
+			}
+		}
+	}
+
 	removeParticipant(avatarId) {
 		let participants = this.querySelectorAll("td-avatar");
 		if (participants == 0) {
