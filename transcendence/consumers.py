@@ -224,7 +224,10 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
             room = await data.get_one_room_data(room_id)
 
-            if not data.is_in_room(player_id, room):
+            if room is None:
+                await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
+                self.player_id = player_id
+            elif not data.is_in_room(player_id, room):
                 await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_IN_ROOM.value, "redirect_hash": "main"}))
                 self.player_id = player_id
             else:
