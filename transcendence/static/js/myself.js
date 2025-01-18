@@ -425,6 +425,11 @@ class Visitor {
 			} break;
 			case "ack_avatar_change": {
 				// only in lobby or room page
+				let emoji = message["emoji"];
+				let backgroundColor = message["bg_color"];
+				let avatarElement = document.querySelector("td-navigation-bar")?.shadow.querySelector("td-avatar");
+				avatarElement.setAttribute("avatar-name", emoji);
+				avatarElement.setAttribute("avatar-background", backgroundColor);
 			} break;
 			case "error": {
 				this.displayPopupMessage(i18next.t(message.message_key));
