@@ -82,7 +82,7 @@ async function main() {
 			let avatarElement = document.querySelector("#avatar-info td-avatar");
 			avatarElement.setAttribute("avatar-name", e.target.value);
 		}, true);
-		colorSelectionContainer.addEventListener("click", (e) => {
+		let colorSelectionFunc = (e) => {
 			if (e.target != colorSelectionContainer) {
 				for (let colorOption of colorSelectionContainer.children) {
 					colorOption.classList.remove("chosen");
@@ -91,9 +91,17 @@ async function main() {
 				let avatarElement = document.querySelector("#avatar-info td-avatar");
 				avatarElement.setAttribute("avatar-background", e.target.getAttribute("color"));
 			}
+		}
+		colorSelectionContainer.addEventListener("click", colorSelectionFunc);
+		colorSelectionContainer.addEventListener("keydown", (e) => {
+			if ((e.key == "Enter") || (e.key == " ")) {
+				e.preventDefault();
+				e.target.click();
+			}
 		});
 		avatarChangeButton.addEventListener("click", () => {
 			if (myself.gameInde == null) {
+				closePopup("avatar-info-popup");
 				let emoji = avatarNameTextInput.value;
 				let background = document.querySelector("#color-selection-container > .chosen")?.getAttribute("color");
 				background = background.slice(1); // Note(HeiYiu): remove #
@@ -104,8 +112,7 @@ async function main() {
 		}, true);
 		let closeButton = document.querySelector("#avatar-info .close-btn");
 		closeButton.addEventListener("click", () => {
-			let popupElement = document.querySelector("#avatar-info-popup");
-			popupElement.classList.remove("show");
+			closePopup("avatar-info-popup");
 			let avatarElement = document.querySelector("#avatar-info td-avatar");
 			avatarElement.setAttribute("avatar-name", myself.avatar_emoji);
 			avatarElement.setAttribute("avatar-background", myself.avatar_bg_color);

@@ -33,18 +33,18 @@
 					</div>
 					<form action="" style="grid-column: 2; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: space-between; padding-left: 0.2em;">
 						<div style="display: grid; grid-template-columns: minmax(13ch, auto) 1fr; grid-template-rows: 1fr minmax(auto, 3fr); gap: 0.2em; padding-right: 0.2em;">
-								<label for="name" id="id-card-name-text">Name:</label>
-								<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" style="outline: none; border: 0.1em solid var(--td-ui-font-color)">
-								<label for="background" id="id-card-background-text">Background:</label>
+								<label for="id-card-name" id="id-card-name-text">Name:</label>
+								<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" style="outline: none; border: 0.1em solid var(--td-ui-font-color)" autocomplete="none">
+								<div id="id-card-background-text">Background:</div>
 								<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
-									<div style="background: #ff4d6d" color="#ff4d6d"></div>
-									<div style="background: #045d75" color="#045d75"></div>
-									<div style="background: #4ba3c7" color="#4ba3c7"></div>
-									<div style="background: #007f5f" color="#007f5f"></div>
-									<div style="background: #ffe156" color="#ffe156"></div>
-									<div style="background: #a01a58" color="#a01a58"></div>
-									<div style="background: #ff5da2" color="#ff5da2"></div>
-									<div style="background: #001f54" color="#001f54"></div>
+									<div role="button" tabindex="0" style="background: #ff4d6d" color="#ff4d6d"></div>
+									<div role="button" tabindex="0" style="background: #045d75" color="#045d75"></div>
+									<div role="button" tabindex="0" style="background: #4ba3c7" color="#4ba3c7"></div>
+									<div role="button" tabindex="0" style="background: #007f5f" color="#007f5f"></div>
+									<div role="button" tabindex="0" style="background: #ffe156" color="#ffe156"></div>
+									<div role="button" tabindex="0" style="background: #a01a58" color="#a01a58"></div>
+									<div role="button" tabindex="0" style="background: #ff5da2" color="#ff5da2"></div>
+									<div role="button" tabindex="0" style="background: #001f54" color="#001f54"></div>
 								</div>
 						</div>
 						<td-button id="avatar-apply-change-btn" class="ui">
