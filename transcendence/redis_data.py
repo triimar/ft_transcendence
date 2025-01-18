@@ -289,7 +289,7 @@ def is_in_room(player_id, room: dict):
 def get_last_match_id(room: dict, player_id):
     for idx, match in enumerate(reversed(room["matches"])):
         if player_id in match["players"]:
-            return len(match) - idx + 1
+            return len(room["matches"]) - idx - 1
 
 def get_first_layer_player(room: dict):
     first_layer_matches_len = (len(room["avatars"]) + 1) // 2
