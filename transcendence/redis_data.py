@@ -296,6 +296,7 @@ def get_first_layer_player(room: dict):
     first_layer_player_id = []
     for match in room["matches"][:first_layer_matches_len]:
         first_layer_player_id.extend(match["players"])
+    return first_layer_player_id
 
 async def get_winners_list(room_id, first_layer_player_id: list[str]):
     # get winners list
