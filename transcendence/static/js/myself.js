@@ -422,6 +422,13 @@ class Visitor {
 			} break;
 			case "b_avatar_change": {
 				// only in room page
+				let playerId = message["player_id"];
+				let emoji = message["emoji"];
+				let backgroundColor = message["bg_color"];
+				if (this.pageName == "room") {
+					let roomElement = this.page.container.querySelector("td-lobby-room");
+					roomElement.changeParticipant(emoji, backgroundColor, playerId);
+				}
 			} break;
 			case "ack_avatar_change": {
 				// only in lobby or room page
@@ -430,6 +437,10 @@ class Visitor {
 				let avatarElement = document.querySelector("td-navigation-bar")?.shadow.querySelector("td-avatar");
 				avatarElement.setAttribute("avatar-name", emoji);
 				avatarElement.setAttribute("avatar-background", backgroundColor);
+				if (this.pageName == "room") {
+					let roomElement = this.page.container.querySelector("td-lobby-room");
+					roomElement.changeParticipant(emoji, backgroundColor, this.id);
+				}
 			} break;
 			case "error": {
 				this.displayPopupMessage(i18next.t(message.message_key));
