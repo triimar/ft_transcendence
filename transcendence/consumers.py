@@ -176,14 +176,14 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     case data.RedisError.NOPLAYERFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_FOUND.value, "redirect_hash": "main"}))
             case {"type": "start_game", "room_id": room_id}:
-                self.first_layer_player_id = await data.generate_matches(room_id, self.player_id)
+                first_layer_player_ids = await data.generate_matches(room_id, self.player_id)
                 first_layer_player  = []
-                for id in self.first_layer_player_id:
+                for id in first_layer_player_ids:
                     if id == "ai":
                         first_layer_player.append({"player_id": "ai"})
                     else:
                         first_layer_player.append(await data.get_one_player(id))
-                event_start_game = {"type":"broadcast.start.game", "players": first_layer_player}
+                event_start_game = {"type":"broadcast.start.game", "player_ids": first_layer_player_ids, "players": first_layer_player}
                 await self.channel_layer.group_send(self.room_group_name, event_start_game)
             case {"type": "join_match", "room_id": room_id, "player_id": player_id, "match_id": match_id}:
                 await self.join_match(room_id,match_id, player_id)
@@ -456,9 +456,11 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def broadcast_start_game(self, event):
+        player_ids = event["player_ids"]
         players = event["players"]
-        for i, player in enumerate(players):
-            if player['player_id'] == self.player_id:
+        self.first_layer_player_id = player_ids
+        for i, player in enumerate(player_ids):
+            if player == self.player_id:
                 self.match_id = i // 2
                 match_group_name = self.room_group_name + "_" + str(self.match_id)
                 await self.channel_layer.group_add(match_group_name, self.channel_name)
