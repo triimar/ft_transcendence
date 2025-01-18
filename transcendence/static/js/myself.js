@@ -454,7 +454,7 @@ class Visitor {
 			case "error": {
 				this.displayPopupMessage(i18next.t(message.message_key));
 				if (message["redirect_hash"]) {
-					if (this.pageName == "room")
+					if ((this.pageName == "room") || (this.pageName == "game") || (this.pageName == "ai-game"))
 					{
 						this.page.displayConfirmPopup = false;
 					}
