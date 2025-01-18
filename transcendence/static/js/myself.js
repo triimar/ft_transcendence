@@ -339,7 +339,7 @@ class Visitor {
 				let ai = false;
 				for (let [i, player] of players.entries()) {
 					if (player["player_id"] == this.id) {
-						gameIndex = i % 2;
+						gameIndex = Math.floor(i / 2);
 						if ((i % 2) == 0) {
 							if (players[i + 1]["player_id"] == "ai") {
 								ai = true;
