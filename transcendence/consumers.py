@@ -362,7 +362,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         text_data = json.dumps({"type": "b_start_game", "players": players})
         await self.send(text_data=text_data)
 
-    async def broadcast_update_avatar(self, eventf):
+    async def broadcast_update_avatar(self, event):
         player_id = event["player_id"]
         emoji = event["emoji"]
         bg_color = event["bg_color"]
