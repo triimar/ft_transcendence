@@ -33,14 +33,17 @@ class Visitor {
 			let jwt = this.#getCookie("jwt");
 			if (jwt) {
 			let response = await fetch("/api/check_auth/");
+			if (response.status != 200) {
+				throw new Error("JWT is not valid");
+			}
 			this.jwt = await response.json();
-					this.id = this.jwt.id;
+			this.id = this.jwt.id;
 			return true;
 			}
 		}
 		catch (error) {
-			console.error(error);
-			this.displayPopupMessage("Failed to verify your account");
+			console.error(error);	
+			this.displayPopupMessage("Failed to verify your account");	
 		}
 		return false;
 	}

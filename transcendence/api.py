@@ -112,7 +112,7 @@ async def oauth_callback(request):
         'id': intra_user_uuid,
         'guest': False,
         'iat': access_token_response.json().get('created_at'),
-        'exp': access_token_response.json().get('created_at') + access_token_response.json().get('expires_in'),
+        'exp': int(time.time()) + access_token_response.json().get('expires_in'),
     }
 
     print(payload)
