@@ -286,7 +286,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_IN_ROOM.value, "redirect_hash": "main"}))
                 self.player_id = player_id
             else:
-                correct_match_id = data.get_last_match_id(player_id, room)
+                correct_match_id = data.get_last_match_id(room, player_id)
                 single_game_state = room["matches"][correct_match_id]
                 player_info_state = next((player for player in room["avatars"] if player['player_id'] == player_id), None)
                 # if rejoined consumer has ai opponent
