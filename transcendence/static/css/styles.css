@@ -187,3 +187,8 @@ main {
 #color-selection-container > *.chosen {
 	border: 0.3em solid var(--td-ui-font-color);
 }
+
+.disable-click {
+	opacity: 0.5;
+	pointer-events: none;
+}

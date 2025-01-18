@@ -46,9 +46,13 @@ async function main() {
 			}
 		});
 		avatarChangeButton.addEventListener("click", () => {
-			let emoji = avatarNameTextInput.value;
-			let background = document.querySelector("#color-selection-container > .chosen")?.getAttribute("color");
-			myself.changeAvatar(emoji, background);
+			if (myself.gameInde == null) {
+				let emoji = avatarNameTextInput.value;
+				let background = document.querySelector("#color-selection-container > .chosen")?.getAttribute("color");
+				myself.changeAvatar(emoji, background);
+			} else {
+				myself.displayPopupMessage("You cannot change avatar after game starts");
+			}
 		}, true);
 		let closeButton = document.querySelector("#avatar-info .close-btn");
 		closeButton.addEventListener("click", () => {

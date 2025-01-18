@@ -59,6 +59,8 @@ export class PageAiGame extends PageConfirmLeave {
 		this.container.querySelector("#leave-room-btn").addEventListener("click", () => {
 			location.hash = "#main";
 		});
+		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
+		avatarCustomizationForm.classList.add("disable-click");
 	}
 
 	removeEvents() {
@@ -96,11 +98,13 @@ export class PageGame extends PageConfirmLeave {
 	}
 
 	attachEvents() {
+		super.attachEvents();
 		// Note(HeiYiu): Other events
 		this.container.querySelector("#leave-room-btn").addEventListener("click", () => {
 			location.hash = "#main";
 		});
-		super.attachEvents();
+		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
+		avatarCustomizationForm.classList.add("disable-click");
 	}
 
 	removeEvents() {
@@ -182,6 +186,8 @@ export class PageMain {
 		}
 		let addRoomButton = this.container.querySelector("#add-room-btn");
 		addRoomButton.addEventListener("click", myself.sendMessageAddRoom.bind(myself));
+		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
+		avatarCustomizationForm.classList.remove("disable-click");
 	}
 
 	removeEvents() {
@@ -218,6 +224,8 @@ export class PageRoom extends PageConfirmLeave{
 		roomSizeSetting.shadowRoot.querySelector("#dec-button").addEventListener("click", () => {
 			myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
 		});
+		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
+		avatarCustomizationForm.classList.remove("disable-click");
 	}
 
 	removeEvents() {
