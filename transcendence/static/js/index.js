@@ -244,8 +244,10 @@ function sendInitMessage(pageName, roomId, gameIndex) {
 	switch (pageName) {
 	case "error":
 	case "login":
+		break;
 	case "game":
 	case "ai-game":
+		myself.sendMessageJoinMatch(roomId, gameIndex);
 		break;
 	case "room":
 		myself.sendMessageJoinRoom(roomId);
