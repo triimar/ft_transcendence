@@ -271,18 +271,18 @@ function analysisPageHash(pageHash) {
 			} else if (pageHash.startsWith("ai-game", index + 1)) {
 				pageName = "ai-game";
 				roomId = pageHash.substring(4, index);
-				gameIndex = pageHash.substring(index + 8);
+				gameIndex = parseInt(pageHash.substring(index + 8));
 			} else if (pageHash.startsWith("game", index + 1)) {
 				pageName = "game";
 				roomId = pageHash.substring(4, index);
-				gameIndex = pageHash.substring(index + 5);
+				gameIndex = parseInt(pageHash.substring(index + 5));
 			}
 			// TODO(HeiYiu): More precise syntax checking
 			if (roomId == "") {
 				pageName = "error";
 				roomId = null;
 			}
-			if (gameIndex == "") {
+			if (isNaN(gameIndex)) {
 				pageName = "error";
 				gameIndex = null;
 			}
