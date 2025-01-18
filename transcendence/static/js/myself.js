@@ -369,13 +369,8 @@ class Visitor {
 				await sleep(5000);
 				// Note(HeiYiu): show leaderboard with 5 seconds loading animation
 				popup.classList.remove('show');
-				if (!ai) {
-					let gameboard = this.page.container.querySelector("td-game-board");
-					await gameboard.countdown();
-				} else {
-					let gameboard = this.page.container.querySelector("td-ai-game-board");
-					await gameboard.countdown();
-				}
+				let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
+				await gameboard.countdown();
 				this.sendMessagePlayerMatchReady();
 			} break;
 			case "b_join_match": {
