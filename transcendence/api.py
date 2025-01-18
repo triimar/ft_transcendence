@@ -115,6 +115,8 @@ async def oauth_callback(request):
         'exp': access_token_response.json().get('created_at') + access_token_response.json().get('expires_in'),
     }
 
+    print(payload)
+
     jwt_token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
     # redirect to the main page with jwt token as cookie set
