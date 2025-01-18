@@ -14,15 +14,21 @@ export async function initializeI18n() {
                 backend: {
                     loadPath: "/static/locales/{{lng}}.json", 
                 },
-                debug: false, // Set to false in production
+                debug: false, // Set to false in producti
             });
 
         isI18nInitialized = true; 
 		updateGlobalTranslations();
 
+		// Set the initial lang attribute on the <html> tag
+        document.documentElement.lang = i18next.language;
+		
+
         i18next.on("languageChanged", (newLanguage) => { 
-            updateGlobalTranslations();
 			localStorage.setItem("language", newLanguage);
+			document.documentElement.lang = newLanguage;
+            
+			updateGlobalTranslations();
             const speechBubbles = document.querySelectorAll(".speech-bubble p");
             speechBubbles.forEach(bubble => {
                 bubble.textContent = i18next.t("lobby-room.ready-bubble-txt");
@@ -56,6 +62,8 @@ export function updateGlobalTranslations() {
         { id: "login-guest", key: "login.guest" },
         { id: "login-intra", key: "login.intra" },
         { id: "prepare-btn-txt", key: "lobby-room.prepare-btn-txt" },
+		{ id: "prepare-btn-wait", key: "lobby-room.prepare-btn-wait" },
+		{ id: "prepare-btn-start", key: "lobby-room.prepare-btn-start" },
         { id: "logout", key: "popups.logout" },
         { id: "confirm-logout-txt", key: "popups.confirm-logout-txt" },
         { id: "agree-txt", key: "popups.agree-txt" },

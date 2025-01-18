@@ -9,10 +9,23 @@ export default class ComponentLobbyRoom extends HTMLElement {
 	}
 
 	connectedCallback() {
+		this.setAttribute("tabindex", "0");
+		let max = this.getAttribute("room-max");
+		if (max) this.setAttribute("aria-label", `Room with maximum ${max} players`);
+		else this.setAttribute("aria-label", `Room`)
 		let id = this.shadow.querySelector("#lobby-room-id");
+		id.setAttribute("aria-label", "Copy the room's invitation link!")
+		id.setAttribute("tabindex", "0")
+		id.setAttribute("role", "button");
 		id.addEventListener("click", () => {
 			navigator.clipboard.writeText(location.origin + "/#room" + id.textContent);
 			myself.displayPopupMessage(i18next.t("lobby-room.invitation-link-txt"));
+		});
+		id.addEventListener("keydown", (event) => {
+			if (event.key === "Enter" || event.key === " ") {
+				event.preventDefault(); // Prevent space from scrolling
+				id.click(); // Simulate a click event
+			}
 		});
 	}
 
@@ -24,11 +37,13 @@ export default class ComponentLobbyRoom extends HTMLElement {
 			let join_buttons = this.querySelectorAll(".join-button");
 			if (this.joinDisabled) {
 				for (let join_button of join_buttons) {
-					button.setAttribute("disabled", "");
+					join_button.setAttribute("disabled", "");
+					join_button.setAttribute("tabindex", "-1");
 				}
 			} else {
 				for (let join_button of join_buttons) {
-					button.removeAttribute("disabled");
+					join_button.removeAttribute("disabled");
+					join_button.setAttribute("tabindex", "0");
 				}
 			}
 			break;
@@ -87,7 +102,10 @@ export default class ComponentLobbyRoom extends HTMLElement {
 			let id = this.shadow.querySelector("#lobby-room-id");
 			window.location.href = "#room" + id.textContent;
 		});
-		if (this.joinDisabled) button.setAttribute("disabled", "");
+		button.setAttribute("aria-label", "Join the room!")
+		if (this.joinDisabled) {
+			button.setAttribute("tabindex", "-1")
+			button.setAttribute("disabled", "");}
 		const template = document.getElementById("icon-lobby-room-join");
 		button.appendChild(template.content.cloneNode(true));
 		return button;

@@ -58,7 +58,6 @@ SESSION_CACHE_ALIAS = 'default'
 
 # Application definition
 INSTALLED_APPS = [
-    'daphne',
     'transcendence',
     'channels',
     'django.contrib.sites',
@@ -149,10 +148,10 @@ USE_L10N = True #enables Django's localization system, which is responsible for 
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / "transcendence/static",
-]
+STATIC_ROOT = os.path.join(BASE_DIR, '/transcendence/static')
+# STATICFILES_DIRS = [
+#     BASE_DIR / "transcendence/static",
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

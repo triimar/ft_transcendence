@@ -23,7 +23,54 @@ const pageMapping = {
 	main: PageMain
 };
 
+function trapFocus(popup) {
+	const focusableElements = popup.querySelectorAll(
+		'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+	);
+	const firstElement = focusableElements[0];
+	const lastElement = focusableElements[focusableElements.length - 1];
+
+	popup.addEventListener('keydown', (e) => {
+		if (e.key === 'Tab') {
+			if (e.shiftKey && document.activeElement === firstElement) {
+				e.preventDefault();
+				lastElement.focus();
+			} else if (!e.shiftKey && document.activeElement === lastElement) {
+				e.preventDefault();
+				firstElement.focus();
+			}
+		}
+	});
+	if (firstElement) firstElement.focus();
+}
+
+function openPopup(popupId) {
+	const popup = document.getElementById(popupId);
+	const elementsToHide = document.querySelectorAll('main > *:not(#' + popupId + ')');
+	if (!popup) return;
+	popup.classList.add('show');
+	popup.setAttribute('aria-hidden', 'false');
+	elementsToHide.forEach((el) => el.setAttribute('aria-hidden', 'true'));
+	trapFocus(popup);
+}
+
+function closePopup(popupId) {
+	const popup = document.getElementById(popupId);
+	const elementsToUnhide = document.querySelectorAll('main > *:not(#' + popupId + ')');
+	const main = document.querySelector('main');
+	if (!popup || !main) return;
+	popup.classList.remove('show');
+	popup.setAttribute('aria-hidden', 'true');
+	elementsToUnhide.forEach((el) => el.setAttribute('aria-hidden', 'false'));
+	const focusableElements = main.querySelectorAll(
+		'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+	);
+	if (focusableElements.length > 0) focusableElements[0].focus();
+}
+
+
 let isTriggerHashChange = true;
+
 async function main() {
 	// Note(HeiYiu): global event listeners
 	{
@@ -72,6 +119,16 @@ async function main() {
 			}
 		});
 	}
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape') {
+			document.querySelectorAll('.fullscreen-popup.show').forEach((popup) => {
+				closePopup(popup.id);
+			});
+		}
+	});
+	window.openPopup = openPopup;
+	window.closePopup = closePopup;
+
 	await initializeI18n(); // Ensure translations are initialized
 	document.myself = myself; // only for debugging
 	const contentContainer = document.getElementsByClassName("content-container")[0];
@@ -114,6 +171,10 @@ async function main() {
 		currentPage.attachEvents();
 		if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
 		myself.pageFinishedRendering = true;
+		const focusableElements = contentContainer.querySelectorAll(
+			'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select, [tabindex]:not([tabindex="-1"])'
+		);
+		if (focusableElements.length > 0) focusableElements[0].focus();
 	});
 	myself.pageFinishedRendering = false;
 	let pageHash = getPageHashFromURL(location);
@@ -139,6 +200,10 @@ async function main() {
 	currentPage.attachEvents();
 	if (myself.ws) sendInitMessage(pageName, roomId, gameIndex);
 	myself.pageFinishedRendering = true;
+	const focusableElements = contentContainer.querySelectorAll(
+		'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select, [tabindex]:not([tabindex="-1"])'
+	);
+	if (focusableElements.length > 0) focusableElements[0].focus();
 }
 
 // Note(HeiYiu): takes a pageHash of what the user wants to go to
