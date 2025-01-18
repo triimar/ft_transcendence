@@ -10,7 +10,11 @@
 		"logout" : "Cerrar sesión",
 		"confirm-logout-txt": "¿Seguro que quieres salir?",
 		"agree-txt": "SI",
-		"decline-txt": "NO"
+		"decline-txt": "NO",
+		"id-card-text": "esVisitor Identity card",
+		"id-card-name-text": "esName:",
+		"id-card-background-text": "esBackground:",
+		"avatar-apply-change-text": "esAPPLY"
 	},
 	"lobby-room": {
 		"prepare-btn-txt" : "¿PREPARADO?",

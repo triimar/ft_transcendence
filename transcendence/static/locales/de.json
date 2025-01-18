@@ -10,7 +10,11 @@
 		"logout" : "ABMELDEN",
 		"confirm-logout-txt": "Bist du sicher, dass du den Raum verlassen möchtest?",
 		"agree-txt": "JA",
-		"decline-txt": "NEIN"
+		"decline-txt": "NEIN",
+		"id-card-text": "deVisitor Identity card",
+		"id-card-name-text": "deName:",
+		"id-card-background-text": "deBackground:",
+		"avatar-apply-change-text": "deAPPLY"
 	},
 	"lobby-room": {
 		"prepare-btn-txt" : "BEREIT?",

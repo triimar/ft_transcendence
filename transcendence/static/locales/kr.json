@@ -10,7 +10,11 @@
 		"logout" : "로그아웃",
 		"confirm-logout-txt": "방에서 나가시겠습니까?",
 		"agree-txt": "네",
-		"decline-txt": "아니오"
+		"decline-txt": "아니오",
+		"id-card-text": "krVisitor Identity card",
+		"id-card-name-text": "krName:",
+		"id-card-background-text": "krBackground:",
+		"avatar-apply-change-text": "krAPPLY"
 	},
 	"lobby-room": {
 		"prepare-btn-txt" : "준비 되셨나요?",

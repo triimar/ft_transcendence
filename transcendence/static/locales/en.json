@@ -10,7 +10,11 @@
 		"logout" : "LOGOUT",
 		"confirm-logout-txt": "Are you sure you want to leave?",
 		"agree-txt": "YES",
-		"decline-txt": "NO"
+		"decline-txt": "NO",
+		"id-card-text": "Visitor Identity Card",
+		"id-card-name-text": "Name:",
+		"id-card-background-text": "Background:",
+		"avatar-apply-change-text": "APPLY"
 	},
 	"lobby-room": {
 		"prepare-btn-txt" : "PREPARE?",

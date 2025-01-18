@@ -66,8 +66,12 @@ export function updateGlobalTranslations() {
 		{ id: "prepare-btn-start", key: "lobby-room.prepare-btn-start" },
         { id: "logout", key: "popups.logout" },
         { id: "confirm-logout-txt", key: "popups.confirm-logout-txt" },
-        { id: "agree-txt", key: "popups.agree-txt" },
-        { id: "decline-txt", key: "popups.decline-txt" }
+        { id: "agree-txt", key: "popups.agree-txt"},
+        { id: "decline-txt", key: "popups.decline-txt" },
+		{ id: "id-card-text", key: "popups.id-card-text" },
+		{ id: "id-card-name-text", key: "popups.id-card-name-text" },
+		{ id: "id-card-background-text", key: "popups.id-card-background-text" },
+		{ id: "avatar-apply-change-text", key: "popups.avatar-apply-change-text"}
     ];
     translations.forEach(({ id, key }) => assignTranslation(id, key));
 }
