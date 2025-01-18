@@ -189,9 +189,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 event = {"type": "broadcast.update.avatar", 'player_id': self.player_id, 'emoji': emoji, 'bg_color': bg_color}
                 if self.room_group_name is not None:
                     await self.channel_layer.group_send(self.room_group_name, event)
-                else:
-                    text_data = json.dumps({"type": "ack_avatar_change", "emoji": emoji, "bg_color": bg_color})
-                    await self.send(text_data=text_data)
+                text_data = json.dumps({"type": "ack_avatar_change", "emoji": emoji, "bg_color": bg_color})
+                await self.send(text_data=text_data)
 
     async def start_match(self):
         await data.set_player_ready_for_match(self.room_group_name, self.match_id, self.player_id)
