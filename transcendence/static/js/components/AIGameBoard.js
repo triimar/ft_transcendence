@@ -111,7 +111,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
-		this.gameMode = GameMode.Balance;
 	}
 
 	connectedCallback() {
@@ -377,6 +376,34 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			this.raf = window.requestAnimationFrame(this.gameLoop);
 		}).bind(this);
 
+		
+		// Add touch event listeners to the canvas
+		canvas.addEventListener("touchstart", (e) => {
+			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
+			this.movePaddleTo(touchY);
+		});
+
+		canvas.addEventListener("touchmove", (e) => {
+			e.preventDefault(); // Prevent scrolling while playing
+			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
+			this.movePaddleTo(touchY);
+		});
+
+		// Helper function to move the paddle to a specific y-coordinate
+		this.movePaddleTo = (touchY) => {
+			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
+			const relativeY = touchY - canvasRect.top; // Adjust touchY to the canvas coordinate system
+
+			// Set the paddle's y position, ensuring it stays within bounds
+			this.paddleLeft.y = relativeY - this.paddleLeft.height / 2;
+			if (this.paddleLeft.y < 0) {
+				this.paddleLeft.y = 0;
+			}
+			if (this.paddleLeft.y > canvas.height - this.paddleLeft.height) {
+				this.paddleLeft.y = canvas.height - this.paddleLeft.height;
+			}
+		};
+
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
 				// Prevent the default action (scrolling)
@@ -401,20 +428,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		}).bind(this);
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
-
-		/*canvas.addEventListener("mouseover", (e) => {
-			raf = window.requestAnimationFrame(draw);
-		});
-
-		canvas.addEventListener("mouseout", (e) => {
-			window.cancelAnimationFrame(raf);
-		});
-		*/
-
-		// this.ball.draw();
-		// this.paddleLeft.draw();
-
-		// raf = window.requestAnimationFrame(this.draw);
 	}
 
 	disconnectedCallback() {

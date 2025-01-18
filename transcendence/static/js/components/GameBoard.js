@@ -92,8 +92,6 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleRight.draw();
 		this.paddleLeft.draw();
 
-		this.gameMode = GameMode.Balance;
-
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
 	}
@@ -380,36 +378,6 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.draw();
 			this.raf = window.requestAnimationFrame(this.gameLoop);
 		}).bind(this);
-
-		// Add touch event listeners to the canvas
-		canvas.addEventListener("touchstart", (e) => {
-			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
-			this.movePaddleTo(touchY);
-		});
-
-		canvas.addEventListener("touchmove", (e) => {
-			e.preventDefault(); // Prevent scrolling while playing
-			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
-			this.movePaddleTo(touchY);
-		});
-
-		// Helper function to move the paddle to a specific y-coordinate
-		this.movePaddleTo = (touchY) => {
-			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
-			const relativeY = touchY - canvasRect.top; // Adjust touchY to the canvas coordinate system
-
-			// Set the paddle's y position, ensuring it stays within bounds
-			this.getMyPaddle().y = relativeY - this.getMyPaddle().height / 2;
-			if (this.getMyPaddle().y < 0) {
-				this.getMyPaddle().y = 0;
-			}
-			if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height) {
-				this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
-			}
-
-			// Trigger the paddle move action
-			this.paddleMove();
-		};
 
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
