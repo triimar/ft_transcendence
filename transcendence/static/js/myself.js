@@ -352,7 +352,7 @@ class Visitor {
 				let ai = false;
 				for (let [i, player] of players.entries()) {
 					if (player["player_id"] == this.id) {
-						gameIndex = i % 2;
+						gameIndex = Math.floor(i / 2);
 						if ((i % 2) == 0) {
 							if (players[i + 1]["player_id"] == "ai") {
 								ai = true;
@@ -370,53 +370,49 @@ class Visitor {
 								window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
 							}
 						}
-						await this.waitForPageToRender();
 						document.querySelector("#tournament-tree-popup td-tournament-tree").initiateTournament(players);
-						let popup = document.querySelector("#tournament-tree-popup");
-						popup.classList.add('show');
-						await sleep(5000);
-						// Note(HeiYiu): show leaderboard with 5 seconds loading animation
-						popup.classList.remove('show');
-						if (!ai) {
-							let gameboard = this.page.container.querySelector("td-game-board");
-							await gameboard.countdown();
-						} else {
-							let gameboard = this.page.container.querySelector("td-ai-game-board");
-							await gameboard.countdown();
-
-						}
-						this.sendMessagePlayerMatchReady();
 						break;
 					}
 				}
 			} break;
+			case "ack_join_match": {
+				await this.waitForPageToRender();
+				let popup = document.querySelector("#tournament-tree-popup");
+				popup.classList.add('show');
+				await sleep(5000);
+				// Note(HeiYiu): show leaderboard with 5 seconds loading animation
+				popup.classList.remove('show');
+				let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
+				await gameboard.countdown();
+				this.sendMessagePlayerMatchReady();
+			} break;
+			case "b_join_match": {
+
+			} break;
+			case "b_leave_match": {
+
+			} break;
 			case "b_start_match": {
-				console.log("recieved start match");
 				let gameboard = this.page.container.querySelector("td-game-board");
 				if (!gameboard) {
 					gameboard = document.createElement("td-game-board");
 					this.page.container.appendChild(matchElement);
-					console.log("Created gameboard");
 				}
 				gameboard.startMatch(message);
 			} break;
 			case "b_start_ai_match": {
-				console.log("recieved start match");
 				let gameboard = this.page.container.querySelector("td-ai-game-board");
 				if (!gameboard) {
 					gameboard = document.createElement("td-ai-game-board");
 					this.page.container.appendChild(matchElement);
-					console.log("Created ai gameboard");
 				}
 				gameboard.startMatch(message);
 			} break;
 			case "b_paddle_move": {
-				console.log("paddle moved");
 				let gameboard = this.page.container.querySelector("td-game-board");
 				gameboard.oponentPaddleMoved(message["paddle"], message["position"])
 			} break;
 			case "b_bounce_ball": {
-				console.log("ball bounce");
 				let gameboard = this.page.container.querySelector("td-game-board");
 				gameboard.ballBounced(message);
 			} break;
@@ -597,6 +593,16 @@ class Visitor {
 		let message = {
 			type: "start_game",
 			"room_id": roomId,
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageJoinMatch(roomId, gameIndex) {
+		let message = {
+			type: "join_match",
+			"room_id": roomId,
+			"player_id": this.id,
+			"match_id": gameIndex
 		};
 		this.sendMessage(JSON.stringify(message));
 	}

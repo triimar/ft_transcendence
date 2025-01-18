@@ -9,7 +9,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.lobby_group_name = 'lobby_group'
         self.room_group_name = None
-        self.match_group_name = None
+        self.match_id = None
+        self.first_layer_player_id = None
 
         # Join the lobby group
         await self.channel_layer.group_add(
@@ -22,28 +23,38 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        if self.room_group_name is not None:
-            room_id = self.room_group_name
-            player_id = self.player_id
-            current_room = await data.get_one_room_data(room_id)
-            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-            if len(current_room["avatars"]) != 1:
-                if current_room["room_owner"] == player_id:
-                    new_room_owner = await data.update_room_owner(room_id, player_id)
-                    event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "new_room_owner": new_room_owner}
+        if not self.first_layer_player_id:
+            # game not started
+            if self.room_group_name is not None:
+                room_id = self.room_group_name
+                player_id = self.player_id
+                current_room = await data.get_one_room_data(room_id)
+                await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+                if len(current_room["avatars"]) != 1:
+                    if current_room["room_owner"] == player_id:
+                        new_room_owner = await data.update_room_owner(room_id, player_id)
+                        event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "new_room_owner": new_room_owner}
+                    else:
+                        await data.delete_one_player_from_room(room_id,player_id)
+                        event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "room_owner": current_room["room_owner"]}
+                    match(await data.is_all_prepared(room_id)):
+                        case data.RedisError.PLAYERALLPREPARED:
+                            event_leave_room.update({"all_prepared": True})
+                        case data.RedisError.NONE:
+                            event_leave_room.update({"all_prepared": False})
+                    await self.channel_layer.group_send(self.room_group_name, event_leave_room)
                 else:
-                    await data.delete_one_player_from_room(room_id,player_id)
-                    event_leave_room = {"type": "broadcast.leave.room", "delete_room": False, "room_id": room_id, "player_id": player_id, "room_owner": current_room["room_owner"]}
-                match(await data.is_all_prepared(room_id)):
-                    case data.RedisError.PLAYERALLPREPARED:
-                        event_leave_room.update({"all_prepared": True})
-                    case data.RedisError.NONE:
-                        event_leave_room.update({"all_prepared": False})
-                await self.channel_layer.group_send(self.room_group_name, event_leave_room)
-            else:
-                await data.delete_one_room(room_id)
-                event_leave_room = {"type": "broadcast.leave.room", "delete_room": True, "room_id": room_id, "player_id": player_id}
-            await self.channel_layer.group_send(self.lobby_group_name, event_leave_room)
+                    await data.delete_one_room(room_id)
+                    event_leave_room = {"type": "broadcast.leave.room", "delete_room": True, "room_id": room_id, "player_id": player_id}
+                await self.channel_layer.group_send(self.lobby_group_name, event_leave_room)
+        else:
+            # game already started
+            event_leave_match = {"type": "broadcast.leave.match", "player_id": player_id}
+            match_group_name = self.room_group_name + "_" + str(self.match_id)
+            await self.channel_layer.group_send(match_group_name, event_leave_match)
+
+
+
         # Leave the current group(s)
         for group in self.joined_group:
             await self.channel_layer.group_discard(
@@ -63,12 +74,13 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     await self.send(text_data=json.dumps({"type": "ack_init", "rooms": room_list}))
             case {"type": "join_room",  "room_id": room_id, "player_id": player_id}:
                 self.room_group_name = room_id
-                # Remove this consumer from lobby group
-                await self.channel_layer.group_discard(
-                    self.lobby_group_name,
-                    self.channel_name)
+
                 match (await data.add_player_to_room(room_id=room_id, player_id=player_id)):
                     case data.RedisError.NONE:
+                        # Remove this consumer from lobby group
+                        await self.channel_layer.group_discard(
+                            self.lobby_group_name,
+                            self.channel_name)
                         avatar = await data.get_one_player(player_id=player_id)
                         event_join_room = {"type": "broadcast.join.room", "room_id": room_id, "avatar": avatar}
                         await self.channel_layer.group_send(self.lobby_group_name, event_join_room)
@@ -90,6 +102,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
                     case data.RedisError.MAXROOMPLAYERSREACHED:
                         await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.MAX_PLAYERS_REACHED.value, "redirect_hash": "main"}))
+                    # check if len(room[matches]) != 0 # which means the tournament is already started
+                    case data.RedisError.GAMEALREADYSTARTED:
+                        await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.GAME_ALREADY_STARTED.value, "redirect_hash": "main"}))
             case {"type": "add_room","owner_id": owner_id}:
                 room_id = shortuuid.ShortUUID().random(length=15)
                 self.room_group_name = room_id
@@ -161,17 +176,17 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     case data.RedisError.NOPLAYERFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_FOUND.value, "redirect_hash": "main"}))
             case {"type": "start_game", "room_id": room_id}:
-                self.first_layer_player_id = await data.generate_matches(room_id, self.player_id)
+                first_layer_player_ids = await data.generate_matches(room_id, self.player_id)
                 first_layer_player  = []
-                for id in self.first_layer_player_id:
+                for id in first_layer_player_ids:
                     if id == "ai":
                         first_layer_player.append({"player_id": "ai"})
                     else:
                         first_layer_player.append(await data.get_one_player(id))
-                event_start_game = {"type":"broadcast.start.game", "players": first_layer_player}
+                event_start_game = {"type":"broadcast.start.game", "player_ids": first_layer_player_ids, "players": first_layer_player}
                 await self.channel_layer.group_send(self.room_group_name, event_start_game)
-            case {"type": "join_match", "room_id": room_id, "player_id": player_id}:
-                await self.join_match(room_id, player_id) # TODO
+            case {"type": "join_match", "room_id": room_id, "player_id": player_id, "match_id": match_id}:
+                await self.join_match(room_id,match_id, player_id)
             case {"type": "player_match_ready"}:
                 await self.start_match()
             case {"type": "bounce_ball", "ball": ball}:
@@ -191,6 +206,64 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     await self.channel_layer.group_send(self.room_group_name, event)
                 text_data = json.dumps({"type": "ack_avatar_change", "emoji": emoji, "bg_color": bg_color})
                 await self.send(text_data=text_data)
+
+    async def join_match(self, room_id, match_id, player_id):
+        if self.first_layer_player_id:
+            self.match_id = match_id
+            match_group_name = self.room_group_name + "_" + str(self.match_id)
+            await self.channel_layer.group_add(match_group_name, self.channel_name)
+            if "match" not in self.joined_group:
+                self.joined_group += ["match"]
+            # get winners list
+            winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
+            # broadcast to room group for the tournamnet tree
+            event = {"type": "broadcast.join.match", "winners": winner_id_list}
+            await self.channel_layer.group_send(self.room_group_name, event)
+        else:
+            # rejoin, needs all neccesry information
+
+            room = await data.get_one_room_data(room_id)
+
+            if not data.is_in_room(player_id, room):
+                await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_IN_ROOM.value, "redirect_hash": "main"}))
+                self.player_id = player_id
+            else:
+                correct_match_id = data.get_last_match_id(room, player_id)
+                single_game_state = room["matches"][correct_match_id]
+                player_info_state = next((player for player in room["avatars"] if player['player_id'] == player_id), None)
+                # if rejoined consumer has ai opponent
+                if "ai" in single_game_state["players"]:
+                    redirect_hash = f"room{room_id}-ai-game{correct_match_id}"
+                    ai_score = room["ai"]
+                else:
+                    redirect_hash = f"room{room_id}-game{correct_match_id}"
+                    ai_score = ""
+                self.first_layer_player_id = data.get_first_layer_player(room)
+                # create first layer player for generating game tree
+                first_layer_player  = []
+                for id in self.first_layer_player_id:
+                    if id == "ai":
+                        first_layer_player.append({"player_id": "ai"})
+                    else:
+                        player = next((player for player in room["avatars"] if player['player_id'] == id), None)
+                        first_layer_player.append(player)
+                # create list of player index for generating game tree
+                winner_list = [match["winner"] for match in room["matches"]]
+                winner_id_list = []
+                for w in winner_list:
+                    if w != "":
+                        winner_id_list.append(self.first_layer_player_id.index(w))
+                    else:
+                        winner_id_list.append(-1)
+                await self.send(text_data=json.dumps({"type": "ack_join_match", "players": first_layer_player, "winners": winner_id_list,"game_state": single_game_state, "player_info": player_info_state, "ai": ai_score, "redirect_hash": redirect_hash}))
+                self.player_id = player_id
+                self.room_group_name = room_id
+                self.match_id = correct_match_id
+                await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
+                match_group_name = self.room_group_name + "_" + str(self.match_id)
+                await self.channel_layer.group_add(match_group_name, self.channel_name)
+                await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+                self.joined_group = ["room", "match"]
 
     async def start_match(self):
         await data.set_player_ready_for_match(self.room_group_name, self.match_id, self.player_id)
@@ -255,10 +328,6 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         player_data = await data.get_one_player(self.player_id)
         # player_data does not have score field
         player_data['score'] += 1
-        if (player_data['score'] == 11):
-            await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
-            event = {"type": "broadcast.match.win", "winner": player_data}
-            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
         await data.update_player(player_data)
         match_data = await data.get_one_match(self.room_group_name, self.match_id)
         player_side = 0
@@ -267,10 +336,35 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         ball = await data.reset_ball(self.room_group_name, self.match_id)
         event = {"type": "broadcast.scored.point", "player_side": player_side, "ball": ball}
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
+        if (player_data['score'] == 11):
+            await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
+            winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
+            event = {"type": "broadcast.match.win", "winners": winner_id_list}
+            await self.channel_layer.group_send(self.room_group_name, event)
+            # if this is the last game
+            if await data.is_last_game(self.match_id, self.room_group_name):
+                await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+                await self.channel_layer.group_discard(self.room_group_name + "_" + str(self.match_id), self.channel_name)
+                await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
+                self.match_id = None
+                self.room_group_name = None
+                self.joined_group = ["lobby"]
+            # if is not the last match, set user to next game
+            else:
+                next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
+                await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
+                # update self.match_id to new match_id
+                self.match_id = next_match_id
+            await data.reset_players_score(self.room_group_name, self.match_id)
+
+
+
+
+
 
     async def broadcast_match_win(self, event):
-        player_data = event["winner"]
-        text_data = json.dumps({"type": "b_match_win", "winner": player_data})
+        winner_list = event["winners"]
+        text_data = json.dumps({"type": "b_match_win", "winners": winner_list})
         await self.send(text_data=text_data)
 
     async def broadcast_scored_point(self, event):
@@ -288,24 +382,36 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             player['score'] += 1
             score = player['score']
             await data.update_player(player)
-            event = {"type": "broadcast.match.win", "winner": player}
+            # event = {"type": "broadcast.match.win", "winner": player}
         else:
             player = room['ai']
             score = player['score'] + 1
             await data.increase_ai_score(self.room_group_name)
-            event = {"type": "broadcast.match.win", "winner": "ai"}
-        if score == 11:
+            # event = {"type": "broadcast.match.win", "winner": "ai"}
+        if player['score'] == 11:
             await data.set_match_winner(self.room_group_name, self.match_id, id)
-            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
-        else:
-            ball = await data.reset_ball(self.room_group_name, self.match_id)
-            event = {"type": "broadcast.ai.score", "ball": ball}
-            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
+            winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
+            event = {"type": "broadcast.match.win", "winners": winner_id_list}
+            await self.channel_layer.group_send(self.room_group_name, event)
+            # if is the last match, discard from room and match group
+            if await data.is_last_game(self.match_id, self.room_group_name):
+                await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+                await self.channel_layer.group_discard(self.room_group_name + "_" + str(self.match_id), self.channel_name)
+                await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
+                self.match_id = None
+                self.room_group_name = None
+                self.joined_group = ["lobby"]
+            # if is not the last match, set user to next game when it is not ai
+            else:
+                next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
+                winner_id = "ai"
+                if id != "ai":
+                    winner_id = self.player_id
+                    # update self.match_id to new match_id
+                    self.match_id = next_match_id
+                await data.set_player_in_next_match(self.room_group_name, next_match_id, winner_id)
+            await data.reset_players_score(self.room_group_name, self.match_id)
 
-    async def broadcast_ai_score(self, event):
-        ball = event["ball"]
-        text_data = json.dumps({"type": "b_ai_scored_point", 'ball': ball})
-        await self.send(text_data=text_data)
 
 # functions for dealing with events
     async def broadcast_join_room(self, event):
@@ -350,12 +456,14 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def broadcast_start_game(self, event):
+        player_ids = event["player_ids"]
         players = event["players"]
-        for i, player in enumerate(players):
-            if player['player_id'] == self.player_id:
+        self.first_layer_player_id = player_ids
+        for i, player in enumerate(player_ids):
+            if player == self.player_id:
                 self.match_id = i // 2
-                self.match_group_name = self.room_group_name + "_" + str(self.match_id)
-                await self.channel_layer.group_add(self.match_group_name, self.channel_name)
+                match_group_name = self.room_group_name + "_" + str(self.match_id)
+                await self.channel_layer.group_add(match_group_name, self.channel_name)
                 self.joined_group += ["match"]
                 break
         text_data = json.dumps({"type": "b_start_game", "players": players})
@@ -366,4 +474,14 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         emoji = event["emoji"]
         bg_color = event["bg_color"]
         text_data = json.dumps({"type": "b_avatar_change", "player_id": player_id, "emoji": emoji, "bg_color": bg_color})
+        await self.send(text_data=text_data)
+
+    async def broadcast_join_match(self, event):
+        winners = event["winners"]
+        text_data = json.dumps({"type": "b_join_match", "winners": winners})
+        await self.send(text_data=text_data)
+
+    async def broadcast_leave_match(self, event):
+        left_opponent = event["player_id"]
+        text_data = json.dumps({"type": "b_leave_match", "left_opponent": left_opponent})
         await self.send(text_data=text_data)
