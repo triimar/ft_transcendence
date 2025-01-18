@@ -23,7 +23,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        if not self.first_player_player_id:
+        if not self.first_layer_player_id:
             # game not started
             if self.room_group_name is not None:
                 room_id = self.room_group_name
@@ -212,7 +212,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             self.match_id = match_id
             match_group_name = self.room_group_name + "_" + str(self.match_id)
             await self.channel_layer.group_add(match_group_name, self.channel_name)
-            if "match" not in self.joined_match:
+            if "match" not in self.joined_group:
                 self.joined_group += ["match"]
             # get winners list
             winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
@@ -228,7 +228,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_IN_ROOM.value, "redirect_hash": "main"}))
                 self.player_id = player_id
             else:
-                correct_match_id = data.get_last_match_id(player_id, room)
+                correct_match_id = data.get_last_match_id(room, player_id)
                 single_game_state = room["matches"][correct_match_id]
                 player_info_state = next((player for player in room["avatars"] if player['player_id'] == player_id), None)
                 # if rejoined consumer has ai opponent

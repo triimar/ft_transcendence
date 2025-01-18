@@ -68,7 +68,7 @@ async def add_player_to_room(room_id, player_id) -> RedisError:
             return RedisError.NONE
     if room["max_player"] <= len(room["avatars"]):
         return RedisError.MAXROOMPLAYERSREACHED
-    if len(room["matches"] != 0):
+    if len(room["matches"]) != 0:
         return RedisError.GAMEALREADYSTARTED
     await redis_instance.json().arrappend("room_data", f'$.{room_id}.avatars', {"player_id": player_id, "prepared": False})
     print(f"Player {player_id} added to {room['room_id']}.")
@@ -284,7 +284,7 @@ async def update_avatar(player_id, emoji, background_color):
     ])
 
 def is_in_room(player_id, room: dict):
-    return any(avatar["player_id"] == player_id for avatar in room["avtars"])
+    return any(avatar["player_id"] == player_id for avatar in room["avatars"])
 
 def get_last_match_id(room: dict, player_id):
     for idx, match in enumerate(reversed(room["matches"])):
