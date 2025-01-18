@@ -11,21 +11,28 @@ export default class ComponentLanguageSelector extends HTMLElement {
             console.error("i18next is not defined or initialized.");
             return;
         }
-
         const languageSelector = this.shadow.querySelector("#language-selector");
         languageSelector.addEventListener("change", (event) => {
             const selectedLanguage = event.target.value;
             i18next.changeLanguage(selectedLanguage);
         });
-
-        // Initialize the dropdown with the current language
-        this.updateSelectedLanguage(i18next.language);
+		//have to be sure that i18next is intialized
+        if (!i18next.isInitialized) {
+            i18next.on("initialized", () => {
+                this.updateSelectedLanguage(i18next.language);
+            });
+        } else {
+            this.updateSelectedLanguage(i18next.language);
+        }
+        i18next.on("languageChanged", (newLang) => {
+            this.updateSelectedLanguage(newLang);
+        });
     }
 
     updateSelectedLanguage(lng) {
         const languageSelector = this.shadow.querySelector("#language-selector");
         if (languageSelector) {
-            languageSelector.value = lng || "en"; // Default to English
+            languageSelector.value = lng || "en";
         }
     }
 }
