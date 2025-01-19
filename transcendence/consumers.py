@@ -304,6 +304,24 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def start_match(self):
         await data.set_player_ready_for_match(self.room_group_name, self.match_id, self.player_id)
         game_match = await data.get_one_match(self.room_group_name, self.match_id)
+        opponent_id = data.get_opponent(self.room_group_name, self.match_id, self.player_id)
+        opponent_is_disconnected = False
+        if opponent_id:
+            for player in game_match["avatars"]:
+                if player["player_id"] == opponent_id:
+                    if player["disconnected"]:
+                        opponent_is_disconnected = True
+                        break
+        if opponent_is_disconnected:
+            await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
+            winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
+            is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
+            if not is_last_game:
+                next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
+                await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
+                self.match_id = next_match_id
+            event = {"type": "broadcast.match.win", "winners": winner_id_list, "is_last_game": is_last_game}
+            await self.channel_layer.group_send(self.room_group_name, event)
         if (game_match['ready'] == 2):
             player0 = await data.get_one_player(game_match["players"][0])
             player1 = await data.get_one_player(game_match["players"][1])
