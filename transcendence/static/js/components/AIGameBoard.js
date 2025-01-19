@@ -102,6 +102,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		this.ball.vy = ball["velocity"]["vy"];
 		this.paddleLeft.name = player["player_emoji"];
 		this.paddleLeft.color = '#' + player["player_bg_color"];
+		this.tempBall = this.ball;
 
 		this.ball.draw();
 		this.paddleLeft.draw();
@@ -110,7 +111,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
-		this.gameMode = GameMode.Balance;
 	}
 
 	connectedCallback() {
@@ -121,29 +121,19 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
 		const PADDLE_SPEED = 10;
-		const AI_SPEED = 8.5;
+		const AI_SPEED = 5;
+		const ERROR_MARGIN = 15;
 		this.MAX_PADDLE_SIZE = canvas.height/2;
 		this.MIN_PADDLE_SIZE = canvas.height/10;
 		this.lastLoop = 0; // The timestamp of the last frame
-		// let serverTimeOffset = 0; // Difference between server and local clock
 		let accumulatedTime = 0; // Accumulated time for fixed updates
+		let accumulatedAiTime = 0;
+		let aiMoveTimes = 0;
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
+		const aiUpdateInterval = 1000;
+		const aiMoveInterval = 3;
 		this.gameMode = GameMode.Default;
-
-		// PID constants
-		const Kp = 2.0;  // Proportional constant
-		const Ki = 1.9;  // Integral constant
-		const Kd = 0.1; // Derivative constant
-
-		// PID variables
-		let integral = 0;
-		let previousError = 0;
-
 		let raf;
-
-		function sleep(ms) {
-			return new Promise(resolve => setTimeout(resolve, ms));
-		}
 
 		this.score = {
 			player: 0,
@@ -205,8 +195,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			reset()
 			{
 				this.y = canvas.height/2 - this.height/2;
-				// this.height = PADDLE_H;
-				// this.width = PADDLE_W;
 			}
 		};
 
@@ -216,6 +204,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			vy: AI_SPEED,
 			height: PADDLE_H,
 			width: PADDLE_W,
+			moveFactor: 0,
 			color: "#ff5da2",
 			draw()
 			{
@@ -230,26 +219,26 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			reset()
 			{
 				this.y = canvas.height/2 - PADDLE_H/2;
-				// this.height = PADDLE_H;
-				// this.width = PADDLE_W;
-				integral = 0;
-				previousError = 0;
 			}
 		};
 
 		function update_paddle_ai() {
-			const now = Date.now();
-			const dt = (now - this.lastTime) / 1000; // Convert ms to seconds
-			this.lastTime = now;
+			let timeToCollision = (canvas.width - this.ai.width - this.tempBall.x) / this.tempBall.vx;
+			let predictedY = this.tempBall.y + this.tempBall.vy * timeToCollision;
 
-			const rt = 0.1; //reaction time to see ahead of the ball
-			const predictedBallY = this.ball.y + this.ball.size / 2 + this.ball.vy * 0.1;
-			const error = predictedBallY - (this.ai.y + this.ai.height/2);
-			integral += error * dt;
-			const deriv = (error - previousError) / dt;
-			const newPos = ((error * Kp) + (integral * Ki) + (deriv * Kd)) * this.ai.vy;
-			this.ai.y += newPos / canvas.height;
-			previousError = error;
+			predictedY += Math.random() * ERROR_MARGIN - ERROR_MARGIN / 2;
+			while (predictedY < 0 || predictedY > canvas.height) {
+				if (predictedY < 0) {
+					predictedY = -predictedY;
+				} else {
+					predictedY = 2 * canvas.height - predictedY;
+				}
+			}
+			if (predictedY > this.ai.y + this.ai.height) {
+				this.ai.y += this.ai.vy;
+			} else if (predictedY < this.ai.y) {
+				this.ai.y -= this.ai.vy;
+			}
 		}
 
 		function moving_ai() {
@@ -270,7 +259,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				this.ai.reset();
 				this.pointScored(0);
 				this.scorePointPlayer();
-				//TODO send message player scored
 			}
 			//Left wall collision
 			if (this.ball.x + this.ball.vx < 0)
@@ -280,7 +268,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				this.ai.reset();
 				this.pointScored(1);
 				this.scorePointAI();
-				//TODO: send message ai scored
 			}
 
 			//Left paddle collisions
@@ -345,12 +332,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 						this.ball.vy = -this.ball.vy;
 				}
 			}
-
-			update_paddle_ai.bind(this)();
-			if (this.ai.y < 0)
-				this.ai.y = 0;
-			if (this.ai.y > canvas.height - this.ai.height)
-				this.ai.y = canvas.height - this.ai.height;
 		}
 
 		this.draw = (function() {
@@ -359,8 +340,6 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			this.paddleLeft.draw();
 			this.ai.draw();
 			this.ball.draw();
-			// moving_ai.bind(this)();
-			// raf = window.requestAnimationFrame(this.draw);
 		}).bind(this);
 
 		this.gameLoop = (function(timeStamp) {
@@ -370,15 +349,60 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			this.lastLoop = timeStamp;
 
 			accumulatedTime += deltaTime;
+			accumulatedAiTime += deltaTime;
 			if (accumulatedTime < 0) accumulatedTime = 0;
+			if (accumulatedAiTime < 0) accumulatedAiTime = 0;
 			while (accumulatedTime >= updateInterval) {
 				moving_ai.bind(this)();
+				if (aiMoveTimes === aiMoveInterval) {
+					update_paddle_ai.bind(this)();
+					if (this.ai.y < 0)
+						this.ai.y = 0;
+					if (this.ai.y > canvas.height - this.ai.height)
+						this.ai.y = canvas.height - this.ai.height;
+					aiMoveTimes = 0;
+				} else {
+					aiMoveTimes++;
+				}
 				accumulatedTime -= updateInterval;
+			}
+			while (accumulatedAiTime >= aiUpdateInterval) {
+				this.tempBall = this.ball;
+				accumulatedAiTime -= aiUpdateInterval;
+				this.ai.moveFactor = 0;
 			}
 
 			this.draw();
 			this.raf = window.requestAnimationFrame(this.gameLoop);
 		}).bind(this);
+
+		
+		// Add touch event listeners to the canvas
+		canvas.addEventListener("touchstart", (e) => {
+			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
+			this.movePaddleTo(touchY);
+		});
+
+		canvas.addEventListener("touchmove", (e) => {
+			e.preventDefault(); // Prevent scrolling while playing
+			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
+			this.movePaddleTo(touchY);
+		});
+
+		// Helper function to move the paddle to a specific y-coordinate
+		this.movePaddleTo = (touchY) => {
+			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
+			const relativeY = touchY - canvasRect.top; // Adjust touchY to the canvas coordinate system
+
+			// Set the paddle's y position, ensuring it stays within bounds
+			this.paddleLeft.y = relativeY - this.paddleLeft.height / 2;
+			if (this.paddleLeft.y < 0) {
+				this.paddleLeft.y = 0;
+			}
+			if (this.paddleLeft.y > canvas.height - this.paddleLeft.height) {
+				this.paddleLeft.y = canvas.height - this.paddleLeft.height;
+			}
+		};
 
 		this.keydownEventListener = ((e) => {
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
@@ -398,31 +422,12 @@ export default class ComponentAIGameBoard extends HTMLElement {
 					if (this.paddleLeft.y < 0)
 						this.paddleLeft.y = 0;
 					break;
-				case " ":
-					window.cancelAnimationFrame(raf);
-					break;
-				case "Enter":
-					raf = window.requestAnimationFrame(this.gameLoop);
 				default:
 					return;
 			}
 		}).bind(this);
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
-
-		/*canvas.addEventListener("mouseover", (e) => {
-			raf = window.requestAnimationFrame(draw);
-		});
-
-		canvas.addEventListener("mouseout", (e) => {
-			window.cancelAnimationFrame(raf);
-		});
-		*/
-
-		// this.ball.draw();
-		// this.paddleLeft.draw();
-
-		// raf = window.requestAnimationFrame(this.draw);
 	}
 
 	disconnectedCallback() {
