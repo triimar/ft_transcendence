@@ -67,7 +67,7 @@ services:
     networks:
       - transcendence
     expose:
-      - 3000    
+      - 8000    
     stop_grace_period: 20s 
     restart: always
 
