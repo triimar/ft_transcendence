@@ -63,8 +63,10 @@ export default class ComponentGameBoard extends HTMLElement {
 		let countdownText = blocker.children[0];
 		countdownText.textContent = this.score.left + " : " + this.score.right;
 		blocker.classList.add("show");
-		window.cancelAnimationFrame(this.raf);
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		canvas.removeEventListener("touchstart", this.touchStartFunc);
+		canvas.removeEventListener("touchmove", this.touchMoveFunc);
+		window.cancelAnimationFrame(this.raf);
 		this.raf = null;
 	}
 
@@ -362,7 +364,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.ball.draw();
 		}).bind(this);
 			
-		this.gameLoop = (function(timeStamp) {
+		this.gameLoop = (timeStamp) => {
 			if (!this.lastTime) this.lastTime = Date.now();
 
 			const deltaTime = timeStamp - this.lastTime;
@@ -377,19 +379,20 @@ export default class ComponentGameBoard extends HTMLElement {
 
 			this.draw();
 			this.raf = window.requestAnimationFrame(this.gameLoop);
-		}).bind(this);
+		};
 
 		// Add touch event listeners to the canvas
-		canvas.addEventListener("touchstart", (e) => {
+		this.touchStartFunc = (e) => {
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
 			this.movePaddleTo(touchY);
-		});
-
-		canvas.addEventListener("touchmove", (e) => {
+		};
+		canvas.addEventListener("touchstart", this.touchStartFunc);
+		this.touchMoveFunc = (e) => {
 			e.preventDefault(); // Prevent scrolling while playing
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
 			this.movePaddleTo(touchY);
-		});
+		};
+		canvas.addEventListener("touchmove", this.touchMoveFunc);
 
 		// Helper function to move the paddle to a specific y-coordinate
 		this.movePaddleTo = (touchY) => {
