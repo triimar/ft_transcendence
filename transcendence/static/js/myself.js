@@ -437,7 +437,10 @@ class Visitor {
 			} break;
 			case "b_match_win": {
 				let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
-				gameboard.displayMatchResult(this.firstLayerPlayers[message["winners"][this.gameIndex]]);
+				let winnerIndex = message["winners"][this.gameIndex];
+				if (winnerIndex != -1) {
+					gameboard.displayMatchResult(this.firstLayerPlayers[winnerIndex]);
+				}
 			} break;
 			case "b_ai_scored_point": {
 				let gameboard = this.page.container.querySelector("td-ai-game-board");
