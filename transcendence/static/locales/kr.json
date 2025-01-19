@@ -33,7 +33,13 @@
 		"player_not_found": "플레이어 아이디를 알 수 없음",
 		"max_players_reached": "방 최대 인원수에 도달하여 방에 참여할 수 없습니다.",
 		"mode_not_supported": "지원되지 않는 모드입니다",
-		"game_already_started": "게임이 이미 시작되었습니다"
+		"game_already_started": "게임이 이미 시작되었습니다",
+		"failed-to-verify": "krFailed to verify your account",
+		"failed-fetch-avatar": "krFailed to fetch your avatar's data",
+		"failed-login": "krFailed to login",
+		"avatar-change-disabled": "krYou cannot change avatar during a game",
+		"avatar-too-long": "krAvatar's face can only have 3 characters",
+		"color-not-available": "krAvatar's color is not in the color palette"
 	},
 	"label": {
         "people": "{{count}} 명"

@@ -44,7 +44,7 @@ class Visitor {
 		}
 		catch (error) {
 			console.error(error);	
-			this.displayPopupMessage("Failed to verify your account");	
+			this.displayPopupMessage(i18next.t("error.failed-to-verify"));	
 		}
 		return false;
 	}
@@ -58,17 +58,17 @@ class Visitor {
 		}
 		catch (error) {
 			console.error(error);
-			this.displayPopupMessage("Failed to fetch your avatar's data");
+			this.displayPopupMessage(i18next.t("error.failed-fetch-avatar"));
 		}
 	}
 
 	changeAvatar(newEmoji, newBackgroundColor) {
 		if (this.gameIndex != null) {
-			this.displayPopupMessage("You cannot change avatar during a game");
+			this.displayPopupMessage(i18next.t("error.avatar-change-disabled"));
 		} else if (newEmoji.length != 3) {
-			this.displayPopupMessage("Avatar's face can only have 3 characters");
+			this.displayPopupMessage(i18next.t("error.avatar-too-long"));
 		} else if (!["ff4d6d", "045d75", "4ba3c7", "007f5f", "ffe156", "a01a58", "ff5da2", "001f54"].includes(newBackgroundColor)) {
-			this.displayPopupMessage("Avatar's color is not in the color palette");
+			this.displayPopupMessage(i18next.t("error.color-not-available"));
 		} else {
 			this.avatar_emoji = newEmoji;
 			this.avatar_bg_color = '#' + newBackgroundColor;
@@ -90,7 +90,7 @@ class Visitor {
 				let json = await response.json();
 			} catch(error) {
 				console.error("Guest login error:", error);
-				this.displayPopupMessage("Failed to login");
+				this.displayPopupMessage(i18next.t("error.failed-login"));
 				is_success = false;
 			}
 		} else {
@@ -524,7 +524,6 @@ class Visitor {
 			if (this.reconnectCount >= 3) {
 				console.log("Websocket connection is closed");
 				this.displayPopupMessage(i18next.t("error.connection-lost-3-times"));
-				this.displayPopupMessage("Connection lost");
 				this.reconnectCount = 0;
 				window.location.hash = "#login";
 			} else {

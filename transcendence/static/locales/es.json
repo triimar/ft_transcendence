@@ -33,7 +33,13 @@
 		"player_not_found": "Id de jugador no encontrado",
 		"max_players_reached": "Se ha alcanzado el máximo número de jugadores. No se pudo entrar a la sala",
 		"mode_not_supported": "Modo no compatible",
-		"game_already_started": "TODO Game already started"
+		"game_already_started": "TODO Game already started",
+		"failed-to-verify": "esFailed to verify your account",
+		"failed-fetch-avatar": "esFailed to fetch your avatar's data",
+		"failed-login": "esFailed to login",
+		"avatar-change-disabled": "esYou cannot change avatar during a game",
+		"avatar-too-long": "esAvatar's face can only have 3 characters",
+		"color-not-available": "esAvatar's color is not in the color palette"
 	},
 	"label": {
         "people": "{{count}} JUGADORES"

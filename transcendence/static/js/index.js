@@ -107,7 +107,7 @@ async function main() {
 				background = background.slice(1); // Note(HeiYiu): remove #
 				myself.changeAvatar(emoji, background);
 			} else {
-				myself.displayPopupMessage("You cannot change avatar after game starts");
+				myself.displayPopupMessage(i18next.t("error.avatar-change-disabled"));
 			}
 		}, true);
 		let closeButton = document.querySelector("#avatar-info .close-btn");
