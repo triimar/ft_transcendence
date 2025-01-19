@@ -64,6 +64,8 @@ export class PageAiGame extends PageConfirmLeave {
 		for (let colorOption of colorSeletionContainer.children) {
 			colorOption.setAttribute("disabled", true);
 		}
+		let inputName = document.querySelector("#id-card-name");
+		inputName.setAttribute("disabled", true);
 	}
 
 	removeEvents() {
@@ -112,6 +114,8 @@ export class PageGame extends PageConfirmLeave {
 		for (let colorOption of colorSeletionContainer.children) {
 			colorOption.setAttribute("disabled", true);
 		}
+		let inputName = document.querySelector("#id-card-name");
+		inputName.setAttribute("disabled", true);
 	}
 
 	removeEvents() {
@@ -199,6 +203,8 @@ export class PageMain {
 		for (let colorOption of colorSeletionContainer.children) {
 			colorOption.removeAttribute("disabled");
 		}
+		let inputName = document.querySelector("#id-card-name");
+		inputName.removeAttribute("disabled");
 	}
 
 	removeEvents() {
@@ -241,6 +247,8 @@ export class PageRoom extends PageConfirmLeave{
 		for (let colorOption of colorSeletionContainer.children) {
 			colorOption.removeAttribute("disabled");
 		}
+		let inputName = document.querySelector("#id-card-name");
+		inputName.removeAttribute("disabled");
 	}
 
 	removeEvents() {
