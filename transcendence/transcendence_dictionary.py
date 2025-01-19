@@ -4,9 +4,9 @@ room_data_sample = {
         'room_owner': 'player_id_1',
         'mode': 'balance', #'shoot','bomb','remix'
         'avatars': [
-            {'player_id': 'example_player_id_1', 'prepared': True},
-            {'player_id': 'example_player_id_2', 'prepared': False},
-            {'player_id': 'example_player_id_3', 'prepared': True},
+            {'player_id': 'example_player_id_1', 'prepared': True, "disconnected": False},
+            {'player_id': 'example_player_id_2', 'prepared': False, "disconnected": False},
+            {'player_id': 'example_player_id_3', 'prepared': True, "disconnected": False},
         ], # can be list
         'prepared_count': 1,
         'max_player': 3,
@@ -37,9 +37,9 @@ room_data_sample = {
         'room_owner': 'player_id_4',
         'mode': 'balance', #'shoot','bomb','remix'
         'avatars': [
-            {'player_id': 'example_player_id_4', 'prepared': True},
-            {'player_id': 'example_player_id_5', 'prepared': False},
-            {'player_id': 'example_player_id_6', 'prepared': True},
+            {'player_id': 'example_player_id_4', 'prepared': True, "disconnected": False},
+            {'player_id': 'example_player_id_5', 'prepared': False, "disconnected": False},
+            {'player_id': 'example_player_id_6', 'prepared': True, "disconnected": False},
         ],
         'prepared_count': 1,
         'max_player': 5,

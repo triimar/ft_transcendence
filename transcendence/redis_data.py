@@ -77,7 +77,7 @@ async def add_player_to_room(room_id, player_id) -> RedisError:
     await redis_instance.json().arrappend(
         "room_data",
         f"$.{room_id}.avatars",
-        {"player_id": player_id, "prepared": False},
+        {"player_id": player_id, "prepared": False, "disconnected": False},
     )
     print(f"Player {player_id} added to {room['room_id']}.")
     return RedisError.NONE
@@ -113,7 +113,7 @@ async def add_new_room(room_id, owner_id) -> dict:
         #     "default_setting": "value"
         # },
         "mode": "",
-        "avatars": [{"player_id": owner_id, "prepared": True}],
+        "avatars": [{"player_id": owner_id, "prepared": True, "disconnected": False}],
         "max_player": 2,
         "matches": [],
     }
@@ -402,6 +402,8 @@ def get_last_match_id(room: dict, player_id):
         if player_id in match["players"]:
             return len(room["matches"]) - idx - 1
 
+    return -1
+
 
 def get_first_layer_player(room: dict):
     first_layer_matches_len = (len(room["avatars"]) + 1) // 2
@@ -457,3 +459,27 @@ async def reset_players_scores(room_id, match_id):
                 ("player_data", f"$.{player_id}.score", 0),
             ]
         )
+
+async def set_player_disconnected(room_id, player_id):
+    redis_instance = get_redis_client()
+
+
+    result = await redis_instance.json().get(
+        "room_data", f"$.{room_id}.avatars"
+    )
+    if len(result) == 0:
+        return RedisError.NOROOMFOUND
+    avatars = result[0]
+
+    if not any(avatar["player_id"] == player_id for avatar in avatars):
+        return RedisError.NOPLAYERFOUND
+
+    await redis_instance.json().set(
+        "room_data",
+        f'$.{room_id}.avatars[?(@.player_id == "{player_id}")].disconnected',
+        True,
+    )
+    print(f"Set player {player_id} in room {room_id} disconnected.")
+    return RedisError.NONE
+
+async def get_opponent()

@@ -49,9 +49,45 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_send(self.lobby_group_name, event_leave_room)
         else:
             # game already started
-            event_leave_match = {"type": "broadcast.leave.match", "player_id": player_id}
+            event_leave_match = {"type": "broadcast.leave.match", "player_id": self.player_id}
             match_group_name = self.room_group_name + "_" + str(self.match_id)
             await self.channel_layer.group_send(match_group_name, event_leave_match)
+
+            # when left, the opponent gonna be winner
+            # set self as disconnected in avatars
+            match(await data.set_player_disconnected(self.room_group_name)):
+                case data.RedisError.NOROOMFOUND:
+                    pass
+                case data.RedisError.NOPLAYERFOUND:
+                    pass
+                case data.RedisError.NONE:
+                    print("Set myself to be disconnected succeed.")
+
+            # get the opponent
+
+            # check if opponent is ai or not exist or normal player
+
+            await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
+            winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
+            event = {"type": "broadcast.match.win", "winners": winner_id_list}
+            await self.channel_layer.group_send(self.room_group_name, event)
+            # if this is the last game
+            if await data.is_last_game(self.match_id, self.room_group_name):
+                # await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+                await self.channel_layer.group_discard(self.room_group_name + "_" + str(self.match_id), self.channel_name)
+                # await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
+                self.match_id = None
+                self.room_group_name = None
+                self.joined_group = ["lobby"]
+            # if is not the last match, set user to next game
+            else:
+                await self.channel_layer.group_discard(self.room_group_name + "_" + str(self.match_id), self.channel_name)
+                next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
+                await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
+                # update self.match_id to new match_id
+                self.match_id = next_match_id
+            await data.reset_players_score(self.room_group_name, self.match_id)
+
 
 
 
@@ -224,14 +260,16 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
             room = await data.get_one_room_data(room_id)
 
-            if room is None:
+            if not room:
                 await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
-                self.player_id = player_id
-            elif not data.is_in_room(player_id, room):
+
+            if not data.is_in_room(player_id, room):
                 await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_IN_ROOM.value, "redirect_hash": "main"}))
                 self.player_id = player_id
             else:
                 correct_match_id = data.get_last_match_id(room, player_id)
+                if correct_match_id == -1:
+                    await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.MATCH_NOT_FOUND.value, "redirect_hash": "main"}))
                 single_game_state = room["matches"][correct_match_id]
                 player_info_state = next((player for player in room["avatars"] if player['player_id'] == player_id), None)
                 # if rejoined consumer has ai opponent
