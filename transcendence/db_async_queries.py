@@ -81,7 +81,7 @@ async def delete_user(login):
 		except Exception as e:
 				logging.error(f"Failed to delete user {login}: {e}")
 
-# Example structure of result:
+# Example structure of result (list of Record objects):
 # [
 #     Record(id=1, uuid='uuid1', login='login1', avatar='aoa', color='fafafa'),
 #     Record(id=2, uuid='uuid2', login='login2', avatar='t_t', color='f3f2f3')
@@ -92,7 +92,7 @@ async def select_all_users():
 				async with (pool.acquire()) as conn:
 						query = "SELECT * FROM transcendence_users"
 						result = await conn.fetch(query)
-						print("All user data:")
+						print("All user data in the database:")
 						for user in result:
 								print(user)
 						return result

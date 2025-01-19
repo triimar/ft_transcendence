@@ -18,7 +18,7 @@ async def init_db_connection():
                 max_size=20
             )
             result = await connection.fetch('SELECT 1')
-            print("Asyncpg connection successful:", result)
+            print("Asyncpg connection successful, raw result:", result)
             return connection
         except Exception as e:
             logging.error(f"Failed to connect to database: {e}")

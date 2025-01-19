@@ -35,6 +35,8 @@ async def sync_db_to_redis():
 			user['score'] = 0
 			await redis_instance.json().set("player_data", f"$.{user['player_id']}", user)
 
+	print("All users in db synced to Redis")
+
 
 async def sync_redis_to_db():
 	pass
