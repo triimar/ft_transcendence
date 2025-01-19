@@ -115,7 +115,7 @@ class Visitor {
 	}
 
 	connectWs() {
-		this.ws = new WebSocket('/ws/transcendence/');
+		this.ws = new WebSocket('/');
 		this.ws.addEventListener("open", function (event) {
 			console.log("Websocket connection is open");
 		});

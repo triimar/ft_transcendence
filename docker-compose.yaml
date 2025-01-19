@@ -63,9 +63,26 @@ services:
     image: app
     build:
       context: .
+      dockerfile: Dockerfile.app
+    networks:
+      - transcendence
+    expose:
+      - 3000    
+    stop_grace_period: 20s 
+    restart: always
+
+  nginx:
+    depends_on:
+      - app
+    container_name: nginx
+    image: nginx
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
     networks:
       - transcendence
     ports:
-      - "8000:8000"
-    stop_grace_period: 20s 
+      - "80:80"
+      - "443:443"
+    stop_grace_period: 20s
     restart: always
