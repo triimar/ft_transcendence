@@ -1,6 +1,6 @@
 import random
 from .redis_client import get_redis_client
-from .db_async_queries import add_user, avatar_exists, color_exists
+from .db_async_queries import add_user
 from .redis_data import add_one_player
 
 async def assign_random_background_color():

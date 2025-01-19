@@ -37,30 +37,6 @@ async def get_uuid(login):
 		except Exception as e:
 				logging.error(f"Failed to get uuid for user {login}: {e}")
 				return None
-		
-async def avatar_exists(avatar):
-		try:
-				pool = await get_db_connection()
-				async with (pool.acquire()) as conn:
-						query = "SELECT EXISTS (SELECT 1 FROM transcendence_users WHERE avatar = $1);"
-						result = await conn.fetchval(query, avatar)
-						print("Avatar exists: ", result)
-						return result
-		except Exception as e:
-				logging.error(f"Failed to check if avatar {avatar} exists: {e}")
-				return False
-
-async def color_exists(color):
-		try:
-				pool = await get_db_connection()
-				async with (pool.acquire()) as conn:
-						query = "SELECT EXISTS (SELECT 1 FROM transcendence_users WHERE color = $1);"
-						result = await conn.fetchval(query, color)
-						print("Color exists: ", result)
-						return result
-		except Exception as e:
-				logging.error(f"Failed to check if color {color} exists: {e}")
-				return False
 
 async def update_color_and_avatar(uuid, color, avatar):
 		try:
@@ -71,6 +47,7 @@ async def update_color_and_avatar(uuid, color, avatar):
 		except Exception as e:
 				logging.error(f"Failed to update color and avatar for user {uuid}: {e}")
 
+# for testing purposes
 async def delete_user(login):
 		try:
 				pool = await get_db_connection()
