@@ -14,13 +14,25 @@ async def add_user(uuid, login, avatar, color):
 		except Exception as e:
 				logging.error(f"Failed to insert user {login}: {e}")
 
-async def user_exists(login):
+async def user_exists_by_login(login):
 		try:
 				pool = await get_db_connection()
 				async with (pool.acquire()) as conn:
 						query = "SELECT EXISTS(SELECT 1 FROM transcendence_users WHERE login = $1)"
 						result = await conn.fetchval(query, login)
-						print("User exists: ", result)
+						print(f"User with login {login} exists: ", result)
+						return result
+		except Exception as e:
+				logging.error(f"Failed to check if user with login {login} exists: {e}")
+				return False
+
+async def user_exists_by_uuid(uuid):
+		try:
+				pool = await get_db_connection()
+				async with (pool.acquire()) as conn:
+						query = "SELECT EXISTS(SELECT 1 FROM transcendence_users WHERE uuid = $1)"
+						result = await conn.fetchval(query, uuid)
+						print(f"User with uuid {uuid} exists: ", result)
 						return result
 		except Exception as e:
 				logging.error(f"Failed to check if user with login {login} exists: {e}")

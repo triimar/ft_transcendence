@@ -1,6 +1,8 @@
+import json
 from .db_async_queries import select_all_users
 from .redis_client import get_redis_client
 from .transcendence_dictionary import player_data_sample, room_data_sample
+from .db_async_queries import user_exists_by_uuid, update_color_and_avatar
 
 async def sync_db_to_redis():
 	# get all users from db
@@ -41,8 +43,18 @@ async def sync_db_to_redis():
 
 
 async def sync_redis_to_db():
-	pass
-		# TODO: sync redis to db
-		# get data from redis dict
-		# a loop to add all the user to db
-		# condition: update when user exists
+	# get data from redis
+	players = await get_redis_client().json().get("player_data")
+
+	if players is None:
+		players = {}
+
+	print("All player data in redis:")
+	print(f"{players}")
+
+	# a loop to update avatars in db
+	# condition: update when user exists
+	for key, value in players.items():
+		if (await user_exists_by_uuid(key)):
+			await update_color_and_avatar(value['player_id'], value['player_bg_color'], value['player_emoji'])
+			print(f"Player {key} updated, new color: {value['player_bg_color']}, new avatar: {value['player_emoji']}")

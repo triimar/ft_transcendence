@@ -7,7 +7,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
 from .user import assign_random_avatar, assign_random_background_color, create_new_user 
-from .db_async_queries import user_exists, get_uuid
+from .db_async_queries import user_exists_by_login, get_uuid
 from .redis_data import add_one_player, get_one_player
 
 def logout(request):
@@ -102,7 +102,7 @@ async def oauth_callback(request):
 
     user_login = user_data_response.json().get('login')
 
-    if (await user_exists(user_login) == True):
+    if (await user_exists_by_login(user_login) == True):
         intra_user_uuid = await get_uuid(user_login)
     else:
         intra_user_uuid = shortuuid.ShortUUID().random(length=22)
