@@ -442,7 +442,7 @@ class Visitor {
 				// only in room page
 				let playerId = message["player_id"];
 				let emoji = message["emoji"];
-				let backgroundColor = message["bg_color"];
+				let backgroundColor = '#' + message["bg_color"];
 				if (this.pageName == "room") {
 					let roomElement = this.page.container.querySelector("td-lobby-room");
 					roomElement.changeParticipant(emoji, backgroundColor, playerId);
