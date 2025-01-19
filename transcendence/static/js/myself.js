@@ -5,6 +5,7 @@ class Visitor {
 		this.roomId = null;
 		this.roomOwnerIsMyself = false;
 		this.gameIndex = null;
+		this.firstLayerPlayers = [];
 		this.pageFinishedRendering = false; // Note(HeiYiu): this is a mutex that make sure the template is rendered before receiving incoming websocket message that will change the UI tree
 		this.id = null;
 		this.avatar_emoji = null;
@@ -286,6 +287,8 @@ class Visitor {
 							}
 						}
 					}
+				} else {
+					this.firstLayerPlayers = [];
 				}
 			} break;
 			case "b_max_player": {
@@ -348,6 +351,7 @@ class Visitor {
 			case "b_start_game": {
 				this.pageFinishedRendering = false;
 				let players = message["players"];
+				this.firstLayerPlayers = players;
 				let gameIndex = 0;
 				let ai = false;
 				for (let [i, player] of players.entries()) {
@@ -385,6 +389,7 @@ class Visitor {
 				}
 			} break;
 			case "ack_join_match": {
+				this.firstLayerPlayers = message["players"];
 				await this.waitForPageToRender();
 				let popup = document.querySelector("#tournament-tree-popup");
 				popup.classList.add('show');
@@ -399,7 +404,7 @@ class Visitor {
 
 			} break;
 			case "b_leave_match": {
-
+				
 			} break;
 			case "b_start_match": {
 				let gameboard = this.page.container.querySelector("td-game-board");
@@ -432,7 +437,7 @@ class Visitor {
 			} break;
 			case "b_match_win": {
 				let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
-				gameboard.displayMatchResult(message["winner"]);
+				gameboard.displayMatchResult(this.firstLayerPlayers[message["winners"][this.gameIndex]]);
 			} break;
 			case "b_ai_scored_point": {
 				let gameboard = this.page.container.querySelector("td-ai-game-board");
