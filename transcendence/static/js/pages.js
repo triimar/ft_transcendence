@@ -60,6 +60,10 @@ export class PageAiGame extends PageConfirmLeave {
 		});
 		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
 		avatarCustomizationForm.classList.add("disable-click");
+		let colorSeletionContainer = document.querySelector("#color-selection-container");
+		for (let colorOption of colorSeletionContainer.children) {
+			colorOption.setAttribute("disabled", true);
+		}
 	}
 
 	removeEvents() {
@@ -104,6 +108,10 @@ export class PageGame extends PageConfirmLeave {
 		});
 		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
 		avatarCustomizationForm.classList.add("disable-click");
+		let colorSeletionContainer = document.querySelector("#color-selection-container");
+		for (let colorOption of colorSeletionContainer.children) {
+			colorOption.setAttribute("disabled", true);
+		}
 	}
 
 	removeEvents() {
@@ -187,6 +195,10 @@ export class PageMain {
 		addRoomButton.addEventListener("click", myself.sendMessageAddRoom.bind(myself));
 		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
 		avatarCustomizationForm.classList.remove("disable-click");
+		let colorSeletionContainer = document.querySelector("#color-selection-container");
+		for (let colorOption of colorSeletionContainer.children) {
+			colorOption.removeAttribute("disabled");
+		}
 	}
 
 	removeEvents() {
@@ -225,6 +237,10 @@ export class PageRoom extends PageConfirmLeave{
 		});
 		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
 		avatarCustomizationForm.classList.remove("disable-click");
+		let colorSeletionContainer = document.querySelector("#color-selection-container");
+		for (let colorOption of colorSeletionContainer.children) {
+			colorOption.removeAttribute("disabled");
+		}
 	}
 
 	removeEvents() {
