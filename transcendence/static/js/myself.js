@@ -66,7 +66,7 @@ class Visitor {
 			this.displayPopupMessage("You cannot change avatar during a game");
 		} else if (newEmoji.length != 3) {
 			this.displayPopupMessage("Avatar's face can only have 3 characters");
-		} else if (!["#ff4d6d", "#045d75", "#4ba3c7", "#007f5f", "#ffe156", "#a01a58", "#ff5da2", "#001f54"].includes(newBackgroundColor)) {
+		} else if (!["ff4d6d", "045d75", "4ba3c7", "007f5f", "ffe156", "a01a58", "ff5da2", "001f54"].includes(newBackgroundColor)) {
 			this.displayPopupMessage("Avatar's color is not in the color palette");
 		} else {
 			this.avatar_emoji = newEmoji;
@@ -451,7 +451,7 @@ class Visitor {
 			case "ack_avatar_change": {
 				// only in lobby or room page
 				let emoji = message["emoji"];
-				let backgroundColor = message["bg_color"];
+				let backgroundColor = '#' + message["bg_color"];
 				let avatarElement = document.querySelector("td-navigation-bar")?.shadow.querySelector("td-avatar");
 				avatarElement.setAttribute("avatar-name", emoji);
 				avatarElement.setAttribute("avatar-background", backgroundColor);
