@@ -15,6 +15,7 @@ class RedisError(Enum):
     MODENOTSUPPORTED = 4
     PLAYERALLPREPARED = 5
     GAMEALREADYSTARTED = 6
+    NOMATCHFOUND = 7
 
 
 BALL_VELOCITY_X = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
@@ -441,24 +442,19 @@ async def set_player_in_next_match(room_id, match_id, winner_id):
     )
 
 
-async def reset_players_scores(room_id, match_id):
+async def reset_player_score(player_id):
     redis_instance = get_redis_client()
 
-    match = await get_one_match(room_id, match_id)
+    redis_instance.json().mset(
+        [("player_data", f"$.{player_id}.position", 50),
+         ("player_data", f"$.{player_id}.size", 15),
+         ("player_data", f"$.{player_id}.score", 0)]
+    )
 
-    for player_id in match["players"]:
-        if "ai" == player_id:
-            await redis_instance.json().set(
-                "room_data", f"$.{room_id}.ai", {"score": 0}
-            )
-            continue
-        await redis_instance.json().mset(
-            [
-                ("player_data", f"$.{player_id}.position", 50),
-                ("player_data", f"$.{player_id}.size", 15),
-                ("player_data", f"$.{player_id}.score", 0),
-            ]
-        )
+async def reset_ai_score(room_id):
+    redis_instance = get_redis_client()
+
+    redis_instance.json().set("room_data" f"$.{room_id}.ai", {"score": 0})
 
 async def set_player_disconnected(room_id, player_id):
     redis_instance = get_redis_client()
@@ -482,4 +478,24 @@ async def set_player_disconnected(room_id, player_id):
     print(f"Set player {player_id} in room {room_id} disconnected.")
     return RedisError.NONE
 
-async def get_opponent()
+async def get_opponent(room_id, match_id, player_id):
+    room = get_one_room_data(room_id)
+
+    if not room:
+        return None
+
+    try:
+        match = room["matches"][match_id]
+    except IndexError:
+        return None
+
+    if not player_id in match["players"]:
+        return None
+
+    player_num_in_match = len(match["players"])
+    if (player_num_in_match == 2):
+        opponent_idx = 1 - match["players"].index(player_id)
+        opponent_id = match["players"][opponent_idx]
+        return opponent_id
+    else:
+        return None
