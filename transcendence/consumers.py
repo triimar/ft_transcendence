@@ -64,7 +64,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     print("Set myself to be disconnected succeed.")
 
                     # get the opponent
-                    opponent_id = data.get_opponent(self.room_group_name, self.match_id, self.player_id)
+                    opponent_id = await data.get_opponent(self.room_group_name, self.match_id, self.player_id)
 
                     # check if opponent is ai or not exist or normal player
                     if opponent_id:
@@ -303,11 +303,11 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
     async def start_match(self):
         await data.set_player_ready_for_match(self.room_group_name, self.match_id, self.player_id)
-        game_match = await data.get_one_match(self.room_group_name, self.match_id)
-        opponent_id = data.get_opponent(self.room_group_name, self.match_id, self.player_id)
+        room = await data.get_one_room_data(self.room_group_name)
+        opponent_id = await data.get_opponent(self.room_group_name, self.match_id, self.player_id)
         opponent_is_disconnected = False
         if opponent_id:
-            for player in game_match["avatars"]:
+            for player in room["avatars"]:
                 if player["player_id"] == opponent_id:
                     if player["disconnected"]:
                         opponent_is_disconnected = True
@@ -322,6 +322,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 self.match_id = next_match_id
             event = {"type": "broadcast.match.win", "winners": winner_id_list, "is_last_game": is_last_game}
             await self.channel_layer.group_send(self.room_group_name, event)
+
+        game_match = await data.get_one_match(self.room_group_name, self.match_id)
         if (game_match['ready'] == 2):
             player0 = await data.get_one_player(game_match["players"][0])
             player1 = await data.get_one_player(game_match["players"][1])
