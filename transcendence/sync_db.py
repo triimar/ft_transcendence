@@ -14,7 +14,9 @@ async def sync_db_to_redis():
 	await redis_instance.json().set("player_data", "$", player_data_sample)
 
 	# convert record to dict
-	users = [dict(record) for record in result]
+	users = []
+	if result is not None:
+		users = [dict(record) for record in result]
 
 	key_mapping = {
 		"uuid": "player_id",
