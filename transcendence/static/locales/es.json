@@ -32,7 +32,8 @@
 		"room_not_found": "Id de sala no encontrado",
 		"player_not_found": "Id de jugador no encontrado",
 		"max_players_reached": "Se ha alcanzado el máximo número de jugadores. No se pudo entrar a la sala",
-		"mode_not_supported": "Modo no compatible"
+		"mode_not_supported": "Modo no compatible",
+		"game_already_started": "TODO Game already started"
 	},
 	"label": {
         "people": "{{count}} JUGADORES"

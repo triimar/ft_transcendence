@@ -32,7 +32,8 @@
 		"room_not_found": "Room id not found",
 		"player_not_found": "Player id not found",
 		"max_players_reached": "Max number of players reached. Cannot join room",
-		"mode_not_supported": "Mode not supported"
+		"mode_not_supported": "Mode not supported",
+		"game_already_started": "Game already started"
 	},
 	"label": {
         "people": "{{count}} PEOPLE"

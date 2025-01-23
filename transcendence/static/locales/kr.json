@@ -32,7 +32,8 @@
 		"room_not_found": "방 아이디를 알 수 없음",
 		"player_not_found": "플레이어 아이디를 알 수 없음",
 		"max_players_reached": "방 최대 인원수에 도달하여 방에 참여할 수 없습니다.",
-		"mode_not_supported": "지원되지 않는 모드입니다"
+		"mode_not_supported": "지원되지 않는 모드입니다",
+		"game_already_started": "TODO Game already started"
 	},
 	"label": {
         "people": "{{count}} 명"
