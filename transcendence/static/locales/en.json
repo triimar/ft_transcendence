@@ -33,7 +33,7 @@
 		"player_not_found": "Player id not found",
 		"max_players_reached": "Max number of players reached. Cannot join room",
 		"mode_not_supported": "Mode not supported",
-		"game_already_started": "Game already started",
+		"game_already_started": "Cannot join. Game already started",
 		"failed-to-verify": "Failed to verify your account",
 		"failed-fetch-avatar": "Failed to fetch your avatar's data",
 		"failed-login": "Failed to login",

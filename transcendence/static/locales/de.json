@@ -11,10 +11,10 @@
 		"confirm-logout-txt": "Bist du sicher, dass du den Raum verlassen möchtest?",
 		"agree-txt": "JA",
 		"decline-txt": "NEIN",
-		"id-card-text": "deVisitor Identity card",
-		"id-card-name-text": "deName:",
-		"id-card-background-text": "deBackground:",
-		"avatar-apply-change-text": "deAPPLY"
+		"id-card-text": "Besucherausweis",
+		"id-card-name-text": "Name:",
+		"id-card-background-text": "Hintergrund:",
+		"avatar-apply-change-text": "Anwenden"
 	},
 	"lobby-room": {
 		"prepare-btn-txt" : "BEREIT?",
@@ -34,12 +34,13 @@
         "player_not_found": "Spieler-ID nicht gefunden",
         "max_players_reached": "Maximale Spieleranzahl erreicht. Beitritt zum Raum nicht möglich",
         "mode_not_supported": "Modus nicht unterstützt",
-		"failed-to-verify": "deFailed to verify your account",
-		"failed-fetch-avatar": "deFailed to fetch your avatar's data",
-		"failed-login": "deFailed to login",
-		"avatar-change-disabled": "deYou cannot change avatar during a game",
-		"avatar-too-long": "deAvatar's face can only have 3 characters",
-		"color-not-available": "deAvatar's color is not in the color palette"
+		"game_already_started": "Kann nicht beitreten. Das Spiel hat bereits begonnen",
+		"failed-to-verify": "Kontoverifizierung fehlgeschlagen",
+		"failed-fetch-avatar": "Fehler beim Abrufen deines Avatars",
+		"failed-login": "Anmeldung fehlgeschlagen",
+		"avatar-change-disabled": "Du kannst deinen Avatar während eines Spiels nicht ändern",
+		"avatar-too-long": "Der Avatar darf nur 3 Zeichen enthalten",
+		"color-not-available": "Die gewählte Avatar-Farbe ist nicht in der Farbpalette verfügbar"
     },
 	"label": {
         "people": "{{count}} PERSONEN"
