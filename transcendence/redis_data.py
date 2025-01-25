@@ -314,7 +314,7 @@ async def generate_matches(room_id, self_player_id) -> list[str]:
 
     players = room["avatars"]
     player_nums = len(players)
-    match_nums = (player_nums + 1) // 2
+    match_nums = (player_nums + 1) // 2 # TODO: match_nums = player_nums + player_nums%2 - 1
     temp_player_list = [p["player_id"] for p in players]
     if player_nums % 2 != 0:
         temp_player_list.append("ai")
