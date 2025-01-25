@@ -44,14 +44,14 @@
 		"color-not-available": "Die gewählte Avatar-Farbe ist nicht in der Farbpalette verfügbar"
     },
 	"game": {
-		"start-txt": "start",
-		"winner-txt": "Wins!",
-		"you-win": "You are the tournament winner!",
-		"ai-wins": "AI wins the tournament!",
-		"player-wins": "Player {{winner}} wins the tournament!",
-		"teleporting": "Teleporting you to the next match in 3 seconds",
-		"waiting": "Waiting for your next opponent...",
-		"you-lost": "You lost."
+		"start-txt": "Beginn",
+		"winner-txt": "ist gewonnen!",
+		"you-win": "Du bist der Turniergewinner!",
+		"ai-wins": "AI hat der Turnier gewonnen!",
+		"player-wins": "Spieler {{winner}} hat der Turnier gewonnen!",
+		"teleporting": "Teleportation zum nächsten Spiel in 3 Sekunden",
+		"waiting": "Warten auf den nächsten Gegner...",
+		"you-lost": "Du hast verloren."
 	},
 	"label": {
         "people": "{{count}} PERSONEN"
