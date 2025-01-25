@@ -267,41 +267,42 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 correct_match_id = data.get_last_match_id(room, player_id)
                 if correct_match_id == -1:
                     await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.MATCH_NOT_FOUND.value, "redirect_hash": "main"}))
-                single_game_state = room["matches"][correct_match_id]
-                player_info_state = next((player for player in room["avatars"] if player['player_id'] == player_id), None)
-                # if rejoined consumer has ai opponent
-                if "ai" in single_game_state["players"]:
-                    redirect_hash = f"room{room_id}-ai-game{correct_match_id}"
-                    ai_score = room["ai"]
                 else:
-                    redirect_hash = f"room{room_id}-game{correct_match_id}"
-                    ai_score = ""
-                self.first_layer_player_id = data.get_first_layer_player(room)
-                # create first layer player for generating game tree
-                first_layer_player  = []
-                for id in self.first_layer_player_id:
-                    if id == "ai":
-                        first_layer_player.append({"player_id": "ai"})
+                    single_game_state = room["matches"][correct_match_id]
+                    player_info_state = next((player for player in room["avatars"] if player['player_id'] == player_id), None)
+                    # if rejoined consumer has ai opponent
+                    if "ai" in single_game_state["players"]:
+                        redirect_hash = f"room{room_id}-ai-game{correct_match_id}"
+                        ai_score = room["ai"]
                     else:
-                        player = next((player for player in room["avatars"] if player['player_id'] == id), None)
-                        first_layer_player.append(player)
-                # create list of player index for generating game tree
-                winner_list = [match["winner"] for match in room["matches"]]
-                winner_id_list = []
-                for w in winner_list:
-                    if w != "":
-                        winner_id_list.append(self.first_layer_player_id.index(w))
-                    else:
-                        winner_id_list.append(-1)
-                await self.send(text_data=json.dumps({"type": "ack_join_match", "players": first_layer_player, "winners": winner_id_list,"game_state": single_game_state, "player_info": player_info_state, "ai": ai_score, "redirect_hash": redirect_hash}))
-                self.player_id = player_id
-                self.room_group_name = room_id
-                self.match_id = correct_match_id
-                await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
-                match_group_name = self.room_group_name + "_" + str(self.match_id)
-                await self.channel_layer.group_add(match_group_name, self.channel_name)
-                await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-                self.joined_group = ["room", "match"]
+                        redirect_hash = f"room{room_id}-game{correct_match_id}"
+                        ai_score = ""
+                    self.first_layer_player_id = data.get_first_layer_player(room)
+                    # create first layer player for generating game tree
+                    first_layer_player  = []
+                    for id in self.first_layer_player_id:
+                        if id == "ai":
+                            first_layer_player.append({"player_id": "ai"})
+                        else:
+                            player = next((player for player in room["avatars"] if player['player_id'] == id), None)
+                            first_layer_player.append(player)
+                    # create list of player index for generating game tree
+                    winner_list = [match["winner"] for match in room["matches"]]
+                    winner_id_list = []
+                    for w in winner_list:
+                        if w != "":
+                            winner_id_list.append(self.first_layer_player_id.index(w))
+                        else:
+                            winner_id_list.append(-1)
+                    await self.send(text_data=json.dumps({"type": "ack_join_match", "players": first_layer_player, "winners": winner_id_list,"game_state": single_game_state, "player_info": player_info_state, "ai": ai_score, "redirect_hash": redirect_hash}))
+                    self.player_id = player_id
+                    self.room_group_name = room_id
+                    self.match_id = correct_match_id
+                    await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
+                    match_group_name = self.room_group_name + "_" + str(self.match_id)
+                    await self.channel_layer.group_add(match_group_name, self.channel_name)
+                    await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+                    self.joined_group = ["room", "match"]
 
     async def start_match(self):
         await data.set_player_ready_for_match(self.room_group_name, self.match_id, self.player_id)
