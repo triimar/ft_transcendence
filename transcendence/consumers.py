@@ -80,6 +80,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                             event = {"type": "broadcast.match.win", "winners": winner_id_list, "is_last_game": is_last_game, "opponent_go_next": next_match_id}
                         else:
                             event = {"type": "broadcast.match.win", "winners": winner_id_list, "is_last_game": is_last_game}
+                            # if the disconnected is the last person in the room, delete the room
+                            if len(current_room["avatars"]) == 1:
+                                await data.delete_one_room(room_id)
                         await self.channel_layer.group_send(self.room_group_name, event)
                     else:
                         # opponent is empty
