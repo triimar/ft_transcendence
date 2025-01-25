@@ -407,6 +407,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
                 # update self.match_id to new match_id
                 self.match_id = next_match_id
+            else:
+                await data.delete_one_room(self.room_group_name)
 
     async def broadcast_match_win(self, event):
         winner_list = event["winners"]
