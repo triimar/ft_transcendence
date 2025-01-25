@@ -437,10 +437,19 @@ class Visitor {
 				tree.addWinners(winners);
 				if (winnerIndex != -1) {
 					gameboard.displayMatchResult(this.firstLayerPlayers[winnerIndex]);
+				}
+				if (winners[winners.length - 1] != -1) {
+					let tournamentWinner = this.firstLayerPlayers[winners[winners.length - 1]];
+					if (tournamentWinner["player_id"] == this.id) {
+						this.displayPopupMessage("You are the tournament winner!");
+					} else if (tournamentWinner["player_id"] == "ai") {
+						this.displayPopupMessage(`AI wins the tournament!`);
+					} else {
+						this.displayPopupMessage(`Player ${tournamentWinner["player_emoji"]} wins the tournament!`);
+					}
+				} else if (winnerIndex != -1) {
 					if (this.firstLayerPlayers[winnerIndex]["player_id"] == this.id) {
-						if (winners.length == 1) {
-							// announce winner
-						} else {
+						if (winners.length != 1) {
 							let opponentGameIndex = this.gameIndex;
 							if ((this.gameIndex % 2) == 0) {
 								opponentGameIndex += 1;
