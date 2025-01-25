@@ -12,8 +12,8 @@ async def sync_db_to_redis():
 	redis_instance = get_redis_client()
 
 	# set sample data to redis (delete later)
-	await redis_instance.json().set("room_data", "$", room_data_sample)
-	await redis_instance.json().set("player_data", "$", player_data_sample)
+	await redis_instance.json().set("room_data", "$", {})
+	await redis_instance.json().set("player_data", "$", {})
 
 	# convert record to dict
 	users = []
