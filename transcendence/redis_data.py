@@ -144,6 +144,8 @@ async def update_player(updated_player):
 async def get_one_match(room_id, match_id) -> dict | None:
     redis_instance = get_redis_client()
     room_data = await get_one_room_data(room_id)
+    if room_data is None:
+        return None
     match_data = room_data["matches"][match_id]
     return match_data
 

@@ -389,26 +389,27 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         player_data['score'] += 1
         await data.update_player(player_data)
         match_data = await data.get_one_match(self.room_group_name, self.match_id)
-        player_side = 0
-        if match_data['players'][1] == self.player_id:
-            player_side = 1
-        ball = await data.reset_ball(self.room_group_name, self.match_id)
-        event = {"type": "broadcast.scored.point", "player_side": player_side, "ball": ball}
-        await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
-        if (player_data['score'] == 3):
-            await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
-            winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
-            is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
-            event = {"type": "broadcast.match.win", "winners": winner_id_list, "is_last_game": is_last_game}
-            await self.channel_layer.group_send(self.room_group_name, event)
-            # if is not the last match, set user to next game
-            if not is_last_game:
-                next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
-                await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
-                # update self.match_id to new match_id
-                self.match_id = next_match_id
-            else:
-                await data.delete_one_room(self.room_group_name)
+        if match_data is not None:
+            player_side = 0
+            if match_data['players'][1] == self.player_id:
+                player_side = 1
+            ball = await data.reset_ball(self.room_group_name, self.match_id)
+            event = {"type": "broadcast.scored.point", "player_side": player_side, "ball": ball}
+            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
+            if (player_data['score'] == 3):
+                await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
+                winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
+                is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
+                event = {"type": "broadcast.match.win", "winners": winner_id_list, "is_last_game": is_last_game}
+                await self.channel_layer.group_send(self.room_group_name, event)
+                # if is not the last match, set user to next game
+                if not is_last_game:
+                    next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
+                    await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
+                    # update self.match_id to new match_id
+                    self.match_id = next_match_id
+                else:
+                    await data.delete_one_room(self.room_group_name)
 
     async def broadcast_match_win(self, event):
         winner_list = event["winners"]
