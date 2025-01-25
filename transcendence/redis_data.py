@@ -400,7 +400,7 @@ def is_in_room(player_id, room: dict):
 
 def get_last_match_id(room: dict, player_id):
     for idx, match in enumerate(reversed(room["matches"])):
-        if player_id in match["players"]:
+        if player_id in match["players"] and match["winner"] == "":
             return len(room["matches"]) - idx - 1
 
     return -1
@@ -445,7 +445,7 @@ async def set_player_in_next_match(room_id, match_id, winner_id):
 async def reset_player_score(player_id):
     redis_instance = get_redis_client()
 
-    redis_instance.json().mset(
+    await redis_instance.json().mset(
         [("player_data", f"$.{player_id}.position", 50),
          ("player_data", f"$.{player_id}.size", 15),
          ("player_data", f"$.{player_id}.score", 0)]
