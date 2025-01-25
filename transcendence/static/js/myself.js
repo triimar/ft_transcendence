@@ -389,33 +389,30 @@ class Visitor {
 				this.sendMessagePlayerMatchReady();
 			} break;
 			case "b_join_match": {
-				await this.waitForPageToRender();
-				let popup = document.querySelector("#tournament-tree-popup");
-				popup.classList.add('show');
-				await sleep(5000);
-				// Note(HeiYiu): show leaderboard with 5 seconds loading animation
-				popup.classList.remove('show');
-				let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
-				await gameboard.countdown();
-				this.sendMessagePlayerMatchReady();
+				let id = message["player_id"];
+				if (id == this.id) {
+					await this.waitForPageToRender();
+					let popup = document.querySelector("#tournament-tree-popup");
+					popup.classList.add('show');
+					await sleep(5000);
+					// Note(HeiYiu): show leaderboard with 5 seconds loading animation
+					popup.classList.remove('show');
+					let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
+					await gameboard.countdown();
+					this.sendMessagePlayerMatchReady();
+				}
 			} break;
 			case "b_leave_match": {
 				
 			} break;
 			case "b_start_match": {
+				await this.waitForPageToRender();
 				let gameboard = this.page.container.querySelector("td-game-board");
-				if (!gameboard) {
-					gameboard = document.createElement("td-game-board");
-					this.page.container.appendChild(matchElement);
-				}
 				gameboard.startMatch(message);
 			} break;
 			case "b_start_ai_match": {
+				await this.waitForPageToRender();
 				let gameboard = this.page.container.querySelector("td-ai-game-board");
-				if (!gameboard) {
-					gameboard = document.createElement("td-ai-game-board");
-					this.page.container.appendChild(matchElement);
-				}
 				gameboard.startMatch(message);
 			} break;
 			case "b_paddle_move": {
