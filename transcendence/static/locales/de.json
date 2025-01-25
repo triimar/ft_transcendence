@@ -4,7 +4,8 @@
 		"intra": "Intra-Login"
 	},
 	"footer": {
-        "authors": "Erstellt by Hei Yiu, Maria, Sangyao, Sol and Triin"
+        "authors": "Erstellt by Hei Yiu, Maria, Sangyao, Sol and Triin",
+		"text-size": "A"
     },
 	"popups": {
 		"logout" : "ABMELDEN",
@@ -42,6 +43,10 @@
 		"avatar-too-long": "Der Avatar darf nur 3 Zeichen enthalten",
 		"color-not-available": "Die gewählte Avatar-Farbe ist nicht in der Farbpalette verfügbar"
     },
+	"game": {
+		"start-txt": "start",
+		"winner-txt": "Wins!"
+	},
 	"label": {
         "people": "{{count}} PERSONEN"
     },

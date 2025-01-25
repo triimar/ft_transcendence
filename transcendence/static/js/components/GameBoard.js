@@ -36,7 +36,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			let intervalId = setInterval(() => {
 				let countdownText = blocker.children[0];
 				if (seconds == 0) {
-					countdownText.textContent = "Start";
+					countdownText.textContent = i18next.t("game.start-txt");
 					clearInterval(intervalId);
 					resolve();
 				} else {
@@ -59,8 +59,10 @@ export default class ComponentGameBoard extends HTMLElement {
 		avatarElement.setAttribute("avatar-name", winner["player_emoji"]);
 		avatarElement.setAttribute("avatar-background", '#' + winner["player_bg_color"]);
 		avatarElement.setAttribute("avatar-id", winner["player_id"]);
-
+		let winnerText = this.shadow.querySelector("#winner-txt");
+		winnerText.textContent =  i18next.t("game.winner-txt");
 		let blocker = this.shadow.querySelector("#blocker");
+
 		let countdownText = blocker.children[0];
 		countdownText.textContent = this.score.left + " : " + this.score.right;
 		blocker.classList.add("show");

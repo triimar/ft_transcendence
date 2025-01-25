@@ -4,7 +4,8 @@
 		"intra": "Iniciar sesión con intra"
 	},
 	"footer": {
-        "authors": "Hecho por Hei Yiu, Maria, Sangyao, Sol y Triin"
+        "authors": "Hecho por Hei Yiu, Maria, Sangyao, Sol y Triin",
+		"text-size": "A"
     },
 	"popups": {
 		"logout" : "Cerrar sesión",
@@ -40,6 +41,10 @@
 		"avatar-change-disabled": "No puedes cambiar tu avatar durante un juego",
 		"avatar-too-long": "Tu avatar solo puede tener 3 caracteres",
 		"color-not-available": "El color de tu avatar no existe en la paleta de colores"
+	},
+	"game": {
+		"start-txt": "start",
+		"winner-txt": "Wins!"
 	},
 	"label": {
         "people": "{{count}} JUGADORES"

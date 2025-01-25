@@ -4,7 +4,8 @@
 		"intra": "Intra login"
 	},
 	"footer": {
-        "authors": "Made by Hei Yiu, Maria, Sangyao, Sol and Triin"
+        "authors": "Made by Hei Yiu, Maria, Sangyao, Sol and Triin",
+		"text-size": "A"
     },
 	"popups": {
 		"logout" : "LOGOUT",
@@ -41,6 +42,10 @@
 		"avatar-too-long": "Avatar's face can only have 3 characters",
 		"color-not-available": "Avatar's color is not in the color palette"
 	},
+	"game": {
+		"start-txt": "start",
+		"winner-txt": "Wins!"
+	},
 	"label": {
         "people": "{{count}} PEOPLE"
     },
@@ -48,5 +53,4 @@
 	"add-room": "ADD ROOM",
 	"exit-room": "EXIT ROOM",
 	"exit-game": "EXIT GAME"
-	
 }

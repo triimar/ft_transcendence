@@ -58,6 +58,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			avatarElement.setAttribute("avatar-id", winner["player_id"]);
 			countdownText.textContent = this.score.left + " : " + this.score.right;
 		}
+		let winnerText = this.shadow.querySelector("#winner-txt");
+		winnerText.textContent =  i18next.t("game.winner-txt");
 		blocker.classList.add("show");
 		window.cancelAnimationFrame(this.raf);
 		document.removeEventListener("keydown", this.keydownEventListener, true);

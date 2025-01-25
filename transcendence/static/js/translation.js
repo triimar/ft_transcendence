@@ -45,8 +45,11 @@ export async function initializeI18n() {
 
 function assignTranslation(elementId, translationKey) {
 	const element = document.getElementById(elementId);
-	if (element)
+	if (element) {
 		element.textContent = i18next.t(translationKey)
+		console.log(element.textContent)
+
+	}
 }
 
 export function updateGlobalTranslations() {
@@ -54,6 +57,7 @@ export function updateGlobalTranslations() {
 
     const translations = [
         { id: "footer-authors", key: "footer.authors" },
+		{ id: "text-size", key: "footer.text-size" },
         { id: "add-room", key: "add-room" },
         { id: "exit-room", key: "exit-room" },
         { id: "tree-btn-txt", key: "tree-btn-txt" },
@@ -71,7 +75,7 @@ export function updateGlobalTranslations() {
 		{ id: "id-card-text", key: "popups.id-card-text" },
 		{ id: "id-card-name-text", key: "popups.id-card-name-text" },
 		{ id: "id-card-background-text", key: "popups.id-card-background-text" },
-		{ id: "avatar-apply-change-text", key: "popups.avatar-apply-change-text"}
+		{ id: "avatar-apply-change-text", key: "popups.avatar-apply-change-text"},
     ];
     translations.forEach(({ id, key }) => assignTranslation(id, key));
 }

@@ -372,6 +372,14 @@ class Visitor {
 							}
 						}
 						document.querySelector("#tournament-tree-popup td-tournament-tree").initiateTournament(players);
+						await this.waitForPageToRender();
+						openPopup("tournament-tree-popup")
+						await sleep(5000);
+						closePopup("tournament-tree-popup")
+						// Note(HeiYiu): show leaderboard with 5 seconds loading animation
+						let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
+						await gameboard.countdown();
+						this.sendMessagePlayerMatchReady();
 						break;
 					}
 				}

@@ -4,7 +4,8 @@
 		"intra": "인트라 로그인"
 	},
 	"footer": {
-        "authors": "Hei Yiu, Maria, Sangyao, Sol 그리고 Triin의 프로젝트"
+        "authors": "Hei Yiu, Maria, Sangyao, Sol 그리고 Triin의 프로젝트",
+		"text-size": "A"
     },
 	"popups": {
 		"logout" : "로그아웃",
@@ -40,6 +41,10 @@
 		"avatar-change-disabled": "krYou cannot change avatar during a game",
 		"avatar-too-long": "krAvatar's face can only have 3 characters",
 		"color-not-available": "krAvatar's color is not in the color palette"
+	},
+	"game": {
+		"start-txt": "start",
+		"winner-txt": "Wins!"
 	},
 	"label": {
         "people": "{{count}} 명"

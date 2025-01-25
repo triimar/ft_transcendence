@@ -77,7 +77,7 @@
 			</div>
 			<div style="display: flex; flex-direction: row; align-items: flex-end;">
 				<td-button class="ui" aria-label="Change text size!" onclick="let currentSize=getComputedStyle(document.documentElement).getPropertyValue('--td-font-size').trim();let newSize = currentSize === '32px' ? '48px' : '32px';document.documentElement.style.setProperty('--td-font-size', newSize);">
-					<p class="ui-text" style="padding: 0.2em;">A</p>
+					<p class="ui-text" style="padding: 0.2em;" id="text-size"></p>
 				</td-button>
 				<td-language-selector class="ui" style="height: 100%;"></td-language-selector>
 				<td-lever class="ui" style="height: 100%; min-height: 1.85em; max-height: 3em; aspect-ratio: 0.5;" aria-label="Switch between dark mode and light mode" onclick="let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');document.documentElement.style.setProperty('--td-ui-background-color', fgColor);document.documentElement.style.setProperty('--td-ui-font-color', bgColor);"></td-lever>
@@ -366,7 +366,7 @@
 		<p id="countdown" style="color: white;"></p>
 		<div id="winner-container" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
 			<td-avatar id="winner"></td-avatar>
-			<p style="margin: 0; color: white;">Wins!</p>
+			<p id="winner-txt" style="margin: 0; color: white;"></p>
 		</div>
 	</div>
 	<canvas style="width: 100%;"  width="1200" height="600"></canvas>
