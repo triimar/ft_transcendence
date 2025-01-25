@@ -44,7 +44,13 @@
 	},
 	"game": {
 		"start-txt": "start",
-		"winner-txt": "Wins!"
+		"winner-txt": "Wins!",
+		"you-win": "You are the tournament winner!",
+		"ai-wins": "AI wins the tournament!",
+		"player-wins": "Player {{winner}} wins the tournament!",
+		"teleporting": "Teleporting you to the next match in 3 seconds",
+		"waiting": "Waiting for your next opponent...",
+		"you-lost": "You lost."
 	},
 	"label": {
         "people": "{{count}} 명"

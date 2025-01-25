@@ -449,11 +449,11 @@ class Visitor {
 				if (winners[winners.length - 1] != -1) {
 					let tournamentWinner = this.firstLayerPlayers[winners[winners.length - 1]];
 					if (tournamentWinner["player_id"] == this.id) {
-						this.displayPopupMessage("You are the tournament winner!");
+						this.displayPopupMessage(i18next.t("game.you-win"));
 					} else if (tournamentWinner["player_id"] == "ai") {
-						this.displayPopupMessage(`AI wins the tournament!`);
+						this.displayPopupMessage(i18next.t("game.ai-wins"));
 					} else {
-						this.displayPopupMessage(`Player ${tournamentWinner["player_emoji"]} wins the tournament!`);
+						this.displayPopupMessage(i18next.t("game.player-wins", { winner: tournamentWinner["player_emoji"] }))
 					}
 				} else if (winnerIndex != -1) {
 					if (this.firstLayerPlayers[winnerIndex]["player_id"] == this.id) {
@@ -467,7 +467,7 @@ class Visitor {
 							let opponentIndex = winners[opponentGameIndex];
 							if (opponentIndex != -1) {
 								// display teleport you to the next match in 3 seconds
-								this.displayPopupMessage("Teleporting you to the next match in 3 seconds");
+								this.displayPopupMessage(i18next.t("game.teleporting"));
 								await sleep(3000);
 								// NOTE(HeiYiu): if the opponent of the next match is ready
 								// [0 1, 2]          0, 1 -> 2
@@ -482,12 +482,12 @@ class Visitor {
 								}
 							} else {
 								// display waiting for the next opponent
-								this.displayPopupMessage("Waiting for your next opponent...");
+								this.displayPopupMessage(i18next.t("game.waiting"));
 							}
 						}
 					} else {
 						// display you lost
-						this.displayPopupMessage("You lost.");
+						this.displayPopupMessage(i18next.t("game.you-lost"));
 					}
 				}
 			} break;
