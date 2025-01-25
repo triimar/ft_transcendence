@@ -447,7 +447,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             score = player['score'] + 1
             await data.increase_ai_score(self.room_group_name)
             # event = {"type": "broadcast.match.win", "winner": "ai"}
-        if score == 11:
+        if score == 3:
             await data.set_match_winner(self.room_group_name, self.match_id, id)
             winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
             is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
