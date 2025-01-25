@@ -483,10 +483,6 @@ class Visitor {
 					}
 				}
 			} break;
-			case "b_ai_scored_point": {
-				let gameboard = this.page.container.querySelector("td-ai-game-board");
-				gameboard.updateBall(message);
-			} break;
 			case "b_avatar_change": {
 				// only in room page
 				let playerId = message["player_id"];

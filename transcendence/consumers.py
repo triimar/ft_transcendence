@@ -355,6 +355,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def bounce_ball(self, ball):
+        if self.match_id is None or self.room_group_name is None:
+            return
         await data.set_ball_bounce(self.room_group_name, self.match_id, ball)
         event = {"type": "broadcast.bounce.ball", 'ball': ball}
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
@@ -365,6 +367,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def paddle_move(self, position):
+        if self.match_id is None or self.room_group_name is None:
+            return
         room = await data.get_one_room_data(self.room_group_name)
         match_data = room['matches'][self.match_id]
         player_data = await data.get_one_player(self.player_id)
@@ -383,6 +387,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def score_point(self):
+        if self.match_id is None or self.room_group_name is None:
+            return
         player_data = await data.get_one_player(self.player_id)
         # player_data does not have score field
         player_data['score'] += 1
@@ -407,8 +413,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
                     # update self.match_id to new match_id
                     self.match_id = next_match_id
-                else:
-                    await data.delete_one_room(self.room_group_name)
+                # else:
+                #     await data.delete_one_room(self.room_group_name)
 
     async def broadcast_match_win(self, event):
         winner_list = event["winners"]

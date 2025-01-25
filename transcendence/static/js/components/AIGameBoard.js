@@ -48,7 +48,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		let blocker = this.shadow.querySelector("#blocker");
 		let countdownText = blocker.children[0];
 		if (winner["player_id"] == "ai") {
-			avatarElement.setAttribute("avatar-name", "AI");
+			avatarElement.setAttribute("avatar-name", "🤖");
 			avatarElement.setAttribute("avatar-background", this.ai.color);
 			avatarElement.setAttribute("avatar-id", "ai");
 			countdownText.textContent = this.score.player + " : " + this.score.ai;
@@ -164,13 +164,22 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			ctx.fillStyle = this.color;
 			ctx.fillRect(this.x, this.y, this.size, this.size);
 			},
-			reset(side)
+			reset()
 			{
-			this.x = canvas.width / 2;
-			this.y = canvas.height / 2;
-			this.vx = BALL_SPEED * side;
-			this.vy = BALL_SPEED;
-			this.vx = 1 * side;
+				this.x = canvas.width / 2;
+				this.y = canvas.height / 2;
+				let randomVx = Math.floor(Math.random() * 13) - 6;
+				if (randomVx === 0)
+					randomVx = 2
+				if (randomVx === -1 || randomVx === 1)
+					randomVx *= 2
+				let randomVy = Math.floor(Math.random() * 13) - 6;
+				if (randomVy === 0)
+					randomVy = 2
+				if (randomVy === -1 || randomVy === 1)
+					randomVy *= 2
+				this.vx = randomVx;
+				this.vy = randomVy;
 			}
 		};
 
@@ -205,7 +214,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			height: PADDLE_H,
 			width: PADDLE_W,
 			moveFactor: 0,
-			color: "#ff5da2",
+			color: "#CCCCCC",
 			draw()
 			{
 				ctx.fillStyle = this.color;
@@ -214,7 +223,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				ctx.textAlign="center"; 
 				ctx.textBaseline = "middle";
 				ctx.fillStyle = "#FFFFFF";
-				ctx.fillText("=*.*=", this.x + this.width/2, this.y + this.height/2);
+				ctx.fillText("🤖", this.x + this.width/2, this.y + this.height/2);
 			},
 			reset()
 			{
@@ -254,7 +263,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			//Right wall collision
 			if (this.ball.x + this.ball.vx > canvas.width - this.ball.size)
 			{
-				this.ball.reset(-1);
+				this.ball.reset();
 				this.paddleLeft.reset();
 				this.ai.reset();
 				this.pointScored(0);
@@ -263,7 +272,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			//Left wall collision
 			if (this.ball.x + this.ball.vx < 0)
 			{
-				this.ball.reset(1);
+				this.ball.reset();
 				this.paddleLeft.reset();
 				this.ai.reset();
 				this.pointScored(1);

@@ -49,6 +49,7 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	displayMatchResult(winner) {
+		this.isRunning = false;
 		const canvas = this.shadow.querySelector("canvas");
 		const ctx = canvas.getContext("2d");
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -168,6 +169,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.MIN_PADDLE_SIZE = canvas.height/10;
 		this.gameMode = GameMode.Default;
 		this.lastTime = 0; // The timestamp of the last frame
+		this.isRunning = true;
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
 
@@ -383,11 +385,15 @@ export default class ComponentGameBoard extends HTMLElement {
 
 		// Add touch event listeners to the canvas
 		this.touchStartFunc = (e) => {
+			if (!this.isRunning)
+				return;
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
 			this.movePaddleTo(touchY);
 		};
 		canvas.addEventListener("touchstart", this.touchStartFunc);
 		this.touchMoveFunc = (e) => {
+			if (!this.isRunning)
+				return;
 			e.preventDefault(); // Prevent scrolling while playing
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
 			this.movePaddleTo(touchY);
@@ -413,6 +419,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		};
 
 		this.keydownEventListener = ((e) => {
+			if (!this.isRunning)
+				return;
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
 				// Prevent the default action (scrolling)
 				e.preventDefault();
