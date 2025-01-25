@@ -353,37 +353,25 @@ class Visitor {
 				let players = message["players"];
 				this.firstLayerPlayers = players;
 				let gameIndex = 0;
-				let ai = false;
 				for (let [i, player] of players.entries()) {
 					if (player["player_id"] == this.id) {
 						gameIndex = Math.floor(i / 2);
 						if ((i % 2) == 0) {
 							if (players[i + 1]["player_id"] == "ai") {
-								ai = true;
-								window.location.href += `-ai-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+								window.location.href = `#room${this.roomId}-ai-game${gameIndex}`;
 							}
 							else {
-								window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+								window.location.href = `#room${this.roomId}-game${gameIndex}`;
 							}
 						} else {
 							if (players[i - 1]["player_id"] == "ai") {
-								ai = true;
-								window.location.href += `-ai-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+								window.location.href = `#room${this.roomId}-ai-game${gameIndex}`;
 							}
 							else {
-								window.location.href += `-game${gameIndex}`; // Note(HeiYiu): might be sketchy but it works now
+								window.location.href = `#room${this.roomId}-game${gameIndex}`;
 							}
 						}
 						document.querySelector("#tournament-tree-popup td-tournament-tree").initiateTournament(players);
-						await this.waitForPageToRender();
-						let popup = document.querySelector("#tournament-tree-popup");
-						popup.classList.add('show');
-						await sleep(5000);
-						// Note(HeiYiu): show leaderboard with 5 seconds loading animation
-						popup.classList.remove('show');
-						let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
-						await gameboard.countdown();
-						this.sendMessagePlayerMatchReady();
 						break;
 					}
 				}
@@ -401,7 +389,15 @@ class Visitor {
 				this.sendMessagePlayerMatchReady();
 			} break;
 			case "b_join_match": {
-
+				await this.waitForPageToRender();
+				let popup = document.querySelector("#tournament-tree-popup");
+				popup.classList.add('show');
+				await sleep(5000);
+				// Note(HeiYiu): show leaderboard with 5 seconds loading animation
+				popup.classList.remove('show');
+				let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
+				await gameboard.countdown();
+				this.sendMessagePlayerMatchReady();
 			} break;
 			case "b_leave_match": {
 				
@@ -436,10 +432,49 @@ class Visitor {
 				gameboard.ballBounced(message);
 			} break;
 			case "b_match_win": {
+				let winners = message["winners"];
 				let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
-				let winnerIndex = message["winners"][this.gameIndex];
+				let winnerIndex = winners[this.gameIndex];
+				// NOTE(HeiYiu): update tournament tree
+				let tree = document.querySelector("td-tournament-tree");
+				tree.addWinners(winners);
 				if (winnerIndex != -1) {
 					gameboard.displayMatchResult(this.firstLayerPlayers[winnerIndex]);
+					if (this.firstLayerPlayers[winnerIndex]["player_id"] == this.id) {
+						if (winners.length == 1) {
+							// announce winner
+						} else {
+							let opponentGameIndex = this.gameIndex;
+							if ((this.gameIndex % 2) == 0) {
+								opponentGameIndex += 1;
+							} else {
+								opponentGameIndex -= 1;
+							}
+							let opponentIndex = winners[opponentGameIndex];
+							if (opponentIndex != -1) {
+								// display teleport you to the next match in 3 seconds
+								this.displayPopupMessage("Teleporting you to the next match in 3 seconds");
+								await sleep(3000);
+								// NOTE(HeiYiu): if the opponent of the next match is ready
+								// [0 1, 2]          0, 1 -> 2
+								// [0 1 2, 3 4, 5]   0, 1 -> 3   2, 3 -> 4
+								// [0 1 2 3 ,4 5, 6] 0, 1 -> 4   2, 3 -> 5   4, 5 -> 6
+								let playersCount = this.firstLayerPlayers.length;
+								let nextGameIndex = Math.floor(this.gameIndex / 2) + (playersCount / 2);
+								if (this.firstLayerPlayers[opponentIndex]["player_id"] == "ai") {
+									window.location.href = `#room${this.roomId}-ai-game${nextGameIndex}`;
+								} else {
+									window.location.href = `#room${this.roomId}-game${nextGameIndex}`;
+								}
+							} else {
+								// display waiting for the next opponent
+								this.displayPopupMessage("Waiting for your next opponent...");
+							}
+						}
+					} else {
+						// display you lost
+						this.displayPopupMessage("You lost.");
+					}
 				}
 			} break;
 			case "b_ai_scored_point": {

@@ -47,7 +47,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		let avatarElement = this.shadow.querySelector("#winner");
 		let blocker = this.shadow.querySelector("#blocker");
 		let countdownText = blocker.children[0];
-		if (winner == "ai") {
+		if (winner["player_id"] == "ai") {
 			avatarElement.setAttribute("avatar-name", "AI");
 			avatarElement.setAttribute("avatar-background", this.ai.color);
 			avatarElement.setAttribute("avatar-id", "ai");

@@ -314,7 +314,7 @@ async def generate_matches(room_id, self_player_id) -> list[str]:
 
     players = room["avatars"]
     player_nums = len(players)
-    match_nums = (player_nums + 1) // 2 # TODO: match_nums = player_nums + player_nums%2 - 1
+    match_nums = player_nums + player_nums%2 - 1
     temp_player_list = [p["player_id"] for p in players]
     if player_nums % 2 != 0:
         temp_player_list.append("ai")
@@ -454,7 +454,7 @@ async def reset_player_score(player_id):
 async def reset_ai_score(room_id):
     redis_instance = get_redis_client()
 
-    redis_instance.json().set("room_data" f"$.{room_id}.ai", {"score": 0})
+    redis_instance.json().set("room_data", f"$.{room_id}.ai", {"score": 0})
 
 async def set_player_disconnected(room_id, player_id):
     redis_instance = get_redis_client()
@@ -479,7 +479,7 @@ async def set_player_disconnected(room_id, player_id):
     return RedisError.NONE
 
 async def get_opponent(room_id, match_id, player_id):
-    room = get_one_room_data(room_id)
+    room = await get_one_room_data(room_id)
 
     if not room:
         return None

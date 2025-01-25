@@ -67,7 +67,7 @@ export class PageAiGame extends PageConfirmLeave {
 	}
 
 	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
-		if ((newPageName == "main") && (newRoomId != null) && (newRoomId == myself.roomId)) {
+		if ((newPageName == "game" || newPageName == "ai-game") && (newRoomId == myself.roomId)) {
 			return true;
 		}
 		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);
@@ -111,7 +111,7 @@ export class PageGame extends PageConfirmLeave {
 	}
 
 	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
-		if ((newPageName == "main") && (newRoomId != null) && (newRoomId == myself.roomId)) {
+		if ((newPageName == "game" || newPageName == "ai-game") && (newRoomId == myself.roomId)) {
 			return true;
 		}
 		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);
