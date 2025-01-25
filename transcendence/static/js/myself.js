@@ -249,6 +249,7 @@ class Visitor {
 				if (message["player_id"] != this.id) {
 					let roomId = message["room_id"];
 					if (this.pageName == "main") {
+						console.log("page name: " + this.pageName)
 						let rooms = this.page.container.querySelectorAll("td-lobby-room");
 						for (let room of rooms) {
 							if (room.getAttribute("room-id") == roomId) {
@@ -633,6 +634,13 @@ class Visitor {
 			type: "leave_room",
 			"room_id": roomId,
 			"player_id": this.id
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+	
+	sendMessageLeaveMatch() {
+		let message = {
+			type: "leave_match"
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
