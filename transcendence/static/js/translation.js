@@ -1,46 +1,44 @@
 let isI18nInitialized = false;
 
 export async function initializeI18n() {
-    if (isI18nInitialized) return;
-    try {
+	if (isI18nInitialized) return;
+	try {
 		const savedLanguage = localStorage.getItem("language") || "en";
-        await i18next
-            .use(i18nextHttpBackend)
-            .init({
-                lng: savedLanguage, // use saved language or default to english
-                fallbackLng: "en",
-                ns: ["translation"], // Default namespace
-                defaultNS: "translation",
-                backend: {
-                    loadPath: "/static/locales/{{lng}}.json", 
-                },
-                debug: false, // Set to false in producti
-            });
+		await i18next
+			.use(i18nextHttpBackend)
+			.init({
+					lng: savedLanguage, // use saved language or default to english
+					fallbackLng: "en",
+					ns: ["translation"], // Default namespace
+					defaultNS: "translation",
+					backend: {
+						loadPath: "/static/locales/{{lng}}.json",
+					},
+					debug: false, // Set to false in producti
+			});
 
-        isI18nInitialized = true; 
+		isI18nInitialized = true;
 		updateGlobalTranslations();
 
 		// Set the initial lang attribute on the <html> tag
-        document.documentElement.lang = i18next.language;
-		
+		document.documentElement.lang = i18next.language;
 
-        i18next.on("languageChanged", (newLanguage) => { 
+		i18next.on("languageChanged", (newLanguage) => {
 			localStorage.setItem("language", newLanguage);
 			document.documentElement.lang = newLanguage;
-            
 			updateGlobalTranslations();
-            const speechBubbles = document.querySelectorAll(".speech-bubble p");
-            speechBubbles.forEach(bubble => {
-                bubble.textContent = i18next.t("lobby-room.ready-bubble-txt");
-            });
+			const speechBubbles = document.querySelectorAll(".speech-bubble p");
+			speechBubbles.forEach(bubble => {
+				bubble.textContent = i18next.t("lobby-room.ready-bubble-txt");
+			});
 			const label = document.querySelector("td-room-setting-size")?.shadow?.querySelector("#label")
 			if (label) {
 				label.textContent = i18next.t("label.people", { count: document.querySelector("td-room-setting-size").size });
 			}
-        });
-    } catch (error) {
-        console.error("Error initializing i18next:", error);
-    }
+		});
+	} catch (error) {
+		console.error("Error initializing i18next:", error);
+	}
 }
 
 function assignTranslation(elementId, translationKey) {
