@@ -418,12 +418,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         if is_last_game:
             self.match_id = None
         else:
-            try:
-               next_match_id =  event["opponent_go_next"]
+            if "opponent_go_next" in event:
+               next_match_id = event["opponent_go_next"]
                self.match_id = next_match_id
-            except KeyError as e:
-                print(e)
-                pass
 
         await self.send(text_data=text_data)
 
