@@ -20,26 +20,26 @@ BASE_DIR = Path(__file__).resolve().parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-t3p2_bsi&$!4o6zw9ox)&^jri6s@_d#x1d-0shubl*xwt9&-!^'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 # Secret key for encoding and decoding JWT tokens
-JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'your_secret_key_here')
+JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
 # Algorithm used for encoding and decoding the JWT
-JWT_ALGORITHM = 'HS256'
+JWT_ALGORITHM = os.getenv('JWT_ALGORITHM')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.getenv('DOMAIN')]
 
 # Database settings to connect (PostgresSQL)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'transcendence',
-        'USER': 'postgres',
-        'PASSWORD': 'password',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': 'db_sql',
         'PORT': 5432,
     }
@@ -85,9 +85,13 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 OAUTH2_PROVIDER = {
-    'CLIENT_ID': 'u-s4t2ud-9c42ba9cfb7ad3fef02e176bef186ce227179755037a62ce93acd234de440dd6',
-    'CLIENT_SECRET': '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',
+    'CLIENT_ID': os.getenv('OAUTH_CLIENT_ID'),
+    'CLIENT_SECRET': os.getenv('OAUTH_CLIENT_SECRET'),
     'SCOPES': {'public': 'Public access'},
+		'ACCESS_TOKEN_URL': os.getenv('ACCESS_TOKEN_URL'),
+		'REDIRECT_URI': os.getenv('REDIRECT_URI'),
+		'USER_DATA_URL': os.getenv('USER_DATA_URL'),
+		'AUTHORIZATION_URL': os.getenv('AUTHORIZATION_URL'),
 }
 
 
@@ -149,9 +153,7 @@ USE_L10N = True #enables Django's localization system, which is responsible for 
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, '/transcendence/static')
-# STATICFILES_DIRS = [
-#     BASE_DIR / "transcendence/static",
-# ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
