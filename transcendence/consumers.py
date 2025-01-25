@@ -251,7 +251,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             # get winners list
             winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
             # broadcast to room group for the tournamnet tree
-            event = {"type": "broadcast.join.match", "winners": winner_id_list}
+            event = {"type": "broadcast.join.match", "player_id": player_id, "winners": winner_id_list}
             await self.channel_layer.group_send(self.room_group_name, event)
         else:
             # rejoin, needs all neccesry information
@@ -530,7 +530,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
     async def broadcast_join_match(self, event):
         winners = event["winners"]
-        text_data = json.dumps({"type": "b_join_match", "winners": winners})
+        player_id = event["player_id"]
+        text_data = json.dumps({"type": "b_join_match", "player_id": player_id, "winners": winners})
         await self.send(text_data=text_data)
 
     async def broadcast_leave_match(self, event):
