@@ -1,8 +1,7 @@
 import json
-from .db_async_queries import select_all_users
 from .redis_client import get_redis_client
 from .transcendence_dictionary import player_data_sample, room_data_sample
-from .db_async_queries import user_exists_by_uuid, update_color_and_avatar
+from .db_async_queries import select_all_users, user_exists_by_uuid, update_color_and_avatar
 
 async def sync_db_to_redis():
 	# get all users from db

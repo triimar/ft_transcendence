@@ -10,9 +10,6 @@ from .user import assign_random_avatar, assign_random_background_color, create_n
 from .db_async_queries import user_exists_by_login, get_uuid
 from .redis_data import add_one_player, get_one_player
 
-def logout(request):
-    pass
-
 async def avatar_information(request):
     jwt_token = request.COOKIES.get('jwt')
     try:
@@ -74,13 +71,13 @@ async def oauth_callback(request):
         return JsonResponse({'error': 'No code provided from OAuth'}, status=400)
 
     # exchange authorization code for access token
-    access_token_url = "https://api.intra.42.fr/oauth/token"
+    access_token_url = settings.OAUTH2_PROVIDER['ACCESS_TOKEN_URL']
     data = {
         'grant_type': 'authorization_code',
         'client_id': settings.OAUTH2_PROVIDER['CLIENT_ID'],
         'client_secret': settings.OAUTH2_PROVIDER['CLIENT_SECRET'],
         'code': code,
-        'redirect_uri': 'https://localhost/api/auth_request',
+        'redirect_uri': settings.OAUTH2_PROVIDER['REDIRECT_URI'],
     }
 
     # post request to get the access token
@@ -93,7 +90,7 @@ async def oauth_callback(request):
 
     # use the access token to fetch user data
     user_data_response = requests.get(
-        'https://api.intra.42.fr/v2/me',
+        settings.OAUTH2_PROVIDER['USER_DATA_URL'],
         headers = {'Authorization': f'Bearer {access_token}'}
     )
 
@@ -133,10 +130,10 @@ async def oauth_callback(request):
 # redirect to 42 OAuth page
 def oauth_redirect(request):
     authorization_url = (
-        'https://api.intra.42.fr/oauth/authorize?'
+        f'{settings.OAUTH2_PROVIDER["AUTHORIZATION_URL"]}?'
         f'client_id={settings.OAUTH2_PROVIDER["CLIENT_ID"]}'
         '&response_type=code'
-        '&redirect_uri=https://localhost/api/auth_request'
+        f'&redirect_uri={settings.OAUTH2_PROVIDER["REDIRECT_URI"]}'
         '&scope=public'
     )
     return redirect(authorization_url)
