@@ -205,7 +205,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.width, this.height);
 				ctx.font="60px Monomaniac One";
-				ctx.textAlign="center"; 
+				ctx.textAlign="center";
 				ctx.textBaseline = "middle";
 				ctx.fillStyle = "#FFFFFF";
 				ctx.fillText(this.name, this.x + this.width/2, this.y + this.height/2);
@@ -229,7 +229,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.width, this.height);
 				ctx.font="60px Monomaniac One";
-				ctx.textAlign="center"; 
+				ctx.textAlign="center";
 				ctx.textBaseline = "middle";
 				ctx.fillStyle = "#FFFFFF";
 				ctx.fillText("🤖", this.x + this.width/2, this.y + this.height/2);
@@ -319,7 +319,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 						this.ball.vy = -this.ball.vy;
 				}
 			}
-			
+
 			//AI paddle collisions
 			if (this.ball.x + this.ball.vx + this.ball.size > this.ai.x &&
 				this.ball.y + this.ball.vy < this.ai.y + this.ai.height &&
@@ -394,7 +394,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			this.raf = window.requestAnimationFrame(this.gameLoop);
 		}).bind(this);
 
-		
+
 		// Add touch event listeners to the canvas
 		canvas.addEventListener("touchstart", (e) => {
 			if (!this.isRunning)
