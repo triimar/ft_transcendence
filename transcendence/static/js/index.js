@@ -56,11 +56,13 @@ function openPopup(popupId) {
 
 function closePopup(popupId) {
 	const popup = document.getElementById(popupId);
-	const elementsToUnhide = document.querySelectorAll('main > *:not(#' + popupId + ')');
 	const main = document.querySelector('main');
 	if (!popup || !main) return;
 	popup.classList.remove('show');
 	popup.setAttribute('aria-hidden', 'true');
+	const elementsToUnhide = main.querySelectorAll(
+		`:scope > *:not(#${popupId}):not(.notification-popup)`
+	);
 	elementsToUnhide.forEach((el) => el.setAttribute('aria-hidden', 'false'));
 	const focusableElements = main.querySelectorAll(
 		'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'

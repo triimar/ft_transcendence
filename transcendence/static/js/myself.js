@@ -558,14 +558,11 @@ class Visitor {
 		let popup = document.getElementById("notification-popup");
 		let popupText = popup.children[0];
 		popupText.textContent = message;
-		popup.classList.add("show");
 		popup.setAttribute('aria-hidden', 'false');
-		popup.setAttribute('aria-live', 'assertive');
+		popup.classList.add("show");
 		setTimeout(() => {
 			popup.classList.remove("show");
 			popup.setAttribute('aria-hidden', 'true');
-			popup.setAttribute('aria-live', 'off');
-			popupText.textContent = "";
 		}, 5000);
 	}
 

@@ -67,7 +67,7 @@
 				</div>
 			</div>
 		</div>
-		<div role="alert" id="notification-popup" class="ui" aria-hidden="true" aria-live="off" >
+		<div id="notification-popup" class="ui notification-popup" role="alert" aria-hidden="true" >
 			<p id="notification-popup-text"></p>
 		</div>
 		<footer role="contentinfo" style="width: 70%; margin-top: auto; display: flex;align-items: center; justify-content: space-between" class="ui">
@@ -129,7 +129,7 @@
 	<td-lobby-room room-join-disabled class="ui">
 		<td-button id="prepare-btn" class="ui" aria-labelledby="prepare-btn-txt" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button"><p id="prepare-btn-txt"></p></td-button>
 	</td-lobby-room>
-	<td-room-setting-size id="room-size-buttons" class="ui"  aria-live="polite" style="display: none"></td-room-setting-size>
+	<td-room-setting-size id="room-size-buttons" class="ui"  role="status" style="display: none"></td-room-setting-size>
 	<div class="ui ui-text"><p>More game options coming soon</p></div>
 </template>
 <template id="page-main">
@@ -363,13 +363,13 @@
 		}
 	</style>
 	<div id="blocker" class="show" style="width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; justify-content: center; align-items: center;">
-		<p id="countdown" style="color: white;"></p>
+		<p aria-live="assertive" id="countdown" style="color: white;"></p>
 		<div id="winner-container" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
 			<td-avatar id="winner"></td-avatar>
 			<p id="winner-txt" style="margin: 0; color: white;"></p>
 		</div>
 	</div>
-	<canvas style="width: 100%;"  width="1200" height="600"></canvas>
+	<canvas arial-label="game board" role="application" alt="Pong game. Use the arrow keys to move the paddle up and down. The goal is to prevent the ball from passing your paddle." style="width: 100%;"  width="1200" height="600"></canvas>
 </template>
 <template id="component-button">
 	<style>
