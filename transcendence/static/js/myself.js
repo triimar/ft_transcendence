@@ -387,11 +387,10 @@ class Visitor {
 			case "ack_join_match": {
 				this.firstLayerPlayers = message["players"];
 				await this.waitForPageToRender();
-				let popup = document.querySelector("#tournament-tree-popup");
-				popup.classList.add('show');
+				openPopup("tournament-tree-popup")
 				await sleep(5000);
+				closePopup("tournament-tree-popup")
 				// Note(HeiYiu): show leaderboard with 5 seconds loading animation
-				popup.classList.remove('show');
 				let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
 				await gameboard.countdown();
 				this.sendMessagePlayerMatchReady();
@@ -400,11 +399,10 @@ class Visitor {
 				let id = message["player_id"];
 				if (id == this.id) {
 					await this.waitForPageToRender();
-					let popup = document.querySelector("#tournament-tree-popup");
-					popup.classList.add('show');
+					openPopup("tournament-tree-popup")
 					await sleep(5000);
 					// Note(HeiYiu): show leaderboard with 5 seconds loading animation
-					popup.classList.remove('show');
+					closePopup("tournament-tree-popup")
 					let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
 					await gameboard.countdown();
 					this.sendMessagePlayerMatchReady();
