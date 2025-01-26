@@ -64,10 +64,10 @@ function closePopup(popupId) {
 		`:scope > *:not(#${popupId}):not(.notification-popup)`
 	);
 	elementsToUnhide.forEach((el) => el.setAttribute('aria-hidden', 'false'));
-	const focusableElements = main.querySelectorAll(
-		'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-	);
-	if (focusableElements.length > 0) focusableElements[0].focus();
+        const focusableElements = main.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusableElements.length > 0) focusableElements[0].focus();
 }
 
 

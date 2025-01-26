@@ -47,8 +47,6 @@ function assignTranslation(elementId, translationKey) {
 	const element = document.getElementById(elementId);
 	if (element) {
 		element.textContent = i18next.t(translationKey)
-		console.log(element.textContent)
-
 	}
 }
 
