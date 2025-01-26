@@ -22,7 +22,10 @@ async def avatar_information(request):
     if player is not None:
         return JsonResponse(player)
     else:
-        return JsonResponse({'error': 'Cannot find player'}, status=404)
+        avatar = await assign_random_avatar()
+        color = await assign_random_background_color()
+        await add_one_player(payload['id'], avatar, color)
+        return JsonResponse({'player_id': payload['id'], 'player_emoji': avatar, 'player_bg_color': color})
 
 async def guest_login(request):
     guest_id = shortuuid.ShortUUID().random(length=22)
