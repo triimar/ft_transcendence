@@ -84,12 +84,14 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     else:
                         # opponent is empty
                         pass
-                    event = {"type": "broadcast.leave.room", "room_id": self.room_group_name, "player_id": self.player_id}
-                    await self.channel_layer.group_send(self.room_group_name, event)
 
-                    # if the disconnected is the last person in the room, delete the room
-                    if len(current_room["avatars"]) == 1:
-                        await data.delete_one_room(room_id)
+                    # Check if need to delete the room
+                    if (await data.is_last_one_in_room(self.room_group_name, self.player_id)):
+                        event = {"type": "broadcast.leave.room", "room_id": self.room_group_name, "player_id": self.player_id, "delete_room": True, "redirect_hash": "main"}
+                        await data.delete_one_room(self.room_group_name)
+                    else:
+                        event = {"type": "broadcast.leave.room", "room_id": self.room_group_name, "player_id": self.player_id, "delete_room": False, "all_prepared": True, "redirect_hash": "main"}
+                    await self.channel_layer.group_send(self.room_group_name, event)
 
 
         # Leave the current group(s)
@@ -219,14 +221,13 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 text_data = json.dumps({"type": "ack_avatar_change", "emoji": emoji, "bg_color": bg_color})
                 await self.send(text_data=text_data)
             case {"type": "leave_match"}:
-                print(self.match_id)
-                if (self.match_id is None):
-                    await self.leave_room(self.room_group_name, self.player_id)
-                else:
-                    await self.leave_match()
+                await self.leave_match()
 
     async def leave_room(self, room_id, player_id):
         current_room = await data.get_one_room_data(room_id)
+        if current_room is None:
+            await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
+            return
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         if len(current_room["avatars"]) != 1:
             if current_room["room_owner"] == player_id:
@@ -255,6 +256,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
     async def join_match(self, room_id, match_id, player_id):
         if self.first_layer_player_id:
+            await data.reset_player_score(player_id)
             self.match_id = match_id
             match_group_name = self.room_group_name + "_" + str(self.match_id)
             await self.channel_layer.group_add(match_group_name, self.channel_name)
@@ -267,6 +269,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_send(self.room_group_name, event)
         else:
             # rejoin, needs all neccesry information
+            self.player_id = player_id
 
             room = await data.get_one_room_data(room_id)
 
@@ -274,12 +277,14 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
             elif not data.is_in_room(player_id, room):
                 await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.PLAYER_NOT_IN_ROOM.value, "redirect_hash": "main"}))
-                self.player_id = player_id
             else:
                 correct_match_id = data.get_last_match_id(room, player_id)
                 if correct_match_id == -1:
                     await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.MATCH_NOT_FOUND.value, "redirect_hash": "main"}))
                 else:
+                    # set boolean disconnected to False
+                    await data.set_player_disconnect(self.room_group_name, self.player_id, False)
+
                     single_game_state = room["matches"][correct_match_id]
                     player_info_state = next((player for player in room["avatars"] if player['player_id'] == player_id), None)
                     # if rejoined consumer has ai opponent
@@ -307,7 +312,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         else:
                             winner_id_list.append(-1)
                     await self.send(text_data=json.dumps({"type": "ack_join_match", "players": first_layer_player, "winners": winner_id_list,"game_state": single_game_state, "player_info": player_info_state, "ai": ai_score, "redirect_hash": redirect_hash}))
-                    self.player_id = player_id
+                    # self.player_id = player_id
                     self.room_group_name = room_id
                     self.match_id = correct_match_id
                     await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
@@ -320,6 +325,14 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await data.set_player_ready_for_match(self.room_group_name, self.match_id, self.player_id)
         room = await data.get_one_room_data(self.room_group_name)
         opponent_id = await data.get_opponent(self.room_group_name, self.match_id, self.player_id)
+        game_match = room['matches'][self.match_id]
+
+        if opponent_id and opponent_id == "ai":
+            event = {"type": "broadcast.start.ai.match", 'ball': game_match['ball']}
+            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
+            return
+
+        # Check if opponent is disconnect
         opponent_is_disconnected = False
         if opponent_id:
             for player in room["avatars"]:
@@ -327,7 +340,13 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     if player["disconnected"]:
                         opponent_is_disconnected = True
                         break
-        if opponent_is_disconnected:
+        # Check if opponent left
+        opponent_is_left = False
+        if opponent_id:
+            if not any(player["player_id"] == opponent_id for player in room["avatars"]):
+                opponent_is_left = True
+
+        if opponent_is_disconnected or opponent_is_left:
             await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
             winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
             is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
@@ -337,23 +356,16 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 self.match_id = next_match_id
             event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game}
             await self.channel_layer.group_send(self.room_group_name, event)
-
-        game_match = await data.get_one_match(self.room_group_name, self.match_id)
-        if (game_match['ready'] == 2):
+        elif (game_match['ready'] == 2):
             player0 = await data.get_one_player(game_match["players"][0])
             player1 = await data.get_one_player(game_match["players"][1])
             event = {"type": "broadcast.start.match", 'ball': game_match['ball'], 'side0_player_id': game_match['players'][0],
-                      'players': [player0, player1]}
-            await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
-        if (game_match['players'][0] == "ai" or game_match['players'][1] == "ai"):
-            player = await data.get_one_player(game_match["players"][(1 if game_match["players"][0] == "ai" else 0)])
-            event = {"type": "broadcast.start.ai.match", 'ball': game_match['ball'], 'player': player}
+                        'players': [player0, player1]}
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
 
     async def broadcast_start_ai_match(self, event):
         ball = event["ball"]
-        player = event["player"]
-        text_data = json.dumps({"type": "b_start_ai_match", "ball": ball, "player": player})
+        text_data = json.dumps({"type": "b_start_ai_match", "ball": ball})
         await self.send(text_data=text_data)
 
     async def broadcast_start_match(self, event):
@@ -370,6 +382,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
     async def bounce_ball(self, ball):
         if self.match_id is None or self.room_group_name is None:
             return
+        if (await data.is_match_end(self.room_group_name, self.match_id)):
+            return
         await data.set_ball_bounce(self.room_group_name, self.match_id, ball)
         event = {"type": "broadcast.bounce.ball", 'ball': ball}
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
@@ -381,6 +395,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
     async def paddle_move(self, position):
         if self.match_id is None or self.room_group_name is None:
+            return
+        if (await data.is_match_end(self.room_group_name, self.match_id)):
             return
         room = await data.get_one_room_data(self.room_group_name)
         match_data = room['matches'][self.match_id]
@@ -432,7 +448,11 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 #     await data.delete_one_room(self.room_group_name)
 
     async def leave_match(self):
-        current_room = await data.get_one_room_data(self.room_group_name)
+
+        event_leave_match = {"type": "broadcast.leave.match", "player_id": self.player_id}
+        match_group_name = self.room_group_name + "_" + str(self.match_id)
+        await self.channel_layer.group_send(match_group_name, event_leave_match)
+
         opponent_id = await data.get_opponent(self.room_group_name, self.match_id, self.player_id)
 
         # check if opponent is ai or not exist or normal player
@@ -449,23 +469,28 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game, "opponent_go_next": next_match_id}
             else:
                 event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game}
-                self.match_id = None # TODO: set self.match_id = None: only set for myself
             await self.channel_layer.group_send(self.room_group_name, event)
         else:
             # opponent is empty
             pass
-        event = {"type": "broadcast.leave.room", "room_id": self.room_group_name, "player_id": self.player_id, "delete_room": False, "all_prepared": True, "redirect_hash": "main"}
+
+        # Delete myself from the room["avatars"]
+        await data.delete_one_player_from_room(self.room_group_name, self.player_id)
+        # Check if need to delete the room
+        if (await data.is_last_one_in_room(self.room_group_name, self.player_id)):
+            event = {"type": "broadcast.leave.room", "room_id": self.room_group_name, "player_id": self.player_id, "delete_room": True, "redirect_hash": "main"}
+            await data.delete_one_room(self.room_group_name)
+        else:
+            event = {"type": "broadcast.leave.room", "room_id": self.room_group_name, "player_id": self.player_id, "delete_room": False, "all_prepared": True, "redirect_hash": "main"}
         await self.channel_layer.group_send(self.room_group_name, event)
 
-        # if the disconnected is the last person in the room, delete the room
-        if len(current_room["avatars"]) == 1:
-            await data.delete_one_room(self.room_group_name)
 
-        # await self.channel_layer.group_discard(self.room_group_name + "_" + str(self.match_id), self.channel_name)
-        print(self.room_group_name)
+        await self.channel_layer.group_discard(self.room_group_name + "_" + str(self.match_id), self.channel_name)
+        print("Leave match and Leave this room: " + self.room_group_name)
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         self.room_group_name = None
-        # self.match_id = None
+        self.match_id = None
+        self.first_layer_player_id = None
         await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
         self.joined_group = ["lobby"]
         await self.send(text_data=json.dumps({"type": "ack_leave_room"}))
@@ -475,18 +500,16 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         is_last_game = event["is_last_game"]
         room_id = event["room_id"]
         text_data = json.dumps({"type": "b_match_win", "winners": winner_list})
-        # if is the last match, discard from room and match group
-        await data.reset_player_score(self.player_id)
         await self.channel_layer.group_discard(room_id + "_" + str(self.match_id), self.channel_name)
 
         # TODO: causing error here when set self.match_id, broadcast_match_win is used for room group, then every one in the room will modify their self.match_id.
 		# Maybe have one extra broadcast_match_page only deal with self.match_id
-        if is_last_game:
-            self.match_id = None
-        else:
-            if "opponent_go_next" in event:
-               next_match_id = event["opponent_go_next"]
-               self.match_id = next_match_id
+        # if is_last_game:
+        #     self.match_id = None
+        # else:
+        #     if "opponent_go_next" in event:
+        #        next_match_id = event["opponent_go_next"]
+        #        self.match_id = next_match_id
 
         await self.send(text_data=text_data)
 
