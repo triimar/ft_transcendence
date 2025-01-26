@@ -34,6 +34,10 @@ export default class ComponentGameBoard extends HTMLElement {
 		let countdownPromise = new Promise((resolve) => {
 			let seconds = 5;
 			let intervalId = setInterval(() => {
+				if (!this.isRunning) {
+					clearInterval(intervalId);
+					return;
+				}
 				let countdownText = blocker.children[0];
 				if (seconds == 0) {
 					countdownText.textContent = i18next.t("game.start-txt");
