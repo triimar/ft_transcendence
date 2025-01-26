@@ -30,7 +30,6 @@
 		"connection-lost": "Verbindung verloren. Verbindung wird neu gestartet...",
 		"connection-lost-3-times": "Verbindung verloren.",
 		"page-not-found": "Seite unbekannt",
-		"game_already_started": "Spiel ist schon gestartet",
         "room_not_found": "Raum-ID nicht gefunden",
         "player_not_found": "Spieler-ID nicht gefunden",
         "max_players_reached": "Maximale Spieleranzahl erreicht. Beitritt zum Raum nicht möglich",
