@@ -458,7 +458,7 @@ async def reset_ai_score(room_id):
 
     await redis_instance.json().set("room_data", f"$.{room_id}.ai", {"score": 0})
 
-async def set_player_disconnected(room_id, player_id):
+async def set_player_disconnect(room_id, player_id, should_disconnected):
     redis_instance = get_redis_client()
 
 
