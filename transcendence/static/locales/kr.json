@@ -35,22 +35,22 @@
 		"max_players_reached": "방 최대 인원수에 도달하여 방에 참여할 수 없습니다.",
 		"mode_not_supported": "지원되지 않는 모드입니다",
 		"game_already_started": "게임이 이미 시작되었습니다",
-		"failed-to-verify": "krFailed to verify your account",
-		"failed-fetch-avatar": "krFailed to fetch your avatar's data",
-		"failed-login": "krFailed to login",
-		"avatar-change-disabled": "krYou cannot change avatar during a game",
-		"avatar-too-long": "krAvatar's face can only have 3 characters",
-		"color-not-available": "krAvatar's color is not in the color palette"
+		"failed-to-verify": "계정을 인증할 수 없습니다",
+		"failed-fetch-avatar": "아바타 데이터를 가져올 수 없습니다",
+		"failed-login": "로그인할 수 없습니다",
+		"avatar-change-disabled": "게임 중에 아바타를 변경할 수 없습니다",
+		"avatar-too-long": "3 캐릭터 이내로 아바타 얼굴을 만들어주세요",
+		"color-not-available": "컬러 팔레트에 없는 색상입니다"
 	},
 	"game": {
-		"start-txt": "start",
-		"winner-txt": "Wins!",
-		"you-win": "You are the tournament winner!",
-		"ai-wins": "AI wins the tournament!",
-		"player-wins": "Player {{winner}} wins the tournament!",
-		"teleporting": "Teleporting you to the next match in 3 seconds",
-		"waiting": "Waiting for your next opponent...",
-		"you-lost": "You lost."
+		"start-txt": "시작",
+		"winner-txt": "이겼어요!",
+		"you-win": "토너먼트 우승을 축하드립니다!",
+		"ai-wins": "AI가 토너먼트를 이겼어오ㅛ!",
+		"player-wins": "플레이어 {{winner}}가 우승하였습니다!",
+		"teleporting": "3초 후 다른 매치로 이동합니다",
+		"waiting": "다음 상대를 기다리는 중...",
+		"you-lost": "아쉬운 게임이었어요."
 	},
 	"label": {
         "people": "{{count}} 명"
