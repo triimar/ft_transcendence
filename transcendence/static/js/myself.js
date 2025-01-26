@@ -12,6 +12,7 @@ class Visitor {
 		this.avatar_bg_color = null;
 		this.ws = null;
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
+		this.retryWhenDisconnected = true; // NOTE(HeiYiu): revert back to true when consumed
 		this.reconnectCount = 0;
 	}
 
@@ -112,6 +113,9 @@ class Visitor {
 		this.avatar_bg_color = null;
 		localStorage.removeItem("login_method");
 		document.cookie = 'jwt=; Max-Age=-99999999;';
+		this.retryWhenDisconnected = false;
+		this.ws.close();
+		this.ws = null;
 	}
 
 	connectWs() {
@@ -413,7 +417,7 @@ class Visitor {
 				}
 			} break;
 			case "b_leave_match": {
-				
+
 			} break;
 			case "b_start_match": {
 				await this.waitForPageToRender();
@@ -533,16 +537,22 @@ class Visitor {
 			}
 		});
 		this.ws.addEventListener("close", (event) => {
-			if (this.reconnectCount >= 3) {
-				console.log("Websocket connection is closed");
-				this.displayPopupMessage(i18next.t("error.connection-lost-3-times"));
-				this.reconnectCount = 0;
-				window.location.hash = "#login";
+			if (this.retryWhenDisconnected) {
+				this.ws = null;
+				if (this.reconnectCount >= 3) {
+					console.log("Websocket connection is closed");
+					this.displayPopupMessage(i18next.t("error.connection-lost-3-times"));
+					this.displayPopupMessage("Connection lost");
+					this.reconnectCount = 0;
+					window.location.hash = "#login";
+				} else {
+					console.log("Websocket connection is being restarted");
+					this.displayPopupMessage(i18next.t("error.connection-lost"));
+					this.reconnectCount++;
+					setTimeout(this.connectWs.bind(this), 1000);
+				}
 			} else {
-				console.log("Websocket connection is being restarted");
-				this.displayPopupMessage(i18next.t("error.connection-lost"));
-				this.reconnectCount++;
-				setTimeout(this.connectWs.bind(this), 1000);
+				this.retryWhenDisconnected = true;
 			}
 		});
 	}
@@ -637,7 +647,7 @@ class Visitor {
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
-	
+
 	sendMessageLeaveMatch() {
 		let message = {
 			type: "leave_match"
