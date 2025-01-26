@@ -5,6 +5,7 @@ import ComponentLogo from "./components/Logo.js";
 import ComponentGameBoard from "./components/GameBoard.js";
 import ComponentAIGameBoard from "./components/AIGameBoard.js";
 import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
+import ComponentRoomSettingMode from "./components/RoomSettingMode.js";
 import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
@@ -336,6 +337,7 @@ function sendInitMessage(pageName, roomId, gameIndex) {
 window.addEventListener("DOMContentLoaded", main);
 window.customElements.define("td-lobby-room", ComponentLobbyRoom);
 window.customElements.define("td-room-setting-size", ComponentRoomSettingSize);
+window.customElements.define("td-room-setting-mode", ComponentRoomSettingMode);
 window.customElements.define("td-avatar", ComponentAvatar);
 window.customElements.define("td-navigation-bar", ComponentNavigationBar);
 window.customElements.define("td-logo", ComponentLogo);

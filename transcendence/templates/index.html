@@ -130,7 +130,7 @@
 		<td-button id="prepare-btn" class="ui" aria-labelledby="prepare-btn-txt" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button"><p id="prepare-btn-txt"></p></td-button>
 	</td-lobby-room>
 	<td-room-setting-size id="room-size-buttons" class="ui" aria-live="polite" id="label" style="display: none"></td-room-setting-size>
-	<div class="ui ui-text"><p>More game options coming soon</p></div>
+	<td-room-setting-mode id="room-mode-buttons" class="ui"></td-room-setting-mode>
 </template>
 <template id="page-main">
 	<style>
@@ -232,6 +232,32 @@
 		<td-button class="ui" id="inc-button" aria-label="Increase the number of players"><p style="user-select: none;">+</p></td-button>
 	</div>
 	<p style="margin-right: 0.4em; user-select: none;" id="label"></p>
+</template>
+<template id="component-room-setting-mode">
+	<style>
+		:host {
+			display: flex;
+			flex-direction: row;
+		}
+
+		.ui {
+			width: var(--td-avatar-width);
+			height: var(--td-avatar-height);
+			border: var(--td-border-size) solid var(--td-ui-font-color);
+			box-sizing: border-box;
+
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	</style>
+	<td-button id="classic-mode-btn" class="ui">
+		<p class="ui-text" style="font-size: 2em; text-align: center; font-weight: bold;">C</p>
+	</td-button>
+	<td-button id="balance-mode-btn" class="ui">
+		<p class="ui-text" style="font-size: 2em; text-align: center; font-weight: bold;">P</p>
+	</td-button>
+	<p id="game-mode-description-txt"></p>
 </template>
 <template id="icon-lobby-room-join">
 	<style>
