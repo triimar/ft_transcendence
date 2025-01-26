@@ -55,7 +55,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
             # when left, the opponent gonna be winner
             # set self as disconnected in avatars
-            match(await data.set_player_disconnected(self.room_group_name)):
+            match(await data.set_player_disconnect(self.room_group_name, self.player_id, True)):
                 case data.RedisError.NOROOMFOUND:
                     pass
                 case data.RedisError.NOPLAYERFOUND:
@@ -401,6 +401,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
     async def score_point(self):
         if self.match_id is None or self.room_group_name is None:
+            return
+        if (await data.is_match_end(self.room_group_name, self.match_id)):
             return
         player_data = await data.get_one_player(self.player_id)
         # player_data does not have score field
