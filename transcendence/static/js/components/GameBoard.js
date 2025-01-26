@@ -464,7 +464,7 @@ export default class ComponentGameBoard extends HTMLElement {
 
 	updateBall() {
 		// Only one player is able to update the ball position
-		if (this.side === 0)
+		if (this.side === 0 || !this.isRunning)
 			return
 		myself.sendMessage(JSON.stringify({
 			'type': 'bounce_ball',
@@ -477,6 +477,8 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	paddleMove() {
+		if (!this.isRunning)
+			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'paddle_move',
 			'position': this.getMyPaddle().y
@@ -484,6 +486,8 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	scorePoint() {
+		if (!this.isRunning)
+			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'scored_point'
 		}))
