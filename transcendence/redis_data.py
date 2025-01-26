@@ -475,12 +475,13 @@ async def set_player_disconnect(room_id, player_id, should_disconnected):
     await redis_instance.json().set(
         "room_data",
         f'$.{room_id}.avatars[?(@.player_id == "{player_id}")].disconnected',
-        True,
+        should_disconnected,
     )
-    print(f"Set player {player_id} in room {room_id} disconnected.")
+    print(f"Set player {player_id} in room {room_id} disconncted = {should_disconnected}.")
     return RedisError.NONE
 
 async def get_opponent(room_id, match_id, player_id):
+    # TODO: specify different Error??
     room = await get_one_room_data(room_id)
 
     if not room:
@@ -501,3 +502,18 @@ async def get_opponent(room_id, match_id, player_id):
         return opponent_id
     else:
         return None
+
+
+async def is_last_one_in_room(room_id, player_id):
+    room = await get_one_room_data(room_id)
+
+    for player in room["avatars"]:
+        if player["player_id"] != player_id:
+            if player["disconnected"] == False:
+                return False
+    return True
+
+async def is_match_end(room_id, match_id):
+    room = await get_one_room_data(room_id)
+
+    return room["matches"][match_id]["winner"] != ""
