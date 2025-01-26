@@ -353,7 +353,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             if not is_last_game:
                 next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
                 await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
-                self.match_id = next_match_id
+                # self.match_id = next_match_id
             event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game}
             await self.channel_layer.group_send(self.room_group_name, event)
         elif (game_match['ready'] == 2):
@@ -380,8 +380,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def bounce_ball(self, ball):
-        if self.match_id is None or self.room_group_name is None:
-            return
+        # if self.match_id is None or self.room_group_name is None:
+        #     return
         if (await data.is_match_end(self.room_group_name, self.match_id)):
             return
         await data.set_ball_bounce(self.room_group_name, self.match_id, ball)
@@ -394,8 +394,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=text_data)
 
     async def paddle_move(self, position):
-        if self.match_id is None or self.room_group_name is None:
-            return
+        # if self.match_id is None or self.room_group_name is None:
+        #     return
         if (await data.is_match_end(self.room_group_name, self.match_id)):
             return
         room = await data.get_one_room_data(self.room_group_name)
@@ -443,7 +443,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
                     await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
                     # update self.match_id to new match_id
-                    self.match_id = next_match_id
+                    # self.match_id = next_match_id
                 # else:
                 #     await data.delete_one_room(self.room_group_name)
 
@@ -500,6 +500,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         is_last_game = event["is_last_game"]
         room_id = event["room_id"]
         text_data = json.dumps({"type": "b_match_win", "winners": winner_list})
+        if 
         await self.channel_layer.group_discard(room_id + "_" + str(self.match_id), self.channel_name)
 
         # TODO: causing error here when set self.match_id, broadcast_match_win is used for room group, then every one in the room will modify their self.match_id.
@@ -547,7 +548,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 if id != "ai":
                     winner_id = self.player_id
                     # update self.match_id to new match_id
-                    self.match_id = next_match_id
+                    # self.match_id = next_match_id
 
                 await data.set_player_in_next_match(self.room_group_name, next_match_id, winner_id)
 
