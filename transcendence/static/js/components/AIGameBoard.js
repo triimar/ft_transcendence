@@ -99,13 +99,12 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 	startMatch(message) {
 		let ball = message["ball"];
-		let player = message["player"];
 		this.ball.x = ball["position"]["x"];
 		this.ball.y = ball["position"]["y"];
 		this.ball.vx = ball["velocity"]["vx"];
 		this.ball.vy = ball["velocity"]["vy"];
-		this.paddleLeft.name = player["player_emoji"];
-		this.paddleLeft.color = '#' + player["player_bg_color"];
+		this.paddleLeft.name = myself["avatar_emoji"];
+		this.paddleLeft.color = '#' + myself["avatar_bg_color"];
 		this.tempBall = this.ball;
 
 		this.ball.draw();
