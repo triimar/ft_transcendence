@@ -236,10 +236,10 @@ export class PageRoom extends PageConfirmLeave{
 
 		let roomSizeSetting = this.container.querySelector("#room-size-buttons");
 		roomSizeSetting.shadowRoot.querySelector("#inc-button").addEventListener("click", () => {
-			myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
+			if (myself.roomOwnerIsMyself) myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
 		});
 		roomSizeSetting.shadowRoot.querySelector("#dec-button").addEventListener("click", () => {
-			myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
+			if (myself.roomOwnerIsMyself) myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
 		});
 		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
 		avatarCustomizationForm.classList.remove("disable-click");
