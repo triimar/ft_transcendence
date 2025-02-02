@@ -223,6 +223,9 @@ class Visitor {
 					let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 					roomSizeButtons.style.display = "flex";
 					roomSizeButtons.changeSize(room["max_player"]);
+					let settingModeElement = this.page.container.querySelector("td-room-setting-mode");
+					settingModeElement.style.display = "flex";
+					settingModeElement.setAttribute("room-mode", room["mode"]);
 				}
 			} break;
 			case "ack_add_room": {
