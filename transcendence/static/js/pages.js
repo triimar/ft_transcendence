@@ -271,3 +271,18 @@ export class PageRoom extends PageConfirmLeave{
 		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);
 	}
 }
+
+export class PageLocalGame {
+	constructor(container) {
+		this.templateId = "page-local-game";
+		this.container = container;
+	}
+
+	attachEvents() {
+
+	}
+
+	removeEvents() {
+
+	}
+}

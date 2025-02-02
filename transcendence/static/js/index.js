@@ -11,7 +11,7 @@ import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
 import ComponentLanguageSelector from "./components/LanguageSelector.js";
 import { initializeI18n, updateGlobalTranslations } from "./translation.js";
-import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain } from "./pages.js";
+import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain, PageLocalGame } from "./pages.js";
 
 import { myself } from "./myself.js";
 
@@ -21,7 +21,8 @@ const pageMapping = {
 	game: PageGame,
 	"ai-game": PageAiGame,
 	room: PageRoom,
-	main: PageMain
+	main: PageMain,
+	"local-game": PageLocalGame
 };
 
 function trapFocus(popup) {
@@ -65,10 +66,10 @@ function closePopup(popupId) {
 		`:scope > *:not(#${popupId}):not(.notification-popup)`
 	);
 	elementsToUnhide.forEach((el) => el.setAttribute('aria-hidden', 'false'));
-        const focusableElements = main.querySelectorAll(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusableElements.length > 0) focusableElements[0].focus();
+	const focusableElements = main.querySelectorAll(
+			'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+	);
+	if (focusableElements.length > 0) focusableElements[0].focus();
 }
 
 
@@ -271,6 +272,7 @@ function analysisPageHash(pageHash) {
 	case "error":
 	case "login":
 	case "main":
+	case "local-game":
 		pageName = pageHash; break;
 	default: {
 		if (pageHash.startsWith("room")) {
@@ -320,6 +322,7 @@ function sendInitMessage(pageName, roomId, gameIndex) {
 	switch (pageName) {
 	case "error":
 	case "login":
+	case "local-game":
 		break;
 	case "game":
 	case "ai-game":
