@@ -106,14 +106,14 @@
 <template id="page-game">
 	<td-navigation-bar>
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-game" class="ui ui-text"><p id="exit-game"></p></td-button>
-		<td-button class="ui ui-text" aria-haspopup="true" aria-label="Tournament tree" onclick="openPopup('tournament-tree-popup')"><p id="tree-btn-txt"></p></td-button>
+		<td-button class="ui" aria-haspopup="true" aria-labelledby="tree-btn-txt" onclick="openPopup('tournament-tree-popup')"><img id="tree-btn-txt" src="../static/cup.png"></td-button>
 	</td-navigation-bar>
 	<td-game-board class="ui" style="box-sizing: content-box;"></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-game" class="ui ui-text"><p id="exit-game"></p></td-button>
-		<td-button class="ui ui-text" aria-haspopup="true" onclick="openPopup('tournament-tree-popup')"><p id="tree-btn-txt"></p></td-button>
+		<td-button class="ui" aria-haspopup="true" aria-labelledby="tree-btn-txt" onclick="openPopup('tournament-tree-popup')"><img id="tree-btn-txt" src="../static/cup.png"></td-button>
 	</td-navigation-bar>
 	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
 </template>
