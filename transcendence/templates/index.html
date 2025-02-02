@@ -238,10 +238,12 @@
 		:host {
 			display: flex;
 			flex-direction: row;
+			align-items: center;
+			gap: 1em;
 		}
 
 		.ui {
-			width: var(--td-avatar-width);
+			min-width: var(--td-avatar-width);
 			height: var(--td-avatar-height);
 			border: var(--td-border-size) solid var(--td-ui-font-color);
 			box-sizing: border-box;
@@ -250,14 +252,39 @@
 			justify-content: center;
 			align-items: center;
 		}
+
+		td-button p {
+			pointer-events: none;
+		}
+
+		.chosen {
+			background: var(--td-ui-font-color);
+		}
+
+		.chosen p {
+			color: var(--td-ui-background-color);
+		}
+
+		@media only screen and (max-width: 1000px) {
+			:host {
+				flex-direction: column;
+				align-items: start;
+			}
+
+		}
 	</style>
-	<td-button id="classic-mode-btn" class="ui">
-		<p class="ui-text" style="font-size: 2em; text-align: center; font-weight: bold;">C</p>
-	</td-button>
-	<td-button id="balance-mode-btn" class="ui">
-		<p class="ui-text" style="font-size: 2em; text-align: center; font-weight: bold;">P</p>
-	</td-button>
-	<p id="game-mode-description-txt"></p>
+	<div id="mode-btn-container" style="display: flex;">
+		<td-button id="classic-mode-btn" class="ui">
+			<p id="classic-mode-btn-txt" class="ui-text" style="font-size: 1em; text-align: center; font-weight: bold;"></p>
+		</td-button>
+		<td-button id="balance-mode-btn" class="ui">
+			<p id="balance-mode-btn-txt" class="ui-text" style="font-size: 1em; text-align: center; font-weight: bold;"></p>
+		</td-button>
+		<td-button id="local-mode-btn" class="ui">
+			<p id="local-mode-btn-txt" class="ui-text" style="font-size: 1em; text-align: center; font-weight: bold;"></p>
+		</td-button>
+	</div>
+	<p id="game-mode-description-txt" style="margin: 0; height: fit-content;"></p>
 </template>
 <template id="icon-lobby-room-join">
 	<style>
