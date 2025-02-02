@@ -249,6 +249,15 @@ export class PageRoom extends PageConfirmLeave{
 		}
 		let inputName = document.querySelector("#id-card-name");
 		inputName.removeAttribute("disabled");
+		let roomModeSetting = this.container.querySelector("#room-mode-buttons");
+		let container = roomModeSetting.shadow.querySelector("#mode-btn-container");
+		container.addEventListener("click", (event) => {
+			if (myself.roomOwnerIsMyself && (event.target != container) && !(event.target.classList.contains("chosen"))) {
+				let id = event.target.id;
+				let modeName = id.substring(0, id.indexOf("-"));
+				myself.sendMessageUpdateMode(myself.roomId, modeName);
+			}
+		}, true);
 	}
 
 	removeEvents() {

@@ -47,21 +47,22 @@ export default class ComponentRoomSettingMode extends HTMLElement {
 	}
 
 	attributeChangedCallback(name, oldValue, newValue) {
-		let description = this.shadow.querySelector("#game-mode-description-txt");
+		if (oldValue == newValue) return;
 		if (name == "room-mode") {
-			switch (newValue) {
-			case "classic": {
-				this.shadow.querySelector("#classic-mode-btn").click();
-				description.textContent = i18next.t("classic-mode-description");
-			} break;
-			case "balance": {
-				this.shadow.querySelector("#balance-mode-btn").click();
-				description.textContent = i18next.t("balance-mode-description");
-			} break;
-			case "local": {
-				this.shadow.querySelector("#local-mode-btn").click();
-				description.textContent = i18next.t("local-mode-description");
-			} break;
+			let modeName = newValue;
+			let possibleNames = ["classic", "balance", "local"];
+			if (possibleNames.includes(modeName)) {
+				let description = this.shadow.querySelector("#game-mode-description-txt");
+				let container = this.shadow.querySelector("#mode-btn-container");
+				for (let button of container.children) {
+					let id = button.id;
+					if (id == `${modeName}-mode-btn`) {
+						button.classList.add("chosen");
+					} else {
+						button.classList.remove("chosen");
+					}
+				}
+				description.textContent = i18next.t(`${modeName}-mode-description`);
 			}
 		}
 	}

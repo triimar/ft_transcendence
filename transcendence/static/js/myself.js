@@ -514,6 +514,8 @@ class Visitor {
 					roomElement.changeParticipant(emoji, backgroundColor, this.id);
 				}
 			} break;
+			case "b_update_mode": {
+			} break;
 			case "error": {
 				this.displayPopupMessage(i18next.t(message.message_key));
 				if (message["redirect_hash"]) {
@@ -690,6 +692,15 @@ class Visitor {
 			type: "player_avatar_change",
 			emoji: emoji,
 			bg_color: backgroundColor
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageUpdateMode(roomId, modeName) {
+		let message = {
+			type: "update_mode",
+			room_id: roomId,
+			mode: modeName
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
