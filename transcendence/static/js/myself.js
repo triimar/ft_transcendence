@@ -175,7 +175,7 @@ class Visitor {
 						if (this.roomOwnerIsMyself) {
 							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 							let avatars = roomElement.querySelectorAll("td-avatar");
-							roomSizeButtons.changeMinSize(avatars.length > 2 ? avatars.length : 2);
+							roomSizeButtons.changeMinSize(avatars.length > 1 ? avatars.length : 1);
 						}
 					}
 				}

@@ -5,7 +5,7 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		const template = document.getElementById("component-room-setting-size");
 		this.shadow.appendChild(template.content.cloneNode(true));
 		this.size = 2;
-		this.minSize = 2;
+		this.minSize = 1;
 		this.maxSize = 8;
 	}
 
