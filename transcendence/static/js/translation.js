@@ -37,6 +37,14 @@ export async function initializeI18n() {
 			if (label) {
 				label.textContent = i18next.t("label.people", { count: document.querySelector("td-room-setting-size").size });
 			}
+			const modeDescription = document.querySelector("td-room-setting-mode");
+			if (modeDescription) {
+				let modeName = modeDescription.getAttribute("room-mode");
+				modeDescription.shadow.querySelector("#game-mode-description-txt").textContent = i18next.t(`${modeName}-mode-description`);
+				modeDescription.shadow.querySelector("#classic-mode-btn-txt").textContent = i18next.t("classic-mode-txt");
+				modeDescription.shadow.querySelector("#balance-mode-btn-txt").textContent = i18next.t("balance-mode-txt");
+				modeDescription.shadow.querySelector("#local-mode-btn-txt").textContent = i18next.t("local-mode-txt");
+			}
 		});
 	} catch (error) {
 		console.error("Error initializing i18next:", error);

@@ -58,5 +58,11 @@
 	"tree-btn-txt": "Turnierbaum",
 	"add-room": "RAUM HINZUFÜGEN",
 	"exit-room": "RAUM VERLASSEN",
-	"exit-game": "SPIEL VERLASSEN"
+	"exit-game": "SPIEL VERLASSEN",
+	"balance-mode-txt": "DE balance",
+	"classic-mode-txt": "DE classic",
+	"local-mode-txt": "DE local",
+	"balance-mode-description": "DE Your avatar get smaller the more you score",
+	"classic-mode-description": "DE You play pong with your friend normally",
+	"local-mode-description": "DE You and your friend can play locally on the same keyboard"
 }

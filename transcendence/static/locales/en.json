@@ -59,5 +59,11 @@
 	"tree-btn-txt": "Tournament tree",
 	"add-room": "ADD ROOM",
 	"exit-room": "EXIT ROOM",
-	"exit-game": "EXIT GAME"
+	"exit-game": "EXIT GAME",
+	"balance-mode-txt": "balance",
+	"classic-mode-txt": "classic",
+	"local-mode-txt": "local",
+	"balance-mode-description": "Your avatar get smaller the more you score",
+	"classic-mode-description": "You play pong with your friend normally online",
+	"local-mode-description": "You and your friend can play locally on the same keyboard"
 }
