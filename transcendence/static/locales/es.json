@@ -57,12 +57,12 @@
     },
 	"tree-btn-txt": "Árbol del torneo",
 	"add-room": "AÑADIR SALA",
+	"add-local-game": "ES LOCAL GAME",
 	"exit-room": "SALIR DE LA SALA",
 	"exit-game": "SALIR DEL JUEGO",
 	"balance-mode-txt": "ES balance",
 	"classic-mode-txt": "ES classic",
 	"local-mode-txt": "ES local",
 	"balance-mode-description": "ES Your avatar get smaller the more you score",
-	"classic-mode-description": "ES You play pong with your friend normally",
-	"local-mode-description": "ES You and your friend can play locally on the same keyboard"
+	"classic-mode-description": "ES You play pong with your friend normally"
 }

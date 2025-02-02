@@ -31,9 +31,6 @@ export default class ComponentRoomSettingMode extends HTMLElement {
 			case "balance-mode-btn": {
 				description.textContent = i18next.t("balance-mode-description");
 			} break;
-			case "local-mode-btn": {
-				description.textContent = i18next.t("local-mode-description");
-			} break;
 			}
 		});
 		this.setAttribute("room-mode", "classic");
@@ -43,14 +40,13 @@ export default class ComponentRoomSettingMode extends HTMLElement {
 		});
 		this.shadow.querySelector("#classic-mode-btn-txt").textContent = i18next.t("classic-mode-txt");
 		this.shadow.querySelector("#balance-mode-btn-txt").textContent = i18next.t("balance-mode-txt");
-		this.shadow.querySelector("#local-mode-btn-txt").textContent = i18next.t("local-mode-txt");
 	}
 
 	attributeChangedCallback(name, oldValue, newValue) {
 		if (oldValue == newValue) return;
 		if (name == "room-mode") {
 			let modeName = newValue;
-			let possibleNames = ["classic", "balance", "local"];
+			let possibleNames = ["classic", "balance"];
 			if (possibleNames.includes(modeName)) {
 				let description = this.shadow.querySelector("#game-mode-description-txt");
 				let container = this.shadow.querySelector("#mode-btn-container");

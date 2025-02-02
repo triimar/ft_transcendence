@@ -146,6 +146,7 @@
 		}
 	</style>
 	<td-navigation-bar>
+		<td-button id="add-local-game-btn" class="ui" aria-label="Play Local Game" tabindex="0" onclick="window.location.hash = '#local-game'"><p id="add-local-game" class="ui-text"></p></td-button>
 		<td-button id="add-room-btn" class="ui" aria-label="Add Room" tabindex="0"><p id="add-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 </template>
@@ -283,9 +284,6 @@
 		</td-button>
 		<td-button id="balance-mode-btn" class="ui">
 			<p id="balance-mode-btn-txt" class="ui-text" style="font-size: 1em; text-align: center; font-weight: bold;"></p>
-		</td-button>
-		<td-button id="local-mode-btn" class="ui">
-			<p id="local-mode-btn-txt" class="ui-text" style="font-size: 1em; text-align: center; font-weight: bold;"></p>
 		</td-button>
 	</div>
 	<p id="game-mode-description-txt" style="margin: 0; height: fit-content;"></p>

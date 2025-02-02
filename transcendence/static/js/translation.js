@@ -43,7 +43,6 @@ export async function initializeI18n() {
 				modeDescription.shadow.querySelector("#game-mode-description-txt").textContent = i18next.t(`${modeName}-mode-description`);
 				modeDescription.shadow.querySelector("#classic-mode-btn-txt").textContent = i18next.t("classic-mode-txt");
 				modeDescription.shadow.querySelector("#balance-mode-btn-txt").textContent = i18next.t("balance-mode-txt");
-				modeDescription.shadow.querySelector("#local-mode-btn-txt").textContent = i18next.t("local-mode-txt");
 			}
 		});
 	} catch (error) {
@@ -65,6 +64,7 @@ export function updateGlobalTranslations() {
         { id: "footer-authors", key: "footer.authors" },
 		{ id: "text-size", key: "footer.text-size" },
         { id: "add-room", key: "add-room" },
+        { id: "add-local-game", key: "add-local-game" },
         { id: "exit-room", key: "exit-room" },
         { id: "tree-btn-txt", key: "tree-btn-txt" },
         { id: "exit-game", key: "exit-game" },

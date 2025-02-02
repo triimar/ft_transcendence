@@ -57,12 +57,12 @@
     },
 	"tree-btn-txt": "토너먼트 트리",
 	"add-room": "방 만들기",
+	"add-local-game": "KR LOCAL GAME",
 	"exit-room": "방 나가기",
 	"exit-game": "게임 종료하기",
 	"balance-mode-txt": "KR balance",
 	"classic-mode-txt": "KR classic",
 	"local-mode-txt": "KR local",
 	"balance-mode-description": "KR Your avatar get smaller the more you score",
-	"classic-mode-description": "KR You play pong with your friend normally",
-	"local-mode-description": "KR You and your friend can play locally on the same keyboard"
+	"classic-mode-description": "KR You play pong with your friend normally"
 }
