@@ -89,7 +89,7 @@ main {
 	background: var(--td-ui-background-color);
 	z-index: 101;
 	opacity: 0;
-	transition: opacity 1s ease-out;
+	transition: opacity 1s ease-in-out;
 	pointer-events: none;
 	display: flex;
 	justify-content: center;
@@ -123,7 +123,7 @@ main {
 	align-items: center;
 	gap: 0.5em;
 	opacity: 0;
-	transition: opacity 500ms ease-out;
+	transition: opacity 500ms ease-in-out;
 	pointer-events: none;
 	visibility: hidden;
 
