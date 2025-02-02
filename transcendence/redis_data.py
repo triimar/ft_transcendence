@@ -4,7 +4,7 @@ import random
 from .redis_client import get_redis_client
 
 MAX_NUM_PLAYER = 8
-SUPPORTED_MODES = ["balance", "shoot", "bomb", "remix"]
+SUPPORTED_MODES = ["classic", "balance", "local"]
 
 
 class RedisError(Enum):
@@ -113,7 +113,7 @@ async def add_new_room(room_id, owner_id) -> dict:
         # "room_setting": {
         #     "default_setting": "value"
         # },
-        "mode": "",
+        "mode": "classic",
         "avatars": [{"player_id": owner_id, "prepared": True, "disconnected": False}],
         "max_player": 2,
         "matches": [],
