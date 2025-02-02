@@ -32,24 +32,25 @@ async def get_full_room_data() -> list:
 
     # TODO: remove redundant data
     for _, room in rooms.items():
-        # Add player data to each avatar in the room
-        for avatar in room["avatars"]:
-            player_id = avatar["player_id"]
-            # Fetch the corresponding player data and merge it
-            if player_id in players:
-                player_info = dict(
-                    (key, players[player_id][key]) for key in player_keys
-                )
-                avatar.update(player_info)
+        if len(room["matches"]) == 0:
+            # Add player data to each avatar in the room
+            for avatar in room["avatars"]:
+                player_id = avatar["player_id"]
+                # Fetch the corresponding player data and merge it
+                if player_id in players:
+                    player_info = dict(
+                        (key, players[player_id][key]) for key in player_keys
+                    )
+                    avatar.update(player_info)
 
-        # Append the updated room data to the combined list
-        full_room_data.append(
-            {
-                "avatars": room["avatars"],
-                "room_id": room["room_id"],
-                "max_player": room["max_player"],
-            }
-        )
+            # Append the updated room data to the combined list
+            full_room_data.append(
+                {
+                    "avatars": room["avatars"],
+                    "room_id": room["room_id"],
+                    "max_player": room["max_player"],
+                }
+            )
 
     return full_room_data
 
