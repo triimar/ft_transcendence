@@ -3,6 +3,7 @@ import ComponentAvatar from "./components/Avatar.js";
 import ComponentNavigationBar from "./components/NavigationBar.js";
 import ComponentLogo from "./components/Logo.js";
 import ComponentGameBoard from "./components/GameBoard.js";
+import ComponentLocalGameBoard from "./components/LocalGameBoard.js";
 import ComponentAIGameBoard from "./components/AIGameBoard.js";
 import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
 import ComponentRoomSettingMode from "./components/RoomSettingMode.js";
@@ -272,7 +273,6 @@ function analysisPageHash(pageHash) {
 	case "error":
 	case "login":
 	case "main":
-	case "local-game":
 		pageName = pageHash; break;
 	default: {
 		if (pageHash.startsWith("room")) {
@@ -286,6 +286,10 @@ function analysisPageHash(pageHash) {
 				gameIndex = parseInt(pageHash.substring(index + 8));
 			} else if (pageHash.startsWith("game", index + 1)) {
 				pageName = "game";
+				roomId = pageHash.substring(4, index);
+				gameIndex = parseInt(pageHash.substring(index + 5));
+			} else if (pageHash.startsWith("local-game", index + 1)) {
+				pageName = "local-game";
 				roomId = pageHash.substring(4, index);
 				gameIndex = parseInt(pageHash.substring(index + 5));
 			}
@@ -322,8 +326,8 @@ function sendInitMessage(pageName, roomId, gameIndex) {
 	switch (pageName) {
 	case "error":
 	case "login":
-	case "local-game":
 		break;
+	case "local-game":
 	case "game":
 	case "ai-game":
 		myself.sendMessageJoinMatch(roomId, gameIndex);
@@ -345,6 +349,7 @@ window.customElements.define("td-avatar", ComponentAvatar);
 window.customElements.define("td-navigation-bar", ComponentNavigationBar);
 window.customElements.define("td-logo", ComponentLogo);
 window.customElements.define("td-game-board", ComponentGameBoard);
+window.customElements.define("td-local-game-board", ComponentLocalGameBoard);
 window.customElements.define("td-ai-game-board", ComponentAIGameBoard);
 window.customElements.define("td-button", ComponentButton);
 window.customElements.define("td-lever", ComponentLever);
