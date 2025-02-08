@@ -4,6 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from . import redis_data as data
 import shortuuid
 from .error_messages import ErrorMessages
+from .redis_data import RedisError
 
 class WebsiteConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -285,7 +286,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.MATCH_NOT_FOUND.value, "redirect_hash": "main"}))
                 else:
                     # set boolean disconnected to False
-                    await data.set_player_disconnect(self.room_group_name, self.player_id, False)
+                    result = await data.set_player_disconnect(room_id, self.player_id, False)
+                    assert(result == RedisError.NONE)
 
                     room = await data.get_one_room_data(room_id)
                     single_game_state = room["matches"][correct_match_id]
