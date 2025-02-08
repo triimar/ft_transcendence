@@ -57,12 +57,12 @@
     },
 	"tree-btn-txt": "토너먼트 트리",
 	"add-room": "방 만들기",
-	"add-local-game": "KR LOCAL GAME",
+	"add-local-game": "로컬 게임",
 	"exit-room": "방 나가기",
 	"exit-game": "게임 종료하기",
-	"balance-mode-txt": "KR balance",
-	"classic-mode-txt": "KR classic",
-	"local-mode-txt": "KR local",
-	"balance-mode-description": "KRYour paddle changes size depending who is in the lead!",
-	"classic-mode-description": "KRPlay a classic game of pong!"
+	"balance-mode-txt": "균형 모드",
+	"classic-mode-txt": "기본 모드",
+	"local-mode-txt": "로컬 모드",
+	"balance-mode-description": "누가 우세한가에 따라 패들 사이즈가 변화합니다!",
+	"classic-mode-description": "기본 모드로 퐁을 시작합니다!"
 }
