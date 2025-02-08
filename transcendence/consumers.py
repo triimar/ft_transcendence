@@ -268,7 +268,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
             # broadcast to room group for the tournamnet tree
             event = {"type": "broadcast.join.match", "player_id": player_id, "winners": winner_id_list}
-            await self.channel_layer.group_send(self.room_group_name, event)
+            await self.channel_layer.group_send(match_group_name, event)
         else:
             # rejoin, needs all neccesry information
             self.player_id = player_id
@@ -287,6 +287,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     # set boolean disconnected to False
                     await data.set_player_disconnect(self.room_group_name, self.player_id, False)
 
+                    room = await data.get_one_room_data(room_id)
                     single_game_state = room["matches"][correct_match_id]
                     player_info_state = next((player for player in room["avatars"] if player['player_id'] == player_id), None)
                     # if rejoined consumer has ai opponent
@@ -314,6 +315,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         else:
                             winner_id_list.append(-1)
                     await self.send(text_data=json.dumps({"type": "ack_join_match", "players": first_layer_player, "winners": winner_id_list,"game_state": single_game_state, "player_info": player_info_state, "ai": ai_score, "redirect_hash": redirect_hash}))
+                    event = {"type": "broadcast.join.match", "player_id": self.player_id, "winners": winner_id_list}
+                    await self.channel_layer.group_send(match_group_name, event)
                     # self.player_id = player_id
                     self.room_group_name = room_id
                     self.match_id = correct_match_id
