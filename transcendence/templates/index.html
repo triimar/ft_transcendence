@@ -67,7 +67,7 @@
 				</div>
 			</div>
 		</div>
-		<div id="notification-popup" class="ui notification-popup" role="alert"  aria-live="assertive" aria-hidden="true" >
+		<div id="notification-popup" class="ui notification-popup" aria-live="assertive" aria-hidden="true" >
 			<p id="notification-popup-text"></p>
 		</div>
 		<footer role="contentinfo" style="width: 70%; margin-top: auto; display: flex;align-items: center; justify-content: space-between" class="ui">
@@ -134,7 +134,7 @@
 		<td-button id="prepare-btn" class="ui" aria-labelledby="prepare-btn-txt" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button"><p id="prepare-btn-txt"></p></td-button>
 	</td-lobby-room>
 	<td-room-setting-size id="room-size-buttons" class="ui" aria-live="polite" id="label" style="display: none"></td-room-setting-size>
-	<td-room-setting-mode id="room-mode-buttons" class="ui" style="display: none"></td-room-setting-mode>
+	<td-room-setting-mode id="room-mode-buttons" class="ui" aria-live="polite" style="display: none"></td-room-setting-mode>
 </template>
 <template id="page-main">
 	<style>
@@ -279,10 +279,10 @@
 		}
 	</style>
 	<div id="mode-btn-container" style="display: flex;">
-		<td-button id="classic-mode-btn" class="ui">
+		<td-button id="classic-mode-btn" aria-labelledby="classic-mode-btn-txt" class="ui">
 			<p id="classic-mode-btn-txt" class="ui-text" style="font-size: 1em; text-align: center; font-weight: bold;"></p>
 		</td-button>
-		<td-button id="balance-mode-btn" class="ui">
+		<td-button id="balance-mode-btn" class="ui" aria-labelledby="balance-mode-btn-txt">
 			<p id="balance-mode-btn-txt" class="ui-text" style="font-size: 1em; text-align: center; font-weight: bold;"></p>
 		</td-button>
 	</div>
