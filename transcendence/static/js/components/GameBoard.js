@@ -5,8 +5,7 @@ const GameMode = {
 	Balance: "balance",
 	Shoot: "shoot",
 	Bomb: "bomb",
-	Remix: "remix",
-	Local: "local"
+	Remix: "remix"
 };
 
 const BALANCE_FACTOR = 10;
@@ -430,67 +429,33 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.paddleMove();
 		};
 
-		if (this.mode === GameMode.Local) {
-			this.keydownEventListener = ((e) => {
-				if (!this.isRunning)
+		this.keydownEventListener = ((e) => {
+			console.log("online event listener: " + this.gameMode)
+			if (!this.isRunning)
+				return;
+			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
+				// Prevent the default action (scrolling)
+				e.preventDefault();
+			}
+			switch (e.key) {
+				case "s":
+				case "ArrowDown":
+					this.getMyPaddle().y += this.getMyPaddle().vy;
+					if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height)
+						this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
+					this.paddleMove();
+					break;
+				case "w":
+				case "ArrowUp":
+					this.getMyPaddle().y -= this.getMyPaddle().vy;
+					if (this.getMyPaddle().y < 0)
+						this.getMyPaddle().y = 0;
+					this.paddleMove();
+					break;
+				default:
 					return;
-				if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
-					// Prevent the default action (scrolling)
-					e.preventDefault();
-				}
-				switch (e.key) {
-					case "s":
-						this.paddleLeft.y += this.paddleLeft.vy;
-						if (this.paddleLeft.y > canvas.height - this.paddleLeft.height)
-							this.paddleLeft.y = canvas.height - this.paddleLeft.height;
-						break;
-					case "ArrowDown":
-						this.paddleRight.y += this.paddleRight.vy;
-						if (this.paddleRight.y > canvas.height - this.paddleRight.height)
-							this.paddleRight.y = canvas.height - this.paddleRight.height;
-						break;
-					case "w":
-						this.paddleLeft.y -= this.paddleLeft.vy;
-						if (this.paddleLeft.y < 0)
-							this.paddleLeft.y = 0;
-						break;
-					case "ArrowUp":
-						this.paddleRight.y -= this.paddleRight.vy;
-						if (this.paddleRight.y < 0)
-							this.paddleRight.y = 0;
-						break;
-					default:
-						return;
-				}
-			}).bind(this);
-		} else {
-			this.keydownEventListener = ((e) => {
-				if (!this.isRunning)
-					return;
-				if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
-					// Prevent the default action (scrolling)
-					e.preventDefault();
-				}
-				switch (e.key) {
-					case "s":
-					case "ArrowDown":
-						this.getMyPaddle().y += this.getMyPaddle().vy;
-						if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height)
-							this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
-						this.paddleMove();
-						break;
-					case "w":
-					case "ArrowUp":
-						this.getMyPaddle().y -= this.getMyPaddle().vy;
-						if (this.getMyPaddle().y < 0)
-							this.getMyPaddle().y = 0;
-						this.paddleMove();
-						break;
-					default:
-						return;
-				}
-			}).bind(this);
-		}
+			}
+		}).bind(this);
 	}
 
 	disconnectedCallback() {
@@ -500,7 +465,7 @@ export default class ComponentGameBoard extends HTMLElement {
 
 	updateBall() {
 		// Only one player is able to update the ball position
-		if (this.side === 0 || this.mode === GameMode.Local)
+		if (this.side === 0)
 			return
 		myself.sendMessage(JSON.stringify({
 			'type': 'bounce_ball',
@@ -513,8 +478,6 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	paddleMove() {
-		if (this.mode === GameMode.Local)
-			return
 		myself.sendMessage(JSON.stringify({
 			'type': 'paddle_move',
 			'position': this.getMyPaddle().y
@@ -522,8 +485,6 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	scorePoint() {
-		if (this.mode === GameMode.Local)
-			return
 		myself.sendMessage(JSON.stringify({
 			'type': 'scored_point'
 		}))
