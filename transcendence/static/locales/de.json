@@ -60,9 +60,9 @@
 	"add-local-game": "DE LOCAL GAME",
 	"exit-room": "RAUM VERLASSEN",
 	"exit-game": "SPIEL VERLASSEN",
-	"balance-mode-txt": "DE balance",
-	"classic-mode-txt": "DE classic",
-	"local-mode-txt": "DE local",
-	"balance-mode-description": "DEYour paddle changes size depending who is in the lead!",
-	"classic-mode-description": "DEPlay a classic game of pong!"
+	"balance-mode-txt": "Balance",
+	"classic-mode-txt": "klassisch",
+	"local-mode-txt": "lokal",
+	"balance-mode-description": "Dein Paddel ändert seine Größe, je nachdem, wer an der Spitze steht!",
+	"classic-mode-description": "Spiele ein klassisches Pong-Spiel!"
 }
