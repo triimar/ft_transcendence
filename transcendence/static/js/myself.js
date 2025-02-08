@@ -14,6 +14,7 @@ class Visitor {
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
 		this.retryWhenDisconnected = true; // NOTE(HeiYiu): revert back to true when consumed
 		this.reconnectCount = 0;
+		this.timeoutId = null;
 	}
 
 	#getCookie(name) {
@@ -44,8 +45,8 @@ class Visitor {
 			}
 		}
 		catch (error) {
-			console.error(error);	
-			this.displayPopupMessage(i18next.t("error.failed-to-verify"));	
+			console.error(error);
+			this.displayPopupMessage(i18next.t("error.failed-to-verify"));
 		}
 		return false;
 	}
@@ -395,12 +396,8 @@ class Visitor {
 			case "ack_join_match": {
 				this.firstLayerPlayers = message["players"];
 				await this.waitForPageToRender();
-				openPopup("tournament-tree-popup")
-				await sleep(5000);
-				closePopup("tournament-tree-popup")
-				// Note(HeiYiu): show leaderboard with 5 seconds loading animation
 				let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
-				await gameboard.countdown();
+				// await gameboard.setGameState(message["game_state"]);
 				this.sendMessagePlayerMatchReady();
 			} break;
 			case "b_join_match": {
@@ -414,10 +411,22 @@ class Visitor {
 					let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
 					await gameboard.countdown();
 					this.sendMessagePlayerMatchReady();
+				} else if (this.timeoutId != null) {
+					clearTimeout(this.timeoutId);
+					this.timeoutId = null;
+					this.sendMessagePlayerMatchReady();
 				}
 			} break;
 			case "b_leave_match": {
-
+				let opponentId = message["left_opponent"];
+				if (opponentId != this.id) {
+					let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
+					gameboard.freezeMatch();
+					this.timeoutId = setTimeout(() => {
+						this.sendMessageWin();
+						this.timeoutId = null;
+					}, 10000);
+				}
 			} break;
 			case "b_start_match": {
 				await this.waitForPageToRender();
@@ -719,6 +728,13 @@ class Visitor {
 			type: "update_mode",
 			room_id: roomId,
 			mode: modeName
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageWin() {
+		let message = {
+			type: "you_win"
 		};
 		this.sendMessage(JSON.stringify(message));
 	}

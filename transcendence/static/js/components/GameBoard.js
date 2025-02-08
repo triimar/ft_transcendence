@@ -105,6 +105,7 @@ export default class ComponentGameBoard extends HTMLElement {
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
+		this.lastTime = 0;
 		let gameStatusLive = this.shadow.getElementById('game-status-live');
 		if (this.side == 0)
 			gameStatusLive.textContent = "Using paddle on the left. Use the arrow keys to move the paddle up and down."
@@ -115,20 +116,21 @@ export default class ComponentGameBoard extends HTMLElement {
 	freezeMatch() {
 		if (this.raf !== null) {
 			console.log("Freeze");
-			window.cancelAnimationFrame(this.raf);
-			document.removeEventListener("keydown", this.keydownEventListener, true);
+			let raf = this.raf;
 			this.raf = null;
+			window.cancelAnimationFrame(raf);
+			document.removeEventListener("keydown", this.keydownEventListener, true);
 		}
 	}
 
-	unfreezeMatch() {
-		if (this.raf === null) {
-			console.log("Unfreeze");
-			document.addEventListener("keydown", this.keydownEventListener.bind(this), true);
-			this.raf = window.requestAnimationFrame(this.gameLoop);
-			this.lastTime = 0;
-		}
-	}
+	// unfreezeMatch() {
+	// 	if (this.raf === null) {
+	// 		console.log("Unfreeze");
+	// 		document.addEventListener("keydown", this.keydownEventListener.bind(this), true);
+	// 		this.raf = window.requestAnimationFrame(this.gameLoop);
+	// 		this.lastTime = 0;
+	// 	}
+	// }
 
 	oponentPaddleMoved(side, position) {
 		if (side == this.side) {
@@ -240,7 +242,7 @@ export default class ComponentGameBoard extends HTMLElement {
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.width, this.height);
 				ctx.font="60px Monomaniac One";
-				ctx.textAlign="center"; 
+				ctx.textAlign="center";
 				ctx.textBaseline = "middle";
 				ctx.fillStyle = "#FFFFFF";
 				ctx.fillText(this.name, this.x + this.width/2, this.y + this.height/2);
@@ -264,7 +266,7 @@ export default class ComponentGameBoard extends HTMLElement {
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.width, this.height);
 				ctx.font="60px Monomaniac One";
-				ctx.textAlign="center"; 
+				ctx.textAlign="center";
 				ctx.textBaseline = "middle";
 				ctx.fillStyle = "#FFFFFF";
 				ctx.fillText(this.name, this.x + this.width/2, this.y + this.height/2);
@@ -380,8 +382,9 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.paddleRight.draw();
 			this.ball.draw();
 		}).bind(this);
-			
+
 		this.gameLoop = (timeStamp) => {
+			if (!this.raf) return;
 			if (!this.lastTime) this.lastTime = Date.now();
 
 			const deltaTime = timeStamp - this.lastTime;
