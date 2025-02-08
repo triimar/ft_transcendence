@@ -6,11 +6,6 @@ networks:
 volumes:
   db_sql:
     name: db_sql
-    driver: local
-    driver_opts:
-      o: "bind"
-      type: none
-      device: ./db_sql
 
 services:
   db_redis:
