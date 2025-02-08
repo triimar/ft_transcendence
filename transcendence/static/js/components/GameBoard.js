@@ -430,6 +430,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		};
 
 		this.keydownEventListener = ((e) => {
+			console.log("online event listener: " + this.gameMode)
 			if (!this.isRunning)
 				return;
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
