@@ -354,6 +354,11 @@ async def set_player_ready_for_match(room_id, match_index, player_id):
     )
     await redis_instance.json().set("player_data", f"$.{player_id}.score", 0)
 
+async def set_match_ready_to_zero(room_id, match_index):
+    redis_instance = get_redis_client()
+    await redis_instance.json().set(
+        "room_data", f"$.{room_id}.matches[{match_index}].ready", 0
+    )
 
 async def set_ball_bounce(room_id, match_index, ball):
     redis_instance = get_redis_client()
