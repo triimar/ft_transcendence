@@ -63,6 +63,6 @@
 	"balance-mode-txt": "KR balance",
 	"classic-mode-txt": "KR classic",
 	"local-mode-txt": "KR local",
-	"balance-mode-description": "KR Your avatar get smaller the more you score",
-	"classic-mode-description": "KR You play pong with your friend normally"
+	"balance-mode-description": "KRYour paddle changes size depending who is in the lead!",
+	"classic-mode-description": "KRPlay a classic game of pong!"
 }

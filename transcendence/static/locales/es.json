@@ -63,6 +63,6 @@
 	"balance-mode-txt": "ES balance",
 	"classic-mode-txt": "ES classic",
 	"local-mode-txt": "ES local",
-	"balance-mode-description": "ES Your avatar get smaller the more you score",
-	"classic-mode-description": "ES You play pong with your friend normally"
+	"balance-mode-description": "ESYour paddle changes size depending who is in the lead!",
+	"classic-mode-description": "ESPlay a classic game of pong!"
 }
