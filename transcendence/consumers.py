@@ -184,6 +184,9 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         event_update_max_num =  {"type": "broadcast.update.maxplayernum", "room_id": room_id, "max_player_num": max_player_num}
                         await self.channel_layer.group_send(self.room_group_name, event_update_max_num)
                         await self.channel_layer.group_send(self.lobby_group_name, event_update_max_num)
+                        if (max_player_num == 1):
+                            event_ready_player_one = {"type": "broadcast.update.preparegame", "room_id": room_id, "player_id": self.player_id, "all_prepared": True}
+                            await self.channel_layer.group_send(self.room_group_name, event_ready_player_one)
                     case data.RedisError.NOROOMFOUND:
                         await self.send(text_data=json.dumps({"type": "error", "message_key": ErrorMessages.ROOM_NOT_FOUND.value, "redirect_hash": "main"}))
                     case data.RedisError.MAXROOMPLAYERSREACHED:
