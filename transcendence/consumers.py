@@ -497,13 +497,21 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game, "finished_match":self.match_id}
                     await self.channel_layer.group_send(self.room_group_name, event)
 
+                # Check if opponent is disconnect
+                opponent_is_disconnected = False
+                if opponent_id:
+                    for player in room["avatars"]:
+                        if player["player_id"] == opponent_id:
+                            if player["disconnected"]:
+                                opponent_is_disconnected = True
+                                break
                 # Check if opponent left
                 opponent_is_left = False
                 room = await data.get_one_room_data(self.room_group_name)
                 if not any(player["player_id"] == opponent_id for player in room["avatars"]):
                     opponent_is_left = True
                 # If both left during countdown: self.player_id is the latter one who left the match during countdown
-                if match_status == data.MatchStatus.BEFORE_START and opponent_is_left:
+                if match_status == data.MatchStatus.BEFORE_START and (opponent_is_left or opponent_is_disconnected):
                     await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
                     winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
                     is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
