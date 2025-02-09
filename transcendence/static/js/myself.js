@@ -410,7 +410,8 @@ class Visitor {
 					closePopup("tournament-tree-popup")
 					let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
 					await gameboard.countdown();
-					this.sendMessagePlayerMatchReady();
+					if (this.timeoutId == null)
+						this.sendMessagePlayerMatchReady();
 				} else if (this.timeoutId != null) {
 					clearTimeout(this.timeoutId);
 					this.timeoutId = null;
