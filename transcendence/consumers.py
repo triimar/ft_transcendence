@@ -360,7 +360,6 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             if not is_last_game:
                 next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
                 await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
-                # self.match_id = next_match_id
             event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game, "finished_match":self.match_id}
             await self.channel_layer.group_send(self.room_group_name, event)
         elif (game_match['ready'] == 2):
@@ -462,23 +461,57 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(match_group_name, event_leave_match)
 
         opponent_id = await data.get_opponent(self.room_group_name, self.match_id, self.player_id)
+        match_status = await data.check_match_status(self.room_group_name, self.match_id)
 
+        # Check if opponent left
+        opponent_is_left = False
+        if opponent_id:
+            if not any(player["player_id"] == opponent_id for player in room["avatars"]):
+                opponent_is_left = True
         # check if opponent is ai or not exist or normal player
         if opponent_id:
-            # when opponent is normal player, do nothing
-            if opponent_id == "ai":
-                # when opponent is ai
-                await data.set_match_winner(self.room_group_name, self.match_id, opponent_id)
-                winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
-                is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
+            if opponent_id == "ai":  # when opponent is ai
                 await data.reset_ai_score(self.room_group_name)
-                if not is_last_game:
-                    next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
-                    await data.set_player_in_next_match(self.room_group_name, next_match_id, opponent_id)
-                    event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game, "opponent_go_next": next_match_id, "finished_match":self.match_id}
-                else:
+                if match_status != data.MatchStatus.FINISHED:
+                    await data.set_match_winner(self.room_group_name, self.match_id, opponent_id)
+                    winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
+                    is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
+                    if not is_last_game:
+                        next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
+                        await data.set_player_in_next_match(self.room_group_name, next_match_id, opponent_id)
+                        event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game, "opponent_go_next": next_match_id, "finished_match":self.match_id}
+                    else:
+                        event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game, "finished_match":self.match_id}
+                    await self.channel_layer.group_send(self.room_group_name, event)
+            else: # when opponent is normal player
+
+                if match_status == data.MatchStatus.ONGOING:
+                    await data.set_match_winner(self.room_group_name, self.match_id, opponent_id)
+                    winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
+                    is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
+                    if not is_last_game:
+                        next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
+                        await data.set_player_in_next_match(self.room_group_name, next_match_id, opponent_id)
+                        event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game, "opponent_go_next": next_match_id, "finished_match":self.match_id}
+                    else:
+                        event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game, "finished_match":self.match_id}
+                    await self.channel_layer.group_send(self.room_group_name, event)
+
+                # Check if opponent left
+                opponent_is_left = False
+                room = await data.get_one_room_data(self.room_group_name)
+                if not any(player["player_id"] == opponent_id for player in room["avatars"]):
+                    opponent_is_left = True
+                # If both left during countdown: self.player_id is the latter one who left the match during countdown
+                if match_status == data.MatchStatus.BEFORE_START and opponent_is_left:
+                    await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
+                    winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
+                    is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
+                    if not is_last_game:
+                        next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
+                        await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
                     event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game, "finished_match":self.match_id}
-                await self.channel_layer.group_send(self.room_group_name, event)
+                    await self.channel_layer.group_send(self.room_group_name, event)
         else:
             # opponent is empty
             pass

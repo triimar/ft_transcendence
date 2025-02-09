@@ -17,6 +17,11 @@ class RedisError(Enum):
     GAMEALREADYSTARTED = 6
     NOMATCHFOUND = 7
 
+class MatchStatus(Enum):
+    FINISHED = 0
+    BEFORE_START = 1
+    ONGOING = 2
+
 
 BALL_VELOCITY_X = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
 BALL_VELOCITY_Y = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6]
@@ -325,6 +330,7 @@ async def generate_matches(room_id, self_player_id) -> list[str]:
     matches = []
     for idx in range(match_nums):
         match = dict()
+        match["started"] = False
         match["ready"] = 0
         if idx <= match_nums // 2:
             match["players"] = [
@@ -349,6 +355,10 @@ async def generate_matches(room_id, self_player_id) -> list[str]:
 
 async def set_player_ready_for_match(room_id, match_index, player_id):
     redis_instance = get_redis_client()
+
+    await redis_instance.json().set(
+        "room_data", f"$.{room_id}.matches[{match_index}].started", True)
+
     await redis_instance.json().numincrby(
         "room_data", f"$.{room_id}.matches[{match_index}].ready", 1
     )
@@ -523,3 +533,16 @@ async def is_match_end(room_id, match_id):
     room = await get_one_room_data(room_id)
 
     return room["matches"][match_id]["winner"] != ""
+
+async def check_match_status(room_id, match_id):
+    room = await get_one_room_data(room_id)
+
+    # check if match finished first
+    if (await is_match_end(room_id, match_id)):
+        return MatchStatus.FINISHED
+
+    if room["matches"][match_id]["started"] == True:
+        return MatchStatus.ONGOING
+
+    if room["matches"][match_id]["started"] == False:
+        return MatchStatus.BEFORE_START
