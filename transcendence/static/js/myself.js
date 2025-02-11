@@ -12,7 +12,9 @@ class Visitor {
 		this.avatar_bg_color = null;
 		this.ws = null;
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
+		this.retryWhenDisconnected = true; // NOTE(HeiYiu): revert back to true when consumed
 		this.reconnectCount = 0;
+		this.timeoutId = null;
 	}
 
 	#getCookie(name) {
@@ -43,8 +45,8 @@ class Visitor {
 			}
 		}
 		catch (error) {
-			console.error(error);	
-			this.displayPopupMessage(i18next.t("error.failed-to-verify"));	
+			console.error(error);
+			this.displayPopupMessage(i18next.t("error.failed-to-verify"));
 		}
 		return false;
 	}
@@ -112,6 +114,9 @@ class Visitor {
 		this.avatar_bg_color = null;
 		localStorage.removeItem("login_method");
 		document.cookie = 'jwt=; Max-Age=-99999999;';
+		this.retryWhenDisconnected = false;
+		this.ws.close();
+		this.ws = null;
 	}
 
 	connectWs() {
@@ -249,6 +254,7 @@ class Visitor {
 				if (message["player_id"] != this.id) {
 					let roomId = message["room_id"];
 					if (this.pageName == "main") {
+						console.log("page name: " + this.pageName)
 						let rooms = this.page.container.querySelectorAll("td-lobby-room");
 						for (let room of rooms) {
 							if (room.getAttribute("room-id") == roomId) {
@@ -390,12 +396,8 @@ class Visitor {
 			case "ack_join_match": {
 				this.firstLayerPlayers = message["players"];
 				await this.waitForPageToRender();
-				openPopup("tournament-tree-popup")
-				await sleep(5000);
-				closePopup("tournament-tree-popup")
-				// Note(HeiYiu): show leaderboard with 5 seconds loading animation
 				let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
-				await gameboard.countdown();
+				// await gameboard.setGameState(message["game_state"]);
 				this.sendMessagePlayerMatchReady();
 			} break;
 			case "b_join_match": {
@@ -408,11 +410,24 @@ class Visitor {
 					closePopup("tournament-tree-popup")
 					let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
 					await gameboard.countdown();
+					if (this.timeoutId == null)
+						this.sendMessagePlayerMatchReady();
+				} else if (this.timeoutId != null) {
+					clearTimeout(this.timeoutId);
+					this.timeoutId = null;
 					this.sendMessagePlayerMatchReady();
 				}
 			} break;
 			case "b_leave_match": {
-				
+				let opponentId = message["left_opponent"];
+				if (opponentId != this.id) {
+					let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
+					gameboard.freezeMatch();
+					this.timeoutId = setTimeout(() => {
+						this.sendMessageWin();
+						this.timeoutId = null;
+					}, 10000);
+				}
 			} break;
 			case "b_start_match": {
 				await this.waitForPageToRender();
@@ -532,16 +547,22 @@ class Visitor {
 			}
 		});
 		this.ws.addEventListener("close", (event) => {
-			if (this.reconnectCount >= 3) {
-				console.log("Websocket connection is closed");
-				this.displayPopupMessage(i18next.t("error.connection-lost-3-times"));
-				this.reconnectCount = 0;
-				window.location.hash = "#login";
+			if (this.retryWhenDisconnected) {
+				this.ws = null;
+				if (this.reconnectCount >= 3) {
+					console.log("Websocket connection is closed");
+					this.displayPopupMessage(i18next.t("error.connection-lost-3-times"));
+					this.displayPopupMessage("Connection lost");
+					this.reconnectCount = 0;
+					window.location.hash = "#login";
+				} else {
+					console.log("Websocket connection is being restarted");
+					this.displayPopupMessage(i18next.t("error.connection-lost"));
+					this.reconnectCount++;
+					setTimeout(this.connectWs.bind(this), 1000);
+				}
 			} else {
-				console.log("Websocket connection is being restarted");
-				this.displayPopupMessage(i18next.t("error.connection-lost"));
-				this.reconnectCount++;
-				setTimeout(this.connectWs.bind(this), 1000);
+				this.retryWhenDisconnected = true;
 			}
 		});
 	}
@@ -637,6 +658,13 @@ class Visitor {
 		this.sendMessage(JSON.stringify(message));
 	}
 
+	sendMessageLeaveMatch() {
+		let message = {
+			type: "leave_match"
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
 	sendMessageChangeMaxPlayer(roomId, maxPlayer) {
 		let message = {
 			type: "max_player",
@@ -701,6 +729,13 @@ class Visitor {
 			type: "update_mode",
 			room_id: roomId,
 			mode: modeName
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageWin() {
+		let message = {
+			type: "you_win"
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
