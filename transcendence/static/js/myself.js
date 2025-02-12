@@ -404,13 +404,15 @@ class Visitor {
 				let id = message["player_id"];
 				if (id == this.id) {
 					await this.waitForPageToRender();
+					let joinedGameIndex = this.gameIndex;
+					let joinedRoomId = this.roomId;
 					openPopup("tournament-tree-popup")
 					await sleep(5000);
 					// Note(HeiYiu): show leaderboard with 5 seconds loading animation
 					closePopup("tournament-tree-popup")
 					let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
 					await gameboard.countdown();
-					if (this.timeoutId == null)
+					if ((this.timeoutId == null) && (this.roomId == joinedRoomId) && (this.gameIndex == joinedGameIndex))
 						this.sendMessagePlayerMatchReady();
 				} else if (this.timeoutId != null) {
 					clearTimeout(this.timeoutId);
@@ -423,7 +425,10 @@ class Visitor {
 				if (opponentId != this.id) {
 					let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
 					gameboard.freezeMatch();
+					let joinedGameIndex = this.gameIndex;
+					let joinedRoomId = this.roomId;
 					this.timeoutId = setTimeout(() => {
+						if ((this.roomId == joinedRoomId) && (this.gameIndex == joinedGameIndex))
 						this.sendMessageWin();
 						this.timeoutId = null;
 					}, 10000);

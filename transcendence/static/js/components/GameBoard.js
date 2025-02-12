@@ -467,11 +467,12 @@ export default class ComponentGameBoard extends HTMLElement {
 	disconnectedCallback() {
 		document.removeEventListener("keydown", this.keydownEventListener, true);
 		window.cancelAnimationFrame(this.raf);
+		this.raf = null;
 	}
 
 	updateBall() {
 		// Only one player is able to update the ball position
-		if (this.side === 0 || !this.isRunning)
+		if (this.raf == null || this.side === 0 || !this.isRunning)
 			return
 		myself.sendMessage(JSON.stringify({
 			'type': 'bounce_ball',
@@ -484,7 +485,7 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	paddleMove() {
-		if (!this.isRunning)
+		if (this.raf == null || !this.isRunning)
 			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'paddle_move',
@@ -493,7 +494,7 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	scorePoint() {
-		if (!this.isRunning)
+		if (this.raf == null || !this.isRunning)
 			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'scored_point'
