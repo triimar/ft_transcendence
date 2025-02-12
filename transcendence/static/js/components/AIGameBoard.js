@@ -26,7 +26,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			let intervalId = setInterval(() => {
 				let countdownText = blocker.children[0];
 				if (seconds == 0) {
-					countdownText.textContent = "Start";
+					countdownText.textContent = i18next.t("game.start-txt");
 					clearInterval(intervalId);
 					resolve();
 				} else {
@@ -104,7 +104,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		this.ball.vx = ball["velocity"]["vx"];
 		this.ball.vy = ball["velocity"]["vy"];
 		this.paddleLeft.name = myself["avatar_emoji"];
-		this.paddleLeft.color = '#' + myself["avatar_bg_color"];
+		this.paddleLeft.color = myself["avatar_bg_color"];
 		this.tempBall = this.ball;
 
 		this.ball.draw();
