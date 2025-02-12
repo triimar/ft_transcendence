@@ -329,6 +329,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     self.joined_group = ["room", "match"]
 
     async def start_match(self):
+        print(self.room_group_name)
+        print(self.match_id)
         await data.set_player_ready_for_match(self.room_group_name, self.match_id, self.player_id)
         room = await data.get_one_room_data(self.room_group_name)
         opponent_id = await data.get_opponent(self.room_group_name, self.match_id, self.player_id)
@@ -464,10 +466,10 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         match_status = await data.check_match_status(self.room_group_name, self.match_id)
 
         # Check if opponent left
-        opponent_is_left = False
-        if opponent_id:
-            if not any(player["player_id"] == opponent_id for player in room["avatars"]):
-                opponent_is_left = True
+        # opponent_is_left = False
+        # if opponent_id:
+        #     if not any(player["player_id"] == opponent_id for player in room["avatars"]):
+        #         opponent_is_left = True
         # check if opponent is ai or not exist or normal player
         if opponent_id:
             if opponent_id == "ai":  # when opponent is ai
@@ -497,6 +499,11 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                         event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "is_last_game": is_last_game, "finished_match":self.match_id}
                     await self.channel_layer.group_send(self.room_group_name, event)
 
+                # Check if opponent left
+                opponent_is_left = False
+                room = await data.get_one_room_data(self.room_group_name)
+                if not any(player["player_id"] == opponent_id for player in room["avatars"]):
+                    opponent_is_left = True
                 # Check if opponent is disconnect
                 opponent_is_disconnected = False
                 if opponent_id:
@@ -505,11 +512,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                             if player["disconnected"]:
                                 opponent_is_disconnected = True
                                 break
-                # Check if opponent left
-                opponent_is_left = False
-                room = await data.get_one_room_data(self.room_group_name)
-                if not any(player["player_id"] == opponent_id for player in room["avatars"]):
-                    opponent_is_left = True
+
                 # If both left during countdown: self.player_id is the latter one who left the match during countdown
                 if match_status == data.MatchStatus.BEFORE_START and (opponent_is_left or opponent_is_disconnected):
                     await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
