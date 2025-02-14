@@ -11,6 +11,7 @@ import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
 import ComponentLanguageSelector from "./components/LanguageSelector.js";
+import ComponentIdCard from "./components/IdCard.js";
 import { initializeI18n, updateGlobalTranslations } from "./translation.js";
 import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain, PageLocalGame } from "./pages.js";
 
@@ -105,7 +106,7 @@ async function main() {
 			}
 		});
 		avatarChangeButton.addEventListener("click", () => {
-			if (myself.gameInde == null) {
+			if (myself.gameIndex == null) {
 				closePopup("avatar-info-popup");
 				let emoji = avatarNameTextInput.value;
 				let background = document.querySelector("#color-selection-container > .chosen")?.getAttribute("color");
@@ -352,3 +353,4 @@ window.customElements.define("td-button", ComponentButton);
 window.customElements.define("td-lever", ComponentLever);
 window.customElements.define("td-tournament-tree", ComponentTournamentTree);
 window.customElements.define("td-language-selector", ComponentLanguageSelector);
+window.customElements.define("td-id-card", ComponentIdCard);

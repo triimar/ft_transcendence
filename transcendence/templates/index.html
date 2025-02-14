@@ -119,6 +119,10 @@
 </template>
 <template id="page-local-game">
 	<td-navigation-bar></td-navigation-bar>
+	<div style="display: flex; flex-direction: row;">
+		<td-id-card style="width: 50%;" class="ui"></td-id-card>
+		<td-id-card style="width: 50%;" class="ui"></td-id-card>
+	</div>
 	<td-local-game-board class="ui" style="box-sizing: content-box;"></td-local-game-board>
 </template>
 <template id="page-room">
@@ -570,5 +574,47 @@
         <option value="es" aria-label="Spanish - Screen reader support may be limited">ESPAÑOL</option>
 		<option value="kr" aria-label="Korean - Screen reader support may be limited">한국어</option>
     </select>
+</template>
+<template id="component-id-card">
+	<style>
+		:host {
+			padding: 1em;
+		}
+
+		#color-selection-container > * {
+			border: 0;
+			width: 2em;
+			height: 2em;
+		}
+
+		#color-selection-container > *.chosen {
+			border: 0.3em solid var(--td-ui-font-color);
+		}
+
+		.disable-click {
+			opacity: 0.5;
+			pointer-events: none;
+		}
+	</style>
+			<form action="" style="width: 100%; display: flex; flex-direction: column;">
+				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+					<td-avatar></td-avatar>
+				</div>
+				<label for="id-card-name" id="id-card-name-text"></label>
+				<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" aria-label="Insert new name" style="outline: none; border: 0.1em solid var(--td-ui-font-color); font-size: var(--td-font-size);" autocomplete="none">
+				<div id="id-card-background-text" ></div>
+				<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
+					<button type="button" style="background: #ff4d6d" color="#ff4d6d" aria-label="Set Avatar Background Red"></button>
+					<button type="button" style="background: #045d75" color="#045d75" aria-label="Set Avatar Background Teal"></button>
+					<button type="button" style="background: #4ba3c7" color="#4ba3c7" aria-label="Set Avatar Background Blue"></button>
+					<button type="button" style="background: #007f5f" color="#007f5f" aria-label="Set Avatar Background Green"></button>
+					<button type="button" style="background: #ffe156" color="#ffe156" aria-label="Set Avatar Background Yellow"></button>
+					<button type="button" style="background: #a01a58" color="#a01a58" aria-label="Set Avatar Background Magenta"></button>
+					<button type="button" style="background: #ff5da2" color="#ff5da2" aria-label="Set Avatar Background Pink"></button>
+					<button type="button" style="background: #001f54" color="#001f54" aria-label="Set Avatar Background Dark Blue"></button>
+				</div>
+			</form>
+		</div>
+	</div>
 </template>
 </html>

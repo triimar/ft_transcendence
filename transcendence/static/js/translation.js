@@ -60,6 +60,10 @@ function assignTranslation(elementId, translationKey) {
 export function updateGlobalTranslations() {
     if (!isI18nInitialized) return; // Ensure i18n is initialized
 
+		const idCards = document.querySelectorAll("td-id-card");
+		for (let idCard of idCards) {
+			idCard.updateTranslation();
+		}
     const translations = [
         { id: "footer-authors", key: "footer.authors" },
 		{ id: "text-size", key: "footer.text-size" },
