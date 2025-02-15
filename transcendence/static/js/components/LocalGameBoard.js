@@ -477,17 +477,16 @@ export default class ComponentGameBoard extends HTMLElement {
 		};
 		
 		this.keyupEventListener = ((e) => {
+			if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
+				// Prevent the default action (scrolling)
+				e.preventDefault();
+			}
 			this.keysPressed[e.key.toLowerCase()] = false;
-			e.preventDefault();
 		}).bind(this)
 
 		this.keydownEventListener = ((e) => {
 			if (!this.isRunning)
 				return;
-			// if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
-			// 	// Prevent the default action (scrolling)
-			// 	e.preventDefault();
-			// }
 			// switch (e.key) {
 			// 	case "s":
 			// 		this.paddleLeft.y += this.paddleLeft.vy;
