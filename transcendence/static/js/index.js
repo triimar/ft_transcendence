@@ -273,6 +273,7 @@ function analysisPageHash(pageHash) {
 	case "error":
 	case "login":
 	case "main":
+	case "local-game":
 		pageName = pageHash; break;
 	default: {
 		if (pageHash.startsWith("room")) {
@@ -286,10 +287,6 @@ function analysisPageHash(pageHash) {
 				gameIndex = parseInt(pageHash.substring(index + 8));
 			} else if (pageHash.startsWith("game", index + 1)) {
 				pageName = "game";
-				roomId = pageHash.substring(4, index);
-				gameIndex = parseInt(pageHash.substring(index + 5));
-			} else if (pageHash.startsWith("local-game", index + 1)) {
-				pageName = "local-game";
 				roomId = pageHash.substring(4, index);
 				gameIndex = parseInt(pageHash.substring(index + 5));
 			}
@@ -326,8 +323,8 @@ function sendInitMessage(pageName, roomId, gameIndex) {
 	switch (pageName) {
 	case "error":
 	case "login":
-		break;
 	case "local-game":
+		break;
 	case "game":
 	case "ai-game":
 		myself.sendMessageJoinMatch(roomId, gameIndex);
