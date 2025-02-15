@@ -131,18 +131,36 @@
 			width: 100%;
 		}
 
+		.id-card-container {
+			display: flex;
+			flex-direction: row;
+		}
+
+		.id-card-container > * {
+			width: 50%;
+		}
+
 		.hide {
 			display: none;
 		}
 
+		@media screen and (max-width: 600px) {
+			.id-card-container {
+				flex-direction: column;
+			}
+
+			.id-card-container > * {
+				width: 100%;
+			}
+		}
 	</style>
 	<td-navigation-bar>
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-room" class="ui" onclick="window.location.hash = '#main'"><p id="exit-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 	<div class="registration-container">
-		<div style="display: flex; flex-direction: row;">
-			<td-id-card id="player0-info" style="width: 50%;" class="ui"></td-id-card>
-			<td-id-card id="player1-info" style="width: 50%;" class="ui"></td-id-card>
+		<div class="id-card-container">
+			<td-id-card id="player0-info" class="ui"></td-id-card>
+			<td-id-card id="player1-info" class="ui"></td-id-card>
 		</div>
 		<td-room-setting-mode id="room-mode-buttons" class="ui" aria-live="polite"></td-room-setting-mode>
 		<td-button id="start-game-button" class="ui" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button>
