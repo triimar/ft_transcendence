@@ -384,7 +384,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		}).bind(this);
 
 		this.gameLoop = (timeStamp) => {
-			if (!this.raf) return;
+			if (!this.isRunning)
+				return;
 			if (!this.lastTime) this.lastTime = Date.now();
 
 			const deltaTime = timeStamp - this.lastTime;
@@ -397,8 +398,10 @@ export default class ComponentGameBoard extends HTMLElement {
 				accumulatedTime -= updateInterval;
 			}
 
-			this.draw();
-			this.raf = window.requestAnimationFrame(this.gameLoop);
+			if (this.isRunning) {
+				this.draw();
+				this.raf = window.requestAnimationFrame(this.gameLoop);
+			}
 		};
 
 		// Add touch event listeners to the canvas
@@ -472,8 +475,8 @@ export default class ComponentGameBoard extends HTMLElement {
 
 	updateBall() {
 		// Only one player is able to update the ball position
-		if (this.raf == null || this.side === 0 || !this.isRunning)
-			return
+		if (this.side === 0 || !this.isRunning)
+			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'bounce_ball',
 			'ball': {
@@ -485,7 +488,7 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	paddleMove() {
-		if (this.raf == null || !this.isRunning)
+		if (!this.isRunning)
 			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'paddle_move',
@@ -494,7 +497,7 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	scorePoint() {
-		if (this.raf == null || !this.isRunning)
+		if (!this.isRunning)
 			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'scored_point'

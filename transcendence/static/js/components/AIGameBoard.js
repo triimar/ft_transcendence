@@ -39,6 +39,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 	}
 
 	displayMatchResult(winner) {
+		this.isRunning = false;
 		let gameStatusLive = this.shadow.getElementById('game-status-live');
 		gameStatusLive.textContent = ""
 		const canvas = this.shadow.querySelector("canvas");
@@ -142,7 +143,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		const aiUpdateInterval = 1000;
 		const aiMoveInterval = 3;
 		this.gameMode = GameMode.Default;
-		let raf;
+		this.isRunning = true;
 
 		this.score = {
 			player: 0,
@@ -360,8 +361,9 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			this.ball.draw();
 		}).bind(this);
 
-		this.gameLoop = ((timeStamp) => {
-			if (!this.raf) return;
+		this.gameLoop = (function(timeStamp) {
+			if (!this.isRunning)
+				return;
 			if (!this.lastLoop) this.lastLoop = Date.now();
 
 			const deltaTime = timeStamp - this.lastLoop;
@@ -391,8 +393,10 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				this.ai.moveFactor = 0;
 			}
 
-			this.draw();
-			this.raf = window.requestAnimationFrame(this.gameLoop);
+			if (this.isRunning) {
+				this.draw();
+				this.raf = window.requestAnimationFrame(this.gameLoop);
+			}
 		}).bind(this);
 
 
@@ -462,7 +466,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 	}
 
 	scorePointPlayer() {
-		if (this.raf == null || !this.isRunning)
+		if (!this.isRunning)
 			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'ai_score_player'
@@ -470,7 +474,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 	}
 
 	scorePointAI() {
-		if (this.raf == null || !this.isRunning)
+		if (!this.isRunning)
 			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'ai_score_ai'
