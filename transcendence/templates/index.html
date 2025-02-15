@@ -173,6 +173,14 @@
 			top: 0;
 			z-index: 10;
 		}
+
+		@media screen and (max-width: 500px) {
+			td-navigation-bar td-button p {
+				font-size: 0.5em;
+				font-weight: bold;
+			}
+		}
+
 	</style>
 	<td-navigation-bar>
 		<td-button id="add-local-game-btn" class="ui" aria-label="Play Local Game" tabindex="0" onclick="window.location.hash = '#local-game'"><p id="add-local-game" class="ui-text"></p></td-button>
