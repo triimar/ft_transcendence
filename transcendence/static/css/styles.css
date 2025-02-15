@@ -63,6 +63,21 @@ td-navigation-bar {
 	margin: 1em 0;
 }
 
+@media screen and (max-width: 500px) {
+	td-navigation-bar {
+		margin-top: 0;
+	}
+
+	td-navigation-bar td-button p {
+		font-size: 0.5em;
+		font-weight: bold;
+	}
+
+	td-navigation-bar td-button img {
+		width: calc(var(--td-avatar-width) / 2);
+	}
+}
+
 .ui {
 	border: var(--td-border-size) solid var(--td-ui-font-color);
 	box-sizing: border-box;
@@ -259,12 +274,3 @@ footer {
 	}
 }
 
-@media screen and (max-width: 500px) {
-	td-navigation-bar td-button p {
-		font-size: 0.5em;
-		font-weight: bold;
-	}
-	td-navigation-bar td-button img {
-		width: calc(var(--td-avatar-width) / 2);
-	}
-}
