@@ -197,3 +197,18 @@ main {
 	opacity: 0.5;
 	pointer-events: none;
 }
+
+footer {
+	min-width: 70%;
+	width: fit-content;
+	margin-top: auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+@media screen and (max-width: 600px) {
+	footer {
+		flex-direction: column;
+	}
+}
