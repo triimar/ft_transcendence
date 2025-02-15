@@ -86,8 +86,6 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     else:
                         # opponent is empty
                         pass
-                    event = {"type": "broadcast.leave.room", "room_id": self.room_group_name, "player_id": self.player_id}
-                    await self.channel_layer.group_send(self.room_group_name, event)
 
                     # Check if need to delete the room
                     if (await data.is_last_one_in_room(self.room_group_name, self.player_id)):
