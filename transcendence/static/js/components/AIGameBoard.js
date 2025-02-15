@@ -360,7 +360,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			this.ball.draw();
 		}).bind(this);
 
-		this.gameLoop = (function(timeStamp) {
+		this.gameLoop = ((timeStamp) => {
+			if (!this.raf) return;
 			if (!this.lastLoop) this.lastLoop = Date.now();
 
 			const deltaTime = timeStamp - this.lastLoop;
@@ -459,7 +460,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 	}
 
 	scorePointPlayer() {
-		if (!this.isRunning)
+		if (this.raf == null || !this.isRunning)
 			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'ai_score_player'
@@ -467,7 +468,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 	}
 
 	scorePointAI() {
-		if (!this.isRunning)
+		if (this.raf == null || !this.isRunning)
 			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'ai_score_ai'
