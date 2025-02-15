@@ -114,11 +114,6 @@ export default class ComponentGameBoard extends HTMLElement {
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		document.addEventListener("keyup", this.keyupEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
-		let gameStatusLive = this.shadow.getElementById('game-status-live');
-		if (this.side == 0)
-			gameStatusLive.textContent = "Using paddle on the left. Use the arrow keys to move the paddle up and down."
-		else
-			gameStatusLive.textContent = "Using paddle on the right. Use the arrow keys to move the paddle up and down."
 	}
 
 	freezeMatch() {
@@ -171,6 +166,9 @@ export default class ComponentGameBoard extends HTMLElement {
 		}
 		if (this.score.left >= 5 || this.score.right >= 5)
 			this.displayMatchResult(side);
+	//NOT WORKING FOR UNKNOWN REASON
+		let gameStatusLive = this.shadow.getElementById('game-status-live');
+		gameStatusLive.textContent = (`Score: ${this.score.left}, ${this.score.right}`)
 	}
 
 	ballBounced(message) {

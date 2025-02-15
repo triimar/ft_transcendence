@@ -57,11 +57,11 @@
     },
 	"tree-btn-txt": "Turnierbaum",
 	"add-room": "RAUM HINZUFÜGEN",
-	"add-local-game": "DE LOCAL GAME",
+	"add-local-game": "LOKALES SPIEL",
 	"exit-room": "RAUM VERLASSEN",
 	"exit-game": "SPIEL VERLASSEN",
 	"balance-mode-txt": "Balance",
-	"classic-mode-txt": "klassisch",
+	"classic-mode-txt": "Klassisch",
 	"local-mode-txt": "lokal",
 	"balance-mode-description": "Dein Paddel ändert seine Größe, je nachdem, wer an der Spitze steht!",
 	"classic-mode-description": "Spiele ein klassisches Pong-Spiel!"
