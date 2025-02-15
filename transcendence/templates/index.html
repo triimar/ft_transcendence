@@ -369,7 +369,7 @@
 			background: var(--td-ui-background-color);
 			display: flex;
 			flex-direction: row;
-			justify-content: space-between;
+			justify-content: center;
 			align-items: center;
 			gap: 1em;
 		}
@@ -388,6 +388,10 @@
 			justify-content: flex-end;
 			align-items: center;
 			gap: 1em;
+		}
+
+		#buttons-container > *, ::slotted(*) {
+			min-height: calc(var(--td-avatar-height) + (2 * var(--td-border-size)));
 		}
 
 		.ui {
@@ -412,6 +416,19 @@
 			50% {transform: rotate(3deg);}
 			75% {transform: rotate(-3deg);}
 			100% {transform: rotate(0deg);}
+		}
+
+		@media screen and (max-width: 500px) {
+			#buttons-container {
+				gap: 0.5em;
+			}
+		}
+
+		@media screen and (max-width: 700px) {
+			nav {
+				flex-direction: column;
+				gap: 0;
+			}
 		}
 	</style>
 	<nav>
