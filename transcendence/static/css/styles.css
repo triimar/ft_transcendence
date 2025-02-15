@@ -258,3 +258,13 @@ footer {
 		width: 60%;
 	}
 }
+
+@media screen and (max-width: 500px) {
+	td-navigation-bar td-button p {
+		font-size: 0.5em;
+		font-weight: bold;
+	}
+	td-navigation-bar td-button img {
+		width: calc(var(--td-avatar-width) / 2);
+	}
+}
