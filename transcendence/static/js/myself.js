@@ -381,11 +381,11 @@ class Visitor {
 					prepareButton.removeAttribute("disabled");
 					prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 					// Triin: not adding EventListener here to avoid adding the same EventListener one many times
-					// prepareButton.addEventListener("click", (e) => {
-					// 	console.log("BUTTON PRESSED");
-					// 	e.stopImmediatePropagation();
-					// 	this.sendMessageStartGame(this.roomId);
-					// }, {once: true});
+					prepareButton.addEventListener("click", (e) => {
+						console.log("BUTTON PRESSED");
+						e.stopImmediatePropagation();
+						this.sendMessageStartGame(this.roomId);
+					}, {once: true});
 				}
 			} break;
 			case "b_start_game": {
