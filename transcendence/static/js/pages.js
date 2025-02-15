@@ -340,6 +340,13 @@ export class PageLocalGame {
 				velocity: {vx: 2, vy: 2}
 			};
 			registrationContainer.classList.add("hide");
+			
+			const contentContainer = document.getElementsByClassName("content-container")[0];
+			const focusableElements = contentContainer.querySelectorAll(
+				'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select, [tabindex]:not([tabindex="-1"])'
+			);
+			if (focusableElements.length > 0) focusableElements[0].focus();
+
 			gameContainer.classList.remove("hide");
 			await gameBoard.countdown();
 			gameBoard.startMatch({players: [player0, player1], game_mode: gameMode, ball: ball, side: 0});
