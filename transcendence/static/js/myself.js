@@ -182,7 +182,17 @@ class Visitor {
 						if (this.roomOwnerIsMyself) {
 							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 							let avatars = roomElement.querySelectorAll("td-avatar");
+							let prepareButton = this.page.container.querySelector("#prepare-btn");
 							roomSizeButtons.changeMinSize(avatars.length > 1 ? avatars.length : 1);
+							// need to wait until new player is prepared
+							if (!prepareButton.hasAttribute("disabled")) {
+								console.log("disable now")
+								prepareButton.children[0].setAttribute("id", "prepare-btn-wait")
+								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
+								prepareButton.children[0].setAttribute("aria-hidden", "false")
+								prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-wait")
+								prepareButton.setAttribute("disabled", "");
+							}
 						}
 					}
 				}
@@ -275,10 +285,11 @@ class Visitor {
 						}
 						if (this.roomOwnerIsMyself) {
 							// Note(HeiYiu): Change the prepare button
-							let prepareButton = this.page.container.querySelector("#prepare-btn");
-							if (message["all_prepared"]) {
-								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
+							let prepareButton = this.page.container.querySelector("#prepare-btn")
+							let avatars = roomElement.querySelectorAll("td-avatar");
+							if (message["all_prepared"] && avatars != null && avatars.length > 1) {
 								prepareButton.children[0].setAttribute("id", "prepare-btn-start")
+								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
 								prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-start")
 								prepareButton.removeAttribute("disabled");
 								prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
@@ -286,17 +297,19 @@ class Visitor {
 									this.sendMessageStartGame(this.roomId);
 								}, {once: true});
 							} else {
-								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
 								prepareButton.children[0].setAttribute("id", "prepare-btn-wait")
+								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
 								prepareButton.children[0].setAttribute("aria-hidden", "false")
 								prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-wait")
+								prepareButton.addEventListener("click", () => {
+									this.sendMessageStartGame(this.roomId);
+								}, {once: true});
 								prepareButton.setAttribute("disabled", "");
 							}
 							let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
 							roomSizeButtons.style.display = "flex";
-							let avatars = roomElement.querySelectorAll("td-avatar");
 							if (avatars != null) {
-								roomSizeButtons.changeMinSize(avatars.length > 2 ? avatars.length : 2);
+								roomSizeButtons.changeMinSize(avatars.length > 1 ? avatars.length : 1);
 							}
 						}
 					}
@@ -306,8 +319,8 @@ class Visitor {
 			} break;
 			case "b_max_player": {
 				let maxPlayerNumber = message["max_player_num"];
+				let roomId = message["room_id"];
 				if (this.pageName == "main") {
-					let roomId = message["room_id"];
 					let rooms = this.page.container.querySelectorAll("td-lobby-room");
 					for (let room of rooms) {
 						if (room.getAttribute("room-id") == roomId) {
@@ -317,7 +330,20 @@ class Visitor {
 					}
 				} else if (this.pageName == "room") {
 					let roomElement = this.page.container.querySelector("td-lobby-room");
+					let prev_max = roomElement.getAttribute("room-max");
 					roomElement.setAttribute("room-max", maxPlayerNumber);
+					//Handle single player & AI game differently, start only allowed when maxSize=1
+					if (maxPlayerNumber == 1)
+						this.sendMessagePrepareGame(roomId)
+					if (prev_max == 1) {
+						let prepareButton = this.page.container.querySelector("#prepare-btn");
+						console.log("disable now")
+						prepareButton.children[0].setAttribute("id", "prepare-btn-wait")
+						prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
+						prepareButton.children[0].setAttribute("aria-hidden", "false")
+						prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-wait")
+						prepareButton.setAttribute("disabled", "");
+					}
 				}
 			} break;
 			case "b_prepare_game": {
@@ -349,16 +375,17 @@ class Visitor {
 				}
 				if (this.roomOwnerIsMyself && message["all_prepared"]) {
 					let prepareButton = this.page.container.querySelector("#prepare-btn");
-					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
 					prepareButton.children[0].setAttribute("id", "prepare-btn-start")
+					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-start");
 					prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-start")
 					prepareButton.removeAttribute("disabled");
 					prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
-					prepareButton.addEventListener("click", (e) => {
-						console.log("BUTTON PRESSED");
-						e.stopImmediatePropagation();
-						this.sendMessageStartGame(this.roomId);
-					}, {once: true});
+					// Triin: not adding EventListener here to avoid adding the same EventListener one many times
+					// prepareButton.addEventListener("click", (e) => {
+					// 	console.log("BUTTON PRESSED");
+					// 	e.stopImmediatePropagation();
+					// 	this.sendMessageStartGame(this.roomId);
+					// }, {once: true});
 				}
 			} break;
 			case "b_start_game": {
@@ -390,7 +417,7 @@ class Visitor {
 						await sleep(5000);
 						closePopup("tournament-tree-popup")
 						// Note(HeiYiu): show leaderboard with 5 seconds loading animation
-						let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
+						let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board,td-local-game-board");
 						await gameboard.countdown();
 						this.sendMessagePlayerMatchReady();
 						break;

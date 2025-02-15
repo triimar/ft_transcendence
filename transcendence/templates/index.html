@@ -25,8 +25,8 @@
 			</div>
 		</div>
 		<div id="avatar-info-popup" class="fullscreen-popup" aria-hidden="true" role="dialog" aria-modal="true" >
-			<div id="avatar-info" aria-describedby="id-card-text" class="ui" style="width: 24em; aspect-ratio: 1.9; position: relative">
-				<div style="position: absolute; width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
+			<div id="avatar-info" aria-describedby="id-card-text" class="ui" style="width: 24em; height: fit-content; position: relative">
+				<div style="width: 100%; height: fit-content; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
 					<h2 id="id-card-text" style="grid-column: 1 / 4; grid-row: 1;"></h2>
 					<div role="none" style="grid-column: 1; grid-row: 2; display: flex; justify-content: center; align-items: start;">
 						<td-avatar class="dummy-avatar"></td-avatar>
@@ -55,7 +55,7 @@
 						<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
 					</td-button>
 				</div>
-				<td-button class="ui close-btn" aria-label="Close the popup" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
+				<td-button class="ui close-btn" style="position: absolute;" aria-label="Close the popup" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
 			</div>
 		</div>
 		<div id="confirm-to-logout-popup" class="fullscreen-popup" aria-hidden="true">
@@ -118,8 +118,38 @@
 	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
 </template>
 <template id="page-local-game">
-	<td-navigation-bar></td-navigation-bar>
-	<td-game-board class="ui" style="box-sizing: content-box;"></td-game-board>
+	<style>
+		.registration-container {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5em;
+			align-items: center;
+		}
+
+		.registration-container > * {
+			width: 100%;
+		}
+
+		.hide {
+			display: none;
+		}
+
+	</style>
+	<td-navigation-bar>
+		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-room" class="ui" onclick="window.location.hash = '#main'"><p id="exit-room" class="ui-text"></p></td-button>
+	</td-navigation-bar>
+	<div class="registration-container">
+		<div style="display: flex; flex-direction: row;">
+			<td-id-card id="player0-info" style="width: 50%;" class="ui"></td-id-card>
+			<td-id-card id="player1-info" style="width: 50%;" class="ui"></td-id-card>
+		</div>
+		<td-room-setting-mode id="room-mode-buttons" class="ui" aria-live="polite"></td-room-setting-mode>
+		<td-button id="start-game-button" class="ui" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button>
+	</div>
+	<div id="game-container" class="hide">
+		<td-local-game-board class="ui" style="width: 100%; display: block; box-sizing: content-box;"></td-local-game-board>
+		<!-- <td-button id="restart-game-button" class="ui hide" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button> -->
+	</div>
 </template>
 <template id="page-room">
 	<style>
@@ -342,6 +372,7 @@
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
+			gap: 1em;
 		}
 
 		td-logo {
@@ -570,5 +601,47 @@
         <option value="es" aria-label="Spanish - Screen reader support may be limited">ESPAÑOL</option>
 		<option value="kr" aria-label="Korean - Screen reader support may be limited">한국어</option>
     </select>
+</template>
+<template id="component-id-card">
+	<style>
+		:host {
+			padding: 1em;
+		}
+
+		#color-selection-container > * {
+			border: 0;
+			width: 2em;
+			height: 2em;
+		}
+
+		#color-selection-container > *.chosen {
+			border: 0.3em solid var(--td-ui-font-color);
+		}
+
+		.disable-click {
+			opacity: 0.5;
+			pointer-events: none;
+		}
+	</style>
+			<form action="" style="width: 100%; display: flex; flex-direction: column;">
+				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+					<td-avatar></td-avatar>
+				</div>
+				<label for="id-card-name" id="id-card-name-text"></label>
+				<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" aria-label="Insert new name" style="outline: none; border: 0.1em solid var(--td-ui-font-color); font-size: var(--td-font-size);" autocomplete="none">
+				<div id="id-card-background-text" ></div>
+				<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
+					<button type="button" style="background: #ff4d6d" color="#ff4d6d" aria-label="Set Avatar Background Red"></button>
+					<button type="button" style="background: #045d75" color="#045d75" aria-label="Set Avatar Background Teal"></button>
+					<button type="button" style="background: #4ba3c7" color="#4ba3c7" aria-label="Set Avatar Background Blue"></button>
+					<button type="button" style="background: #007f5f" color="#007f5f" aria-label="Set Avatar Background Green"></button>
+					<button type="button" style="background: #ffe156" color="#ffe156" aria-label="Set Avatar Background Yellow"></button>
+					<button type="button" style="background: #a01a58" color="#a01a58" aria-label="Set Avatar Background Magenta"></button>
+					<button type="button" style="background: #ff5da2" color="#ff5da2" aria-label="Set Avatar Background Pink"></button>
+					<button type="button" style="background: #001f54" color="#001f54" aria-label="Set Avatar Background Dark Blue"></button>
+				</div>
+			</form>
+		</div>
+	</div>
 </template>
 </html>

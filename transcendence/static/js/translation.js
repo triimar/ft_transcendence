@@ -60,6 +60,10 @@ function assignTranslation(elementId, translationKey) {
 export function updateGlobalTranslations() {
     if (!isI18nInitialized) return; // Ensure i18n is initialized
 
+		const idCards = document.querySelectorAll("td-id-card");
+		for (let idCard of idCards) {
+			idCard.updateTranslation();
+		}
     const translations = [
         { id: "footer-authors", key: "footer.authors" },
 		{ id: "text-size", key: "footer.text-size" },
@@ -82,6 +86,7 @@ export function updateGlobalTranslations() {
 		{ id: "id-card-name-text", key: "popups.id-card-name-text" },
 		{ id: "id-card-background-text", key: "popups.id-card-background-text" },
 		{ id: "avatar-apply-change-text", key: "popups.avatar-apply-change-text"},
+		{ id: "start-game-text", key: "game.start-txt"},
     ];
     translations.forEach(({ id, key }) => assignTranslation(id, key));
 }

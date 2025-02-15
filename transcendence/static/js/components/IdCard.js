@@ -21,10 +21,11 @@ export default class ComponentIdCard extends HTMLElement {
 					colorOption.classList.remove("chosen");
 				}
 				e.target.classList.add("chosen");
-				let avatarElement = this.shadow.querySelector("#avatar-info td-avatar");
+				let avatarElement = this.shadow.querySelector("td-avatar");
 				avatarElement.setAttribute("avatar-background", e.target.getAttribute("color"));
 			}
 		}
+		colorSelectionFunc({target: colorSelectionContainer.children[0]});
 		colorSelectionContainer.addEventListener("click", colorSelectionFunc);
 		colorSelectionContainer.addEventListener("keydown", (e) => {
 			if ((e.key == "Enter") || (e.key == " ")) {
@@ -32,31 +33,15 @@ export default class ComponentIdCard extends HTMLElement {
 				e.target.click();
 			}
 		});
-		avatarChangeButton.addEventListener("click", () => {
-			if (myself.gameIndex == null) {
-				closePopup("avatar-info-popup");
-				let emoji = avatarNameTextInput.value;
-				let background = this.shadow.querySelector("#color-selection-container > .chosen")?.getAttribute("color");
-				background = background.slice(1); // Note(HeiYiu): remove #
-				// myself.changeAvatar(emoji, background);
-			} else {
-				// myself.displayPopupMessage(i18next.t("error.avatar-change-disabled"));
-			}
-		}, true);
 	}
 
 	updateTranslation() {
-		const translations = [
-			{ id: "id-card-text", key: "popups.id-card-text" },
+    const translations = [
 			{ id: "id-card-name-text", key: "popups.id-card-name-text" },
 			{ id: "id-card-background-text", key: "popups.id-card-background-text" },
-			{ id: "avatar-apply-change-text", key: "popups.avatar-apply-change-text"}
 		];
-		translations.forEach(({id, key}) => {
-			const element = this.shadow.getElementById(id);
-			if (element) {
-				element.textContent = i18next.t(key)
-			}
+		translations.forEach(({ id, key }) => {
+			this.shadow.getElementById(id).textContent = i18next.t(key);
 		});
 	}
 }

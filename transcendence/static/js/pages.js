@@ -325,7 +325,25 @@ export class PageLocalGame {
 	}
 
 	attachEvents() {
-
+		let registrationContainer = this.container.querySelector(".registration-container");
+		let gameContainer = this.container.querySelector("#game-container");
+		let startButton = this.container.querySelector("#start-game-button");
+		startButton.addEventListener("click", async () => {
+			let gameBoard = this.container.querySelector("td-local-game-board");
+			let gameMode = this.container.querySelector("td-room-setting-mode").getAttribute("room-mode");
+			let player0Avatar = this.container.querySelector("#player0-info").shadow.querySelector("td-avatar");
+			let player1Avatar = this.container.querySelector("#player1-info").shadow.querySelector("td-avatar");
+			let player0 = {player_emoji: player0Avatar.getAttribute("avatar-name"), player_bg_color: player0Avatar.getAttribute("avatar-background").slice(1)};
+			let player1 = {player_emoji: player1Avatar.getAttribute("avatar-name"), player_bg_color: player1Avatar.getAttribute("avatar-background").slice(1)};
+			let ball = {
+				position: {x: 600, y: 300},
+				velocity: {vx: 2, vy: 2}
+			};
+			registrationContainer.classList.add("hide");
+			gameContainer.classList.remove("hide");
+			await gameBoard.countdown();
+			gameBoard.startMatch({players: [player0, player1], game_mode: gameMode, ball: ball, side: 0});
+		});
 	}
 
 	removeEvents() {
