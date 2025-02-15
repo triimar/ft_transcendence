@@ -457,6 +457,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 	disconnectedCallback() {
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		window.cancelAnimationFrame(this.raf);
+		this.raf = null;
 	}
 
 	scorePointPlayer() {
