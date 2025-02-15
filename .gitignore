@@ -13,9 +13,6 @@ db.sqlite3
 # Static files
 staticfiles/
 
-# Environment variables
-.env
-
 # macOS files
 .DS_Store
 
@@ -38,3 +35,6 @@ pgadmin
 
 # test files
 tests
+
+#env
+.env

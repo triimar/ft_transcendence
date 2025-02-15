@@ -105,6 +105,12 @@ export class PageAiGame extends PageConfirmLeaveMatch {
 		});
 		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
 		avatarCustomizationForm.classList.add("disable-click");
+		let colorSeletionContainer = document.querySelector("#color-selection-container");
+		for (let colorOption of colorSeletionContainer.children) {
+			colorOption.setAttribute("disabled", true);
+		}
+		let inputName = document.querySelector("#id-card-name");
+		inputName.setAttribute("disabled", true);
 	}
 
 	removeEvents() {
@@ -150,6 +156,12 @@ export class PageGame extends PageConfirmLeaveMatch {
 		});
 		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
 		avatarCustomizationForm.classList.add("disable-click");
+		let colorSeletionContainer = document.querySelector("#color-selection-container");
+		for (let colorOption of colorSeletionContainer.children) {
+			colorOption.setAttribute("disabled", true);
+		}
+		let inputName = document.querySelector("#id-card-name");
+		inputName.setAttribute("disabled", true);
 	}
 
 	removeEvents() {
@@ -233,6 +245,12 @@ export class PageMain {
 		addRoomButton.addEventListener("click", myself.sendMessageAddRoom.bind(myself));
 		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
 		avatarCustomizationForm.classList.remove("disable-click");
+		let colorSeletionContainer = document.querySelector("#color-selection-container");
+		for (let colorOption of colorSeletionContainer.children) {
+			colorOption.removeAttribute("disabled");
+		}
+		let inputName = document.querySelector("#id-card-name");
+		inputName.removeAttribute("disabled");
 	}
 
 	removeEvents() {
@@ -264,13 +282,28 @@ export class PageRoom extends PageConfirmLeave{
 
 		let roomSizeSetting = this.container.querySelector("#room-size-buttons");
 		roomSizeSetting.shadowRoot.querySelector("#inc-button").addEventListener("click", () => {
-			myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
+			if (myself.roomOwnerIsMyself) myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
 		});
 		roomSizeSetting.shadowRoot.querySelector("#dec-button").addEventListener("click", () => {
-			myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
+			if (myself.roomOwnerIsMyself) myself.sendMessageChangeMaxPlayer(roomId, roomSizeSetting.size);
 		});
 		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
 		avatarCustomizationForm.classList.remove("disable-click");
+		let colorSeletionContainer = document.querySelector("#color-selection-container");
+		for (let colorOption of colorSeletionContainer.children) {
+			colorOption.removeAttribute("disabled");
+		}
+		let inputName = document.querySelector("#id-card-name");
+		inputName.removeAttribute("disabled");
+		let roomModeSetting = this.container.querySelector("#room-mode-buttons");
+		let container = roomModeSetting.shadow.querySelector("#mode-btn-container");
+		container.addEventListener("click", (event) => {
+			if (myself.roomOwnerIsMyself && (event.target != container) && !(event.target.classList.contains("chosen"))) {
+				let id = event.target.id;
+				let modeName = id.substring(0, id.indexOf("-"));
+				myself.sendMessageUpdateMode(myself.roomId, modeName);
+			}
+		}, true);
 	}
 
 	removeEvents() {
@@ -282,5 +315,38 @@ export class PageRoom extends PageConfirmLeave{
 			return true;
 		}
 		return super.beforeOnHashChange(newPageName, newRoomId, newGameIndex);
+	}
+}
+
+export class PageLocalGame {
+	constructor(container) {
+		this.templateId = "page-local-game";
+		this.container = container;
+	}
+
+	attachEvents() {
+		let registrationContainer = this.container.querySelector(".registration-container");
+		let gameContainer = this.container.querySelector("#game-container");
+		let startButton = this.container.querySelector("#start-game-button");
+		startButton.addEventListener("click", async () => {
+			let gameBoard = this.container.querySelector("td-local-game-board");
+			let gameMode = this.container.querySelector("td-room-setting-mode").getAttribute("room-mode");
+			let player0Avatar = this.container.querySelector("#player0-info").shadow.querySelector("td-avatar");
+			let player1Avatar = this.container.querySelector("#player1-info").shadow.querySelector("td-avatar");
+			let player0 = {player_emoji: player0Avatar.getAttribute("avatar-name"), player_bg_color: player0Avatar.getAttribute("avatar-background").slice(1)};
+			let player1 = {player_emoji: player1Avatar.getAttribute("avatar-name"), player_bg_color: player1Avatar.getAttribute("avatar-background").slice(1)};
+			let ball = {
+				position: {x: 600, y: 300},
+				velocity: {vx: 2, vy: 2}
+			};
+			registrationContainer.classList.add("hide");
+			gameContainer.classList.remove("hide");
+			await gameBoard.countdown();
+			gameBoard.startMatch({players: [player0, player1], game_mode: gameMode, ball: ball, side: 0});
+		});
+	}
+
+	removeEvents() {
+
 	}
 }

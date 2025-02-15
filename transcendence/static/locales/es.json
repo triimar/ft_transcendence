@@ -4,17 +4,18 @@
 		"intra": "Iniciar sesión con intra"
 	},
 	"footer": {
-        "authors": "Hecho por Hei Yiu, Maria, Sangyao, Sol y Triin"
+        "authors": "Hecho por Hei Yiu, Maria, Sangyao, Sol y Triin",
+		"text-size": "A"
     },
 	"popups": {
 		"logout" : "Cerrar sesión",
 		"confirm-logout-txt": "¿Seguro que quieres salir?",
 		"agree-txt": "SI",
 		"decline-txt": "NO",
-		"id-card-text": "esVisitor Identity card",
-		"id-card-name-text": "esName:",
-		"id-card-background-text": "esBackground:",
-		"avatar-apply-change-text": "esAPPLY"
+		"id-card-text": "Carta de Indentidad de Invitado",
+		"id-card-name-text": "Nombre:",
+		"id-card-background-text": "Color de fondo:",
+		"avatar-apply-change-text": "APLICAR"
 	},
 	"lobby-room": {
 		"prepare-btn-txt" : "¿PREPARADO?",
@@ -33,13 +34,35 @@
 		"player_not_found": "Id de jugador no encontrado",
 		"max_players_reached": "Se ha alcanzado el máximo número de jugadores. No se pudo entrar a la sala",
 		"mode_not_supported": "Modo no compatible",
-		"game_already_started": "TODO Game already started"
+		"game_already_started": "No se pudo unir. Juego ya ha empezado",
+		"failed-to-verify": "No se pudo verificar cuenta",
+		"failed-fetch-avatar": "No se pudo encontrar datos de tu avatar.",
+		"failed-login": "No se pudo iniciar sesión",
+		"avatar-change-disabled": "No puedes cambiar tu avatar durante un juego",
+		"avatar-too-long": "Tu avatar solo puede tener 3 caracteres",
+		"color-not-available": "El color de tu avatar no existe en la paleta de colores"
+	},
+	"game": {
+		"start-txt": "Comienza",
+		"winner-txt": "¡Ganó!",
+		"you-win": "¡Has ganado el torneo!",
+		"ai-wins": "¡AI ha ganado el torneo!",
+		"player-wins": "Player {{winner}} wins the tournament!",
+		"teleporting": "Transportándote al siguiente juego en 3 segundos",
+		"waiting": "Esperando a tu siguiente oponente...",
+		"you-lost": "Perdiste."
 	},
 	"label": {
         "people": "{{count}} JUGADORES"
     },
 	"tree-btn-txt": "Árbol del torneo",
 	"add-room": "AÑADIR SALA",
+	"add-local-game": "ES LOCAL GAME",
 	"exit-room": "SALIR DE LA SALA",
-	"exit-game": "SALIR DEL JUEGO"
+	"exit-game": "SALIR DEL JUEGO",
+	"balance-mode-txt": "balance",
+	"classic-mode-txt": "clásico",
+	"local-mode-txt": "local",
+	"balance-mode-description": "¡Tu raqueta cambia de tamaño dependiendo de quién está ganando!",
+	"classic-mode-description": "¡Juega un juego clásico de Pong!"
 }

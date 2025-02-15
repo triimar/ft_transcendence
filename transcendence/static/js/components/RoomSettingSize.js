@@ -5,7 +5,7 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		const template = document.getElementById("component-room-setting-size");
 		this.shadow.appendChild(template.content.cloneNode(true));
 		this.size = 2;
-		this.minSize = 2;
+		this.minSize = 1;
 		this.maxSize = 8;
 	}
 
@@ -56,8 +56,16 @@ export default class ComponentRoomSettingSize extends HTMLElement {
 		this.minSize = newMinSize;
 		const incButton = this.shadow.querySelector("#inc-button");
 		const decButton = this.shadow.querySelector("#dec-button");
-		if (this.size == this.minSize) decButton.setAttribute("disabled", "");
-		if (this.size == this.maxSize) incButton.setAttribute("disabled", "");
+		if (this.size == this.minSize) {
+			decButton.setAttribute("disabled", "");
+		} else {
+			decButton.removeAttribute("disabled");
+		}
+		if (this.size == this.maxSize) {
+			incButton.setAttribute("disabled", "");
+		} else {
+			incButton.removeAttribute("disabled");
+		}
 		this.shadow.querySelector("#label").textContent = i18next.t("label.people", { count: this.size });
 	}
 }

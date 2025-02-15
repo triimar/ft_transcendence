@@ -25,8 +25,8 @@
 			</div>
 		</div>
 		<div id="avatar-info-popup" class="fullscreen-popup" aria-hidden="true" role="dialog" aria-modal="true" >
-			<div id="avatar-info" aria-describedby="id-card-text" class="ui" style="width: 24em; aspect-ratio: 1.9; position: relative">
-				<div style="position: absolute; width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
+			<div id="avatar-info" aria-describedby="id-card-text" class="ui" style="width: 24em; height: fit-content; position: relative">
+				<div style="width: 100%; height: fit-content; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
 					<h2 id="id-card-text" style="grid-column: 1 / 4; grid-row: 1;"></h2>
 					<div role="none" style="grid-column: 1; grid-row: 2; display: flex; justify-content: center; align-items: start;">
 						<td-avatar class="dummy-avatar"></td-avatar>
@@ -36,15 +36,15 @@
 								<label for="id-card-name" id="id-card-name-text"></label>
 								<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" aria-label="Insert new name" style="outline: none; border: 0.1em solid var(--td-ui-font-color)" autocomplete="none">
 								<div id="id-card-background-text" ></div>
-								<div id="color-selection-container" role="group" aria-labelledby="id-card-background-text" tabindex="0" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
-									<div role="button" tabindex="0" style="background: #ff4d6d" color="#ff4d6d" aria-label="Set Avatar Background Red"></div>
-									<div role="button" tabindex="0" style="background: #045d75" color="#045d75" aria-label="Set Avatar Background Teal"></div>
-									<div role="button" tabindex="0" style="background: #4ba3c7" color="#4ba3c7" aria-label="Set Avatar Background Blue"></div>
-									<div role="button" tabindex="0" style="background: #007f5f" color="#007f5f" aria-label="Set Avatar Background Green"></div>
-									<div role="button" tabindex="0" style="background: #ffe156" color="#ffe156" aria-label="Set Avatar Background Yellow"></div>
-									<div role="button" tabindex="0" style="background: #a01a58" color="#a01a58" aria-label="Set Avatar Background Magenta"></div>
-									<div role="button" tabindex="0" style="background: #ff5da2" color="#ff5da2" aria-label="Set Avatar Background Pink"></div>
-									<div role="button" tabindex="0" style="background: #001f54" color="#001f54" aria-label="Set Avatar Background Dark Blue"></div>
+								<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
+									<button type="button" style="background: #ff4d6d" color="#ff4d6d" aria-label="Set Avatar Background Red"></button>
+									<button type="button" style="background: #045d75" color="#045d75" aria-label="Set Avatar Background Teal"></button>
+									<button type="button" style="background: #4ba3c7" color="#4ba3c7" aria-label="Set Avatar Background Blue"></button>
+									<button type="button" style="background: #007f5f" color="#007f5f" aria-label="Set Avatar Background Green"></button>
+									<button type="button" style="background: #ffe156" color="#ffe156" aria-label="Set Avatar Background Yellow"></button>
+									<button type="button" style="background: #a01a58" color="#a01a58" aria-label="Set Avatar Background Magenta"></button>
+									<button type="button" style="background: #ff5da2" color="#ff5da2" aria-label="Set Avatar Background Pink"></button>
+									<button type="button" style="background: #001f54" color="#001f54" aria-label="Set Avatar Background Dark Blue"></button>
 								</div>
 						</div>
 						<td-button id="avatar-apply-change-btn" aria-labelledby="avatar-apply-change-text" class="ui">
@@ -55,19 +55,19 @@
 						<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
 					</td-button>
 				</div>
-				<td-button class="ui close-btn" aria-label="Close the popup" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
+				<td-button class="ui close-btn" style="position: absolute;" aria-label="Close the popup" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
 			</div>
 		</div>
 		<div id="confirm-to-logout-popup" class="fullscreen-popup" aria-hidden="true">
 			<div class="ui" style="width: fit-content; background: var(--td-ui-background-color); padding: 1em; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5em;">
 				<p id="confirm-logout-txt" tabindex="0"></p>
 				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 1em;">
-					<td-button id="logout-yes-btn" class="ui" onclick="closePopup('confirm-to-logout-popup')"><p id="agree-txt" style="padding: 0 0.5em;"></p></td-button>
-					<td-button id="logout-no-btn" class="ui" onclick="closePopup('confirm-to-logout-popup')"><p id="decline-txt" style="padding: 0 0.5em;"></p></td-button>
+					<td-button id="logout-yes-btn" aria-labelledby="agree-txt" class="ui" onclick="closePopup('confirm-to-logout-popup')"><p id="agree-txt" style="padding: 0 0.5em;"></p></td-button>
+					<td-button id="logout-no-btn" aria-labelledby="decline-txt" class="ui" onclick="closePopup('confirm-to-logout-popup')"><p id="decline-txt" style="padding: 0 0.5em;"></p></td-button>
 				</div>
 			</div>
 		</div>
-		<div role="alert" aria-live="assertive" id="notification-popup" class="ui">
+		<div id="notification-popup" class="ui notification-popup" aria-live="assertive" aria-hidden="true" >
 			<p id="notification-popup-text"></p>
 		</div>
 		<footer role="contentinfo" style="width: 70%; margin-top: auto; display: flex;align-items: center; justify-content: space-between" class="ui">
@@ -75,8 +75,13 @@
 				<p aria-hidden="true">:PONG © 2024</p>
 				<p id="footer-authors" style="font-size: 0.5em;"></p>
 			</div>
-			<td-language-selector class="ui"></td-language-selector>
-			<td-lever class="ui" style="height: 100%; min-height: 1.85em; max-height: 3em; aspect-ratio: 0.5;" aria-label="Switch between dark mode and light mode" onclick="let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');document.documentElement.style.setProperty('--td-ui-background-color', fgColor);document.documentElement.style.setProperty('--td-ui-font-color', bgColor);"></td-lever>
+			<div style="display: flex; flex-direction: row; align-items: flex-end;">
+				<td-button class="ui" aria-label="Change text size!" onclick="let currentSize=getComputedStyle(document.documentElement).getPropertyValue('--td-font-size').trim();let newSize = currentSize === '32px' ? '48px' : '32px';document.documentElement.style.setProperty('--td-font-size', newSize);">
+					<p class="ui-text" style="padding: 0.2em;" id="text-size"></p>
+				</td-button>
+				<td-language-selector class="ui" style="height: 100%;"></td-language-selector>
+				<td-lever class="ui" style="height: 100%; min-height: 1.85em; max-height: 3em; aspect-ratio: 0.5;" aria-label="Switch between dark mode and light mode" onclick="let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');document.documentElement.style.setProperty('--td-ui-background-color', fgColor);document.documentElement.style.setProperty('--td-ui-font-color', bgColor);"></td-lever>
+			</div>
 		</footer>
 	</main>
 </body>
@@ -101,16 +106,50 @@
 <template id="page-game">
 	<td-navigation-bar>
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-game" class="ui ui-text"><p id="exit-game"></p></td-button>
-		<td-button class="ui ui-text" aria-haspopup="true" aria-label="Tournament tree" onclick="openPopup('tournament-tree-popup')"><p id="tree-btn-txt"></p></td-button>
+		<td-button class="ui" aria-haspopup="true" aria-labelledby="tree-btn-txt" onclick="openPopup('tournament-tree-popup')"><img id="tree-btn-txt" src="../static/cup.png" style="height: var(--td-avatar-height); width: var(--td-avatar-width); object-fit: contain;"></td-button>
 	</td-navigation-bar>
 	<td-game-board class="ui" style="box-sizing: content-box;"></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-game" class="ui ui-text"><p id="exit-game"></p></td-button>
-		<td-button class="ui ui-text" aria-haspopup="true" onclick="openPopup('tournament-tree-popup')"><p id="tree-btn-txt"></p></td-button>
+		<td-button class="ui" aria-haspopup="true" aria-labelledby="tree-btn-txt" onclick="openPopup('tournament-tree-popup')"><img id="tree-btn-txt" src="../static/cup.png"></td-button>
 	</td-navigation-bar>
 	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
+</template>
+<template id="page-local-game">
+	<style>
+		.registration-container {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5em;
+			align-items: center;
+		}
+
+		.registration-container > * {
+			width: 100%;
+		}
+
+		.hide {
+			display: none;
+		}
+
+	</style>
+	<td-navigation-bar>
+		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-room" class="ui" onclick="window.location.hash = '#main'"><p id="exit-room" class="ui-text"></p></td-button>
+	</td-navigation-bar>
+	<div class="registration-container">
+		<div style="display: flex; flex-direction: row;">
+			<td-id-card id="player0-info" style="width: 50%;" class="ui"></td-id-card>
+			<td-id-card id="player1-info" style="width: 50%;" class="ui"></td-id-card>
+		</div>
+		<td-room-setting-mode id="room-mode-buttons" class="ui" aria-live="polite"></td-room-setting-mode>
+		<td-button id="start-game-button" class="ui" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button>
+	</div>
+	<div id="game-container" class="hide">
+		<td-local-game-board class="ui" style="width: 100%; display: block; box-sizing: content-box;"></td-local-game-board>
+		<!-- <td-button id="restart-game-button" class="ui hide" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button> -->
+	</div>
 </template>
 <template id="page-room">
 	<style>
@@ -124,8 +163,8 @@
 	<td-lobby-room room-join-disabled class="ui">
 		<td-button id="prepare-btn" class="ui" aria-labelledby="prepare-btn-txt" style="height: var(--td-avatar-height); width: 100%;" slot="lobby-room-button"><p id="prepare-btn-txt"></p></td-button>
 	</td-lobby-room>
-	<td-room-setting-size id="room-size-buttons" class="ui" style="display: none"></td-room-setting-size>
-	<div class="ui ui-text"><p>More game options coming soon</p></div>
+	<td-room-setting-size id="room-size-buttons" class="ui" aria-live="polite" id="label" style="display: none"></td-room-setting-size>
+	<td-room-setting-mode id="room-mode-buttons" class="ui" aria-live="polite" style="display: none"></td-room-setting-mode>
 </template>
 <template id="page-main">
 	<style>
@@ -137,7 +176,8 @@
 		}
 	</style>
 	<td-navigation-bar>
-		<td-button id="add-room-btn" class="ui" aria-labelledby="add-room" tabindex="0"><p id="add-room" class="ui-text"></p></td-button>
+		<td-button id="add-local-game-btn" class="ui" aria-label="Play Local Game" tabindex="0" onclick="window.location.hash = '#local-game'"><p id="add-local-game" class="ui-text"></p></td-button>
+		<td-button id="add-room-btn" class="ui" aria-label="Add Room" tabindex="0"><p id="add-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 </template>
 <template id="component-lobby-room">
@@ -226,7 +266,57 @@
 		<td-button class="ui" id="dec-button" aria-label="Decrease the number of players"><p style="user-select: none;">-</p></td-button>
 		<td-button class="ui" id="inc-button" aria-label="Increase the number of players"><p style="user-select: none;">+</p></td-button>
 	</div>
-	<p style="margin-right: 0.4em; user-select: none;" aria-live="polite" id="label"></p>
+	<p style="margin-right: 0.4em; user-select: none;" id="label"></p>
+</template>
+<template id="component-room-setting-mode">
+	<style>
+		:host {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 1em;
+		}
+
+		.ui {
+			min-width: var(--td-avatar-width);
+			height: var(--td-avatar-height);
+			border: var(--td-border-size) solid var(--td-ui-font-color);
+			box-sizing: border-box;
+
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		td-button p {
+			pointer-events: none;
+		}
+
+		.chosen {
+			background: var(--td-ui-font-color);
+		}
+
+		.chosen p {
+			color: var(--td-ui-background-color);
+		}
+
+		@media only screen and (max-width: 1000px) {
+			:host {
+				flex-direction: column;
+				align-items: start;
+			}
+
+		}
+	</style>
+	<div id="mode-btn-container" style="display: flex;">
+		<td-button id="classic-mode-btn" aria-labelledby="classic-mode-btn-txt" class="ui">
+			<p id="classic-mode-btn-txt" class="ui-text" style="font-size: 1em; text-align: center; font-weight: bold;"></p>
+		</td-button>
+		<td-button id="balance-mode-btn" class="ui" aria-labelledby="balance-mode-btn-txt">
+			<p id="balance-mode-btn-txt" class="ui-text" style="font-size: 1em; text-align: center; font-weight: bold;"></p>
+		</td-button>
+	</div>
+	<p id="game-mode-description-txt" style="margin: 0; height: fit-content;"></p>
 </template>
 <template id="icon-lobby-room-join">
 	<style>
@@ -282,6 +372,7 @@
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
+			gap: 1em;
 		}
 
 		td-logo {
@@ -347,7 +438,6 @@
 		#blocker, canvas {
 			position: absolute;
 		}
-
 		#blocker {
 			opacity: 0;
 			transition: opacity 1s ease-out;
@@ -356,15 +446,29 @@
 		#blocker.show {
 			opacity: 1;
 		}
+		
+		.visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
 	</style>
 	<div id="blocker" class="show" style="width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; justify-content: center; align-items: center;">
-		<p id="countdown" style="color: white;"></p>
-		<div id="winner-container" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
+		<p aria-live="assertive" id="countdown" style="color: white;"></p>
+		<div id="winner-container" aria-live="polite" style="display: none; flex-direction: column; justify-content: center; align-items: center;">
 			<td-avatar id="winner"></td-avatar>
-			<p style="margin: 0; color: white;">Wins!</p>
+			<p id="winner-txt" style="margin: 0; color: white;"></p>
 		</div>
 	</div>
 	<canvas style="width: 100%;"  width="1200" height="600"></canvas>
+	<div id="game-status-live" class="visually-hidden" role="status" ></div>
+</template>
 </template>
 <template id="component-button">
 	<style>
@@ -492,10 +596,52 @@
         }
     </style>
     <select id="language-selector" aria-label="Select preferred language">
-        <option value="en">EN</option>
-        <option value="de">DE</option>
-        <option value="es">ES</option>
-		<option value="kr">KR</option>
+        <option value="en" aria-label="English">ENGLISH</option>
+        <option value="de" aria-label="German - Screen reader support may be limited">DEUTSCH</option>
+        <option value="es" aria-label="Spanish - Screen reader support may be limited">ESPAÑOL</option>
+		<option value="kr" aria-label="Korean - Screen reader support may be limited">한국어</option>
     </select>
+</template>
+<template id="component-id-card">
+	<style>
+		:host {
+			padding: 1em;
+		}
+
+		#color-selection-container > * {
+			border: 0;
+			width: 2em;
+			height: 2em;
+		}
+
+		#color-selection-container > *.chosen {
+			border: 0.3em solid var(--td-ui-font-color);
+		}
+
+		.disable-click {
+			opacity: 0.5;
+			pointer-events: none;
+		}
+	</style>
+			<form action="" style="width: 100%; display: flex; flex-direction: column;">
+				<div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+					<td-avatar></td-avatar>
+				</div>
+				<label for="id-card-name" id="id-card-name-text"></label>
+				<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" aria-label="Insert new name" style="outline: none; border: 0.1em solid var(--td-ui-font-color); font-size: var(--td-font-size);" autocomplete="none">
+				<div id="id-card-background-text" ></div>
+				<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
+					<button type="button" style="background: #ff4d6d" color="#ff4d6d" aria-label="Set Avatar Background Red"></button>
+					<button type="button" style="background: #045d75" color="#045d75" aria-label="Set Avatar Background Teal"></button>
+					<button type="button" style="background: #4ba3c7" color="#4ba3c7" aria-label="Set Avatar Background Blue"></button>
+					<button type="button" style="background: #007f5f" color="#007f5f" aria-label="Set Avatar Background Green"></button>
+					<button type="button" style="background: #ffe156" color="#ffe156" aria-label="Set Avatar Background Yellow"></button>
+					<button type="button" style="background: #a01a58" color="#a01a58" aria-label="Set Avatar Background Magenta"></button>
+					<button type="button" style="background: #ff5da2" color="#ff5da2" aria-label="Set Avatar Background Pink"></button>
+					<button type="button" style="background: #001f54" color="#001f54" aria-label="Set Avatar Background Dark Blue"></button>
+				</div>
+			</form>
+		</div>
+	</div>
 </template>
 </html>

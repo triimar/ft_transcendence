@@ -1,11 +1,8 @@
 import { myself, sleep } from "../myself.js";
 
 const GameMode = {
-	Default: "",
+	Default: "classic",
 	Balance: "balance",
-	Shoot: "shoot",
-	Bomb: "bomb",
-	Remix: "remix"
 };
 
 const BALANCE_FACTOR = 10;
@@ -34,10 +31,6 @@ export default class ComponentGameBoard extends HTMLElement {
 		let countdownPromise = new Promise((resolve) => {
 			let seconds = 5;
 			let intervalId = setInterval(() => {
-				if (!this.isRunning) {
-					clearInterval(intervalId);
-					return;
-				}
 				let countdownText = blocker.children[0];
 				if (seconds == 0) {
 					countdownText.textContent = i18next.t("game.start-txt");
@@ -52,7 +45,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		return countdownPromise.then(() => sleep(1000)).then(() => blocker.classList.remove("show"));
 	}
 
-	displayMatchResult(winner) {
+	displayMatchResult(side) {
 		this.isRunning = false;
 		let gameStatusLive = this.shadow.getElementById('game-status-live');
 		gameStatusLive.textContent = ""
@@ -62,9 +55,16 @@ export default class ComponentGameBoard extends HTMLElement {
 		let winnerContainer = this.shadow.querySelector("#winner-container");
 		winnerContainer.style.display = "flex";
 		let avatarElement = this.shadow.querySelector("#winner");
-		avatarElement.setAttribute("avatar-name", winner["player_emoji"]);
-		avatarElement.setAttribute("avatar-background", '#' + winner["player_bg_color"]);
-		avatarElement.setAttribute("avatar-id", winner["player_id"]);
+		let avatarName, avatarBackground;
+		if (side == 0) {
+			avatarName = this.paddleLeft.name;
+			avatarBackground = this.paddleLeft.color;
+		} else {
+			avatarName = this.paddleRight.name;
+			avatarBackground = this.paddleRight.color;
+		}
+		avatarElement.setAttribute("avatar-name", avatarName);
+		avatarElement.setAttribute("avatar-background", avatarBackground);
 		let winnerText = this.shadow.querySelector("#winner-txt");
 		winnerText.textContent =  i18next.t("game.winner-txt");
 		let blocker = this.shadow.querySelector("#blocker");
@@ -73,6 +73,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		countdownText.textContent = this.score.left + " : " + this.score.right;
 		blocker.classList.add("show");
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		document.removeEventListener("keyup", this.keyupEventListener, true);
 		canvas.removeEventListener("touchstart", this.touchStartFunc);
 		canvas.removeEventListener("touchmove", this.touchMoveFunc);
 		window.cancelAnimationFrame(this.raf);
@@ -80,6 +81,7 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	startMatch(message) {
+		// example input: {ball: {position: {x: 150, y: 150}, velocity: {vx: 1, vy: 1}}, side: 0, game_mode: "classic", players: [{player_emoji: "wtf", player_bg_color: "3dff32"}, {player_emoji: "h^h", player_bg_color: "ff00ff"}]}
 		let ball = message["ball"];
 		let side = message["side"];
 		let playerLeft = message["players"][0];
@@ -104,8 +106,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleLeft.draw();
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
+		document.addEventListener("keyup", this.keyupEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
-		this.lastTime = 0;
 		let gameStatusLive = this.shadow.getElementById('game-status-live');
 		if (this.side == 0)
 			gameStatusLive.textContent = "Using paddle on the left. Use the arrow keys to move the paddle up and down."
@@ -116,21 +118,20 @@ export default class ComponentGameBoard extends HTMLElement {
 	freezeMatch() {
 		if (this.raf !== null) {
 			console.log("Freeze");
-			let raf = this.raf;
-			this.raf = null;
-			window.cancelAnimationFrame(raf);
+			window.cancelAnimationFrame(this.raf);
 			document.removeEventListener("keydown", this.keydownEventListener, true);
+			this.raf = null;
 		}
 	}
 
-	// unfreezeMatch() {
-	// 	if (this.raf === null) {
-	// 		console.log("Unfreeze");
-	// 		document.addEventListener("keydown", this.keydownEventListener.bind(this), true);
-	// 		this.raf = window.requestAnimationFrame(this.gameLoop);
-	// 		this.lastTime = 0;
-	// 	}
-	// }
+	unfreezeMatch() {
+		if (this.raf === null) {
+			console.log("Unfreeze");
+			document.addEventListener("keydown", this.keydownEventListener.bind(this), true);
+			this.raf = window.requestAnimationFrame(this.gameLoop);
+			this.lastTime = 0;
+		}
+	}
 
 	oponentPaddleMoved(side, position) {
 		if (side == this.side) {
@@ -162,8 +163,8 @@ export default class ComponentGameBoard extends HTMLElement {
 					this.paddleLeft.height += BALANCE_FACTOR;
 			}
 		}
-		let gameStatusLive = this.shadow.getElementById('game-status-live');
-		gameStatusLive.textContent = (`Score: ${this.score.left}, ${this.score.right}`)
+		if (this.score.left >= 5 || this.score.right >= 5)
+			this.displayMatchResult(side);
 	}
 
 	ballBounced(message) {
@@ -181,7 +182,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		const MAXBOUNCEANGLE = Math.PI/4;
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
-		const PADDLE_SPEED = 15;
+		const PADDLE_SPEED = 3;
 		this.MAX_PADDLE_SIZE = canvas.height/2;
 		this.MIN_PADDLE_SIZE = canvas.height/10;
 		this.gameMode = GameMode.Default;
@@ -190,6 +191,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
 
+		this.keysPressed = {}
+		
 		this.score = {
 			left: 0,
 			right: 0,
@@ -218,14 +221,22 @@ export default class ComponentGameBoard extends HTMLElement {
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.size, this.size);
 			},
-			reset(side)
+			reset()
 			{
 				this.x = canvas.width / 2;
 				this.y = canvas.height / 2;
-				this.vx = BALL_SPEED * side;
-				this.vy = BALL_SPEED;
-				this.isReset = true;
-				this.vx = 1 * side;
+				let randomVx = Math.floor(Math.random() * 13) - 6;
+				if (randomVx === 0)
+					randomVx = 2
+				if (randomVx === -1 || randomVx === 1)
+					randomVx *= 2
+				let randomVy = Math.floor(Math.random() * 13) - 6;
+				if (randomVy === 0)
+					randomVy = 2
+				if (randomVy === -1 || randomVy === 1)
+					randomVy *= 2
+				this.vx = randomVx;
+				this.vy = randomVy;
 			}
 		};
 
@@ -242,7 +253,7 @@ export default class ComponentGameBoard extends HTMLElement {
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.width, this.height);
 				ctx.font="60px Monomaniac One";
-				ctx.textAlign="center";
+				ctx.textAlign="center"; 
 				ctx.textBaseline = "middle";
 				ctx.fillStyle = "#FFFFFF";
 				ctx.fillText(this.name, this.x + this.width/2, this.y + this.height/2);
@@ -266,7 +277,7 @@ export default class ComponentGameBoard extends HTMLElement {
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.width, this.height);
 				ctx.font="60px Monomaniac One";
-				ctx.textAlign="center";
+				ctx.textAlign="center"; 
 				ctx.textBaseline = "middle";
 				ctx.fillStyle = "#FFFFFF";
 				ctx.fillText(this.name, this.x + this.width/2, this.y + this.height/2);
@@ -280,30 +291,26 @@ export default class ComponentGameBoard extends HTMLElement {
 		function moving() {
 			this.ball.x += this.ball.vx;
 			this.ball.y += this.ball.vy;
-		  	//Bounce off the ceiling/floor
+			//Bounce off the ceiling/floor
 			if (
 				this.ball.y + this.ball.vy > canvas.height - this.ball.size ||
 				this.ball.y + this.ball.vy <= 0)
 			{
 				this.ball.vy = -this.ball.vy;
-				this.updateBall();
 			}
 			//Right wall collision
 			if (this.ball.x + this.ball.vx > canvas.width - this.ball.size)
 			{
-				if (this.side != 1)
-					this.scorePoint();
-				this.ball.reset(-1);
+				this.pointScored(0);
+				this.ball.reset();
 				this.paddleLeft.reset();
 				this.paddleRight.reset();
 			}
 			//Left wall collision
 			if (this.ball.x + this.ball.vx < 0)
 				{
-				if (this.side != 0) {
-					this.scorePoint();
-				}
-				this.ball.reset(1);
+				this.pointScored(1);
+				this.ball.reset();
 				this.paddleLeft.reset();
 				this.paddleRight.reset();
 			}
@@ -323,21 +330,18 @@ export default class ComponentGameBoard extends HTMLElement {
 					if ((this.ball.vy > 0 && velocityY === -1) || this.ball.vy < 0 && velocityY === 1)
 						this.ball.vy *= -1;
 					this.ball.vx = Math.abs(this.ball.vx);
-					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy < this.paddleLeft.y) //Upper side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy > 0)
 						this.ball.vy = -this.ball.vy;
-					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy + this.ball.size > this.paddleLeft.y + this.paddleLeft.height) //Lower side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy < 0)
 						this.ball.vy = -this.ball.vy;
-					this.updateBall();
 				}
 			}
 			//Right paddle collisions
@@ -356,21 +360,18 @@ export default class ComponentGameBoard extends HTMLElement {
 					if ((this.ball.vy > 0 && velocityY === -1) || this.ball.vy < 0 && velocityY === 1)
 						this.ball.vy *= -1;
 					this.ball.vx = -Math.abs(this.ball.vx);
-					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy < this.paddleRight.y) //Upper side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy > 0)
 						this.ball.vy = -this.ball.vy;
-					this.updateBall();
 				}
 				else if (this.ball.y + this.ball.vy + this.ball.size > this.paddleRight.y + this.paddleRight.height) //Lower side collision
 				{
 					this.ball.vx = -this.ball.vx;
 					if (this.ball.vy < 0)
 						this.ball.vy = -this.ball.vy;
-					this.updateBall();
 				}
 			}
 		}
@@ -382,9 +383,33 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.paddleRight.draw();
 			this.ball.draw();
 		}).bind(this);
-
+		
+		this.updatePaddles = (function() {
+			if (this.keysPressed['s']) {
+				this.paddleLeft.y += this.paddleLeft.vy;
+				if (this.paddleLeft.y > canvas.height - this.paddleLeft.height)
+					this.paddleLeft.y = canvas.height - this.paddleLeft.height;
+			}
+			if (this.keysPressed["arrowdown"]) {
+				this.paddleRight.y += this.paddleRight.vy;
+				if (this.paddleRight.y > canvas.height - this.paddleRight.height)
+					this.paddleRight.y = canvas.height - this.paddleRight.height;
+			}
+			if (this.keysPressed['w']) {
+				this.paddleLeft.y -= this.paddleLeft.vy;
+				if (this.paddleLeft.y < 0)
+					this.paddleLeft.y = 0;
+			}
+			if (this.keysPressed["arrowup"]) {
+				this.paddleRight.y -= this.paddleRight.vy;
+				if (this.paddleRight.y < 0)
+					this.paddleRight.y = 0;
+			}
+		}).bind(this);
+			
 		this.gameLoop = (timeStamp) => {
-			if (!this.raf) return;
+			if (!this.isRunning)
+				return;
 			if (!this.lastTime) this.lastTime = Date.now();
 
 			const deltaTime = timeStamp - this.lastTime;
@@ -394,11 +419,13 @@ export default class ComponentGameBoard extends HTMLElement {
 			if (accumulatedTime < 0) accumulatedTime = 0;
 			while (accumulatedTime >= updateInterval) {
 				moving.bind(this)();
+				this.updatePaddles();
 				accumulatedTime -= updateInterval;
 			}
-
-			this.draw();
-			this.raf = window.requestAnimationFrame(this.gameLoop);
+			if (this.isRunning) {
+				this.draw();
+				this.raf = window.requestAnimationFrame(this.gameLoop);
+			}
 		};
 
 		// Add touch event listeners to the canvas
@@ -406,7 +433,8 @@ export default class ComponentGameBoard extends HTMLElement {
 			if (!this.isRunning)
 				return;
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
-			this.movePaddleTo(touchY);
+			const touchX = e.touches[0].clientX; // Get the x-coordinate of the touch
+			this.movePaddleTo(touchY, touchX);
 		};
 		canvas.addEventListener("touchstart", this.touchStartFunc);
 		this.touchMoveFunc = (e) => {
@@ -414,91 +442,85 @@ export default class ComponentGameBoard extends HTMLElement {
 				return;
 			e.preventDefault(); // Prevent scrolling while playing
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
-			this.movePaddleTo(touchY);
+			const touchX = e.touches[0].clientX; // Get the x-coordinate of the touch
+			this.movePaddleTo(touchY, touchX);
 		};
 		canvas.addEventListener("touchmove", this.touchMoveFunc);
 
 		// Helper function to move the paddle to a specific y-coordinate
-		this.movePaddleTo = (touchY) => {
+		this.movePaddleTo = (touchY, touchX) => {
 			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
 			const relativeY = touchY - canvasRect.top; // Adjust touchY to the canvas coordinate system
+			const screenMiddle = canvasRect.left + canvas.width / 2; // Midpoint of the canvas
 
-			// Set the paddle's y position, ensuring it stays within bounds
-			this.getMyPaddle().y = relativeY - this.getMyPaddle().height / 2;
-			if (this.getMyPaddle().y < 0) {
-				this.getMyPaddle().y = 0;
+			if (touchX < screenMiddle) {
+				this.paddleLeft.y = relativeY - this.paddleLeft.height / 2;
+				if (this.paddleLeft.y < 0) {
+					this.paddleLeft.y = 0;
+				}
+				if (this.paddleLeft.y > canvas.height - this.paddleLeft.height) {
+					this.paddleLeft.y = canvas.height - this.paddleLeft.height;
+				}
 			}
-			if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height) {
-				this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
+			else {
+				this.paddleRight.y = relativeY - this.paddleRight.height / 2;
+				if (this.paddleRight.y < 0) {
+					this.paddleRight.y = 0;
+				}
+				if (this.paddleRight.y > canvas.height - this.paddleRight.height) {
+					this.paddleRight.y = canvas.height - this.paddleRight.height;
+				}	
 			}
 
 			// Trigger the paddle move action
 			this.paddleMove();
 		};
+		
+		this.keyupEventListener = ((e) => {
+			this.keysPressed[e.key.toLowerCase()] = false;
+			e.preventDefault();
+		}).bind(this)
 
 		this.keydownEventListener = ((e) => {
 			if (!this.isRunning)
 				return;
-			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
-				// Prevent the default action (scrolling)
-				e.preventDefault();
-			}
-			switch (e.key) {
-				case "s":
-				case "ArrowDown":
-					this.getMyPaddle().y += this.getMyPaddle().vy;
-					if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height)
-						this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
-					this.paddleMove();
-					break;
-				case "w":
-				case "ArrowUp":
-					this.getMyPaddle().y -= this.getMyPaddle().vy;
-					if (this.getMyPaddle().y < 0)
-						this.getMyPaddle().y = 0;
-					this.paddleMove();
-					break;
-				default:
-					return;
-			}
-		}).bind(this);
+			// if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
+			// 	// Prevent the default action (scrolling)
+			// 	e.preventDefault();
+			// }
+			// switch (e.key) {
+			// 	case "s":
+			// 		this.paddleLeft.y += this.paddleLeft.vy;
+			// 		if (this.paddleLeft.y > canvas.height - this.paddleLeft.height)
+			// 			this.paddleLeft.y = canvas.height - this.paddleLeft.height;
+			// 		break;
+			// 	case "ArrowDown":
+			// 		this.paddleRight.y += this.paddleRight.vy;
+			// 		if (this.paddleRight.y > canvas.height - this.paddleRight.height)
+			// 			this.paddleRight.y = canvas.height - this.paddleRight.height;
+			// 		break;
+			// 	case "w":
+			// 		this.paddleLeft.y -= this.paddleLeft.vy;
+			// 		if (this.paddleLeft.y < 0)
+			// 			this.paddleLeft.y = 0;
+			// 		break;
+			// 	case "ArrowUp":
+			// 		this.paddleRight.y -= this.paddleRight.vy;
+			// 		if (this.paddleRight.y < 0)
+			// 			this.paddleRight.y = 0;
+			// 		break;
+			// 	default:
+			// 		return;
+			// }
+			this.keysPressed[e.key.toLowerCase()] = true;
+			e.preventDefault();
+		}).bind(this)
 	}
 
 	disconnectedCallback() {
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		document.removeEventListener("keyup", this.keyupEventListener, true);
 		window.cancelAnimationFrame(this.raf);
-		this.raf = null;
 	}
-
-	updateBall() {
-		// Only one player is able to update the ball position
-		if (this.raf == null || this.side === 0 || !this.isRunning)
-			return
-		myself.sendMessage(JSON.stringify({
-			'type': 'bounce_ball',
-			'ball': {
-				'position': {'x': this.ball.x, 'y': this.ball.y},
-				'velocity': {'vx': this.ball.vx, 'vy': this.ball.vy},
-				'size': 15
-			}
-		}))
-	}
-
-	paddleMove() {
-		if (this.raf == null || !this.isRunning)
-			return;
-		myself.sendMessage(JSON.stringify({
-			'type': 'paddle_move',
-			'position': this.getMyPaddle().y
-		}))
-	}
-
-	scorePoint() {
-		if (this.raf == null || !this.isRunning)
-			return;
-		myself.sendMessage(JSON.stringify({
-			'type': 'scored_point'
-		}))
-	}
-
+	
 }

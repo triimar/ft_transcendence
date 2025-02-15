@@ -4,7 +4,8 @@
 		"intra": "Intra login"
 	},
 	"footer": {
-        "authors": "Made by Hei Yiu, Maria, Sangyao, Sol and Triin"
+        "authors": "Made by Hei Yiu, Maria, Sangyao, Sol and Triin",
+		"text-size": "A"
     },
 	"popups": {
 		"logout" : "LOGOUT",
@@ -27,20 +28,42 @@
 	"error": {
 		"owner-left": "Room owner has left. You became the new owner",
 		"connection-lost": "Connection Lost. Restarting connection...",
-		"connection-lost-3-times": "Connection Lost.",
+		"connection-lost-3-times": "Connection Lost",
 		"page-not-found": "Page unknown",
 		"room_not_found": "Room id not found",
 		"player_not_found": "Player id not found",
 		"max_players_reached": "Max number of players reached. Cannot join room",
 		"mode_not_supported": "Mode not supported",
-		"game_already_started": "Game already started"
+		"game_already_started": "Cannot join. Game already started",
+		"failed-to-verify": "Failed to verify your account",
+		"failed-fetch-avatar": "Failed to fetch your avatar's data",
+		"failed-login": "Failed to login",
+		"avatar-change-disabled": "You cannot change avatar during a game",
+		"avatar-too-long": "Avatar's face can only have 3 characters",
+		"color-not-available": "Avatar's color is not in the color palette"
+	},
+	"game": {
+		"start-txt": "start",
+		"winner-txt": "Wins!",
+		"you-win": "You are the tournament winner!",
+		"ai-wins": "AI wins the tournament!",
+		"player-wins": "Player {{winner}} wins the tournament!",
+		"teleporting": "Teleporting you to the next match in 3 seconds",
+		"waiting": "Waiting for your next opponent...",
+		"you-lost": "You lost."
+
 	},
 	"label": {
         "people": "{{count}} PEOPLE"
     },
 	"tree-btn-txt": "Tournament tree",
 	"add-room": "ADD ROOM",
+	"add-local-game": "LOCAL GAME",
 	"exit-room": "EXIT ROOM",
-	"exit-game": "EXIT GAME"
-	
+	"exit-game": "EXIT GAME",
+	"balance-mode-txt": "balance",
+	"classic-mode-txt": "classic",
+	"local-mode-txt": "local",
+	"balance-mode-description": "Your paddle changes size depending who is in the lead!",
+	"classic-mode-description": "Play a classic game of pong!"
 }

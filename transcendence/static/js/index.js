@@ -3,14 +3,17 @@ import ComponentAvatar from "./components/Avatar.js";
 import ComponentNavigationBar from "./components/NavigationBar.js";
 import ComponentLogo from "./components/Logo.js";
 import ComponentGameBoard from "./components/GameBoard.js";
+import ComponentLocalGameBoard from "./components/LocalGameBoard.js";
 import ComponentAIGameBoard from "./components/AIGameBoard.js";
 import ComponentRoomSettingSize from "./components/RoomSettingSize.js";
+import ComponentRoomSettingMode from "./components/RoomSettingMode.js";
 import ComponentButton from "./components/Button.js";
 import ComponentLever from "./components/Lever.js";
 import ComponentTournamentTree from "./components/TournamentTree.js";
 import ComponentLanguageSelector from "./components/LanguageSelector.js";
+import ComponentIdCard from "./components/IdCard.js";
 import { initializeI18n, updateGlobalTranslations } from "./translation.js";
-import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain } from "./pages.js";
+import { PageError, PageLogin, PageGame, PageAiGame, PageRoom, PageMain, PageLocalGame } from "./pages.js";
 
 import { myself } from "./myself.js";
 
@@ -20,7 +23,8 @@ const pageMapping = {
 	game: PageGame,
 	"ai-game": PageAiGame,
 	room: PageRoom,
-	main: PageMain
+	main: PageMain,
+	"local-game": PageLocalGame
 };
 
 function trapFocus(popup) {
@@ -56,14 +60,16 @@ function openPopup(popupId) {
 
 function closePopup(popupId) {
 	const popup = document.getElementById(popupId);
-	const elementsToUnhide = document.querySelectorAll('main > *:not(#' + popupId + ')');
 	const main = document.querySelector('main');
 	if (!popup || !main) return;
 	popup.classList.remove('show');
 	popup.setAttribute('aria-hidden', 'true');
+	const elementsToUnhide = main.querySelectorAll(
+		`:scope > *:not(#${popupId}):not(.notification-popup)`
+	);
 	elementsToUnhide.forEach((el) => el.setAttribute('aria-hidden', 'false'));
 	const focusableElements = main.querySelectorAll(
-		'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+			'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
 	);
 	if (focusableElements.length > 0) focusableElements[0].focus();
 }
@@ -100,14 +106,14 @@ async function main() {
 			}
 		});
 		avatarChangeButton.addEventListener("click", () => {
-			if (myself.gameInde == null) {
+			if (myself.gameIndex == null) {
 				closePopup("avatar-info-popup");
 				let emoji = avatarNameTextInput.value;
 				let background = document.querySelector("#color-selection-container > .chosen")?.getAttribute("color");
 				background = background.slice(1); // Note(HeiYiu): remove #
 				myself.changeAvatar(emoji, background);
 			} else {
-				myself.displayPopupMessage("You cannot change avatar after game starts");
+				myself.displayPopupMessage(i18next.t("error.avatar-change-disabled"));
 			}
 		}, true);
 		let closeButton = document.querySelector("#avatar-info .close-btn");
@@ -268,6 +274,7 @@ function analysisPageHash(pageHash) {
 	case "error":
 	case "login":
 	case "main":
+	case "local-game":
 		pageName = pageHash; break;
 	default: {
 		if (pageHash.startsWith("room")) {
@@ -317,6 +324,7 @@ function sendInitMessage(pageName, roomId, gameIndex) {
 	switch (pageName) {
 	case "error":
 	case "login":
+	case "local-game":
 		break;
 	case "game":
 	case "ai-game":
@@ -334,12 +342,15 @@ function sendInitMessage(pageName, roomId, gameIndex) {
 window.addEventListener("DOMContentLoaded", main);
 window.customElements.define("td-lobby-room", ComponentLobbyRoom);
 window.customElements.define("td-room-setting-size", ComponentRoomSettingSize);
+window.customElements.define("td-room-setting-mode", ComponentRoomSettingMode);
 window.customElements.define("td-avatar", ComponentAvatar);
 window.customElements.define("td-navigation-bar", ComponentNavigationBar);
 window.customElements.define("td-logo", ComponentLogo);
 window.customElements.define("td-game-board", ComponentGameBoard);
+window.customElements.define("td-local-game-board", ComponentLocalGameBoard);
 window.customElements.define("td-ai-game-board", ComponentAIGameBoard);
 window.customElements.define("td-button", ComponentButton);
 window.customElements.define("td-lever", ComponentLever);
 window.customElements.define("td-tournament-tree", ComponentTournamentTree);
 window.customElements.define("td-language-selector", ComponentLanguageSelector);
+window.customElements.define("td-id-card", ComponentIdCard);

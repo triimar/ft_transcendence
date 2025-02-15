@@ -13,6 +13,7 @@ room_data_sample = {
         'ai': {'score': 0},
         'matches':[
             {
+                "started": False,
                 'ready': 1,
                 'players': ['player_id_1', 'player_id_2'],
                 'ball': {
@@ -22,6 +23,7 @@ room_data_sample = {
                 'winner':'player_id_1'
             },
             {
+                "started": False,
                 'ready': 1,
                 'players': ['player_id_3', 'ai'],
                 'ball': {
@@ -46,6 +48,7 @@ room_data_sample = {
         'ai': {'score': 0},
         'matches':[
             {
+                "started": False,
                 'ready': 1,
                 'players': ['player_id_4', 'player_id_5'],
                 'ball': {
@@ -56,6 +59,7 @@ room_data_sample = {
                 'winner':'player_id_1'
             },
             {
+                "started": False,
                 'ready': 1,
                 'players': ['ai', 'player_id_6'],
                 'ball': {
