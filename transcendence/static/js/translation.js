@@ -86,6 +86,7 @@ export function updateGlobalTranslations() {
 		{ id: "id-card-name-text", key: "popups.id-card-name-text" },
 		{ id: "id-card-background-text", key: "popups.id-card-background-text" },
 		{ id: "avatar-apply-change-text", key: "popups.avatar-apply-change-text"},
+		{ id: "start-game-text", key: "game.start-txt"},
     ];
     translations.forEach(({ id, key }) => assignTranslation(id, key));
 }
