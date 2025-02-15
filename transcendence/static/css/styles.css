@@ -96,7 +96,7 @@ td-navigation-bar {
 }
 
 .content-container > * {
-	width: 100%;
+	min-width: 100%;
 }
 
 #notification-popup {
