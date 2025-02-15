@@ -118,16 +118,38 @@
 	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
 </template>
 <template id="page-local-game">
+	<style>
+		.registration-container {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5em;
+			align-items: center;
+		}
+
+		.registration-container > * {
+			width: 100%;
+		}
+
+		.hide {
+			display: none;
+		}
+
+	</style>
 	<td-navigation-bar>
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-room" class="ui" onclick="window.location.hash = '#main'"><p id="exit-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
-	<div style="display: flex; flex-direction: row;">
-		<td-id-card style="width: 50%;" class="ui"></td-id-card>
-		<td-id-card style="width: 50%;" class="ui"></td-id-card>
+	<div class="registration-container">
+		<div style="display: flex; flex-direction: row;">
+			<td-id-card id="player0-info" style="width: 50%;" class="ui"></td-id-card>
+			<td-id-card id="player1-info" style="width: 50%;" class="ui"></td-id-card>
+		</div>
+		<td-room-setting-mode id="room-mode-buttons" class="ui" aria-live="polite"></td-room-setting-mode>
+		<td-button id="start-game-button" class="ui" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button>
 	</div>
-	<td-room-setting-mode id="room-mode-buttons" class="ui" aria-live="polite"></td-room-setting-mode>
-	<td-button class="ui" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button>
-	<td-local-game-board class="ui" style="box-sizing: content-box;"></td-local-game-board>
+	<div id="game-container" class="hide">
+		<td-local-game-board class="ui" style="width: 100%; display: block; box-sizing: content-box;"></td-local-game-board>
+		<td-button id="restart-game-button" class="ui hide" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button>
+	</div>
 </template>
 <template id="page-room">
 	<style>
