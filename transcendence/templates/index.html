@@ -118,11 +118,15 @@
 	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
 </template>
 <template id="page-local-game">
-	<td-navigation-bar></td-navigation-bar>
+	<td-navigation-bar>
+		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-room" class="ui"><p id="exit-room" class="ui-text"></p></td-button>
+	</td-navigation-bar>
 	<div style="display: flex; flex-direction: row;">
 		<td-id-card style="width: 50%;" class="ui"></td-id-card>
 		<td-id-card style="width: 50%;" class="ui"></td-id-card>
 	</div>
+	<td-room-setting-mode id="room-mode-buttons" class="ui" aria-live="polite"></td-room-setting-mode>
+	<td-button class="ui" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button>
 	<td-local-game-board class="ui" style="box-sizing: content-box;"></td-local-game-board>
 </template>
 <template id="page-room">

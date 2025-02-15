@@ -38,10 +38,8 @@ export default class ComponentIdCard extends HTMLElement {
 
 	updateTranslation() {
     const translations = [
-			// { id: "id-card-text", key: "popups.id-card-text" },
 			{ id: "id-card-name-text", key: "popups.id-card-name-text" },
 			{ id: "id-card-background-text", key: "popups.id-card-background-text" },
-			// { id: "avatar-apply-change-text", key: "popups.avatar-apply-change-text"},
 		];
 		translations.forEach(({ id, key }) => {
 			this.shadow.getElementById(id).textContent = i18next.t(key);
