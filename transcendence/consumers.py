@@ -494,7 +494,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 if match_status == data.MatchStatus.ONGOING:
                     await data.set_match_winner(self.room_group_name, self.match_id, opponent_id)
                     winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
-                    match = await data.get_one_match(self.room_group_name, self.match_id);
+                    match = await data.get_one_match(self.room_group_name, self.match_id)
                     is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
                     if not is_last_game:
                         next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
@@ -555,6 +555,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({"type": "ack_leave_room"}))
 
     async def set_me_win(self):
+        match = await data.get_one_match(self.room_group_name, self.match_id)
         await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
         winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
         is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
