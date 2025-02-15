@@ -326,7 +326,7 @@ export class PageLocalGame {
 
 	attachEvents() {
 		let registrationContainer = this.container.querySelector(".registration-container");
-		let gameContainer = this.container.querySelector("#game-container");
+		let gameContainer = this.container.querySelector(".game-container");
 		let startButton = this.container.querySelector("#start-game-button");
 		startButton.addEventListener("click", async () => {
 			let gameBoard = this.container.querySelector("td-local-game-board");
