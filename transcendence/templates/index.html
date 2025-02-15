@@ -25,8 +25,8 @@
 			</div>
 		</div>
 		<div id="avatar-info-popup" class="fullscreen-popup" aria-hidden="true" role="dialog" aria-modal="true" >
-			<div id="avatar-info" aria-describedby="id-card-text" class="ui" style="width: 24em; aspect-ratio: 1.9; position: relative">
-				<div style="position: absolute; width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
+			<div id="avatar-info" aria-describedby="id-card-text" class="ui" style="width: 24em; height: fit-content; position: relative">
+				<div style="width: 100%; height: fit-content; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
 					<h2 id="id-card-text" style="grid-column: 1 / 4; grid-row: 1;"></h2>
 					<div role="none" style="grid-column: 1; grid-row: 2; display: flex; justify-content: center; align-items: start;">
 						<td-avatar class="dummy-avatar"></td-avatar>
@@ -55,7 +55,7 @@
 						<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
 					</td-button>
 				</div>
-				<td-button class="ui close-btn" aria-label="Close the popup" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
+				<td-button class="ui close-btn" style="position: absolute;" aria-label="Close the popup" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
 			</div>
 		</div>
 		<div id="confirm-to-logout-popup" class="fullscreen-popup" aria-hidden="true">
