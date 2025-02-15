@@ -59,6 +59,10 @@ main {
 	overflow-x: hidden;
 }
 
+td-navigation-bar {
+	margin: 1em 0;
+}
+
 .ui {
 	border: var(--td-border-size) solid var(--td-ui-font-color);
 	box-sizing: border-box;
