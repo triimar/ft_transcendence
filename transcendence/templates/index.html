@@ -106,14 +106,14 @@
 <template id="page-game">
 	<td-navigation-bar>
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-game" class="ui ui-text"><p id="exit-game"></p></td-button>
-		<td-button class="ui" aria-haspopup="true" aria-labelledby="tree-btn-txt" onclick="openPopup('tournament-tree-popup')"><img id="tree-btn-txt" src="../static/cup.png" style="height: var(--td-avatar-height); width: var(--td-avatar-width); object-fit: contain;"></td-button>
+		<td-button class="ui" id="tree-btn-txt" aria-haspopup="true" aria-label="" onclick="openPopup('tournament-tree-popup')"><img src="../static/cup.png" alt="" style="height: var(--td-avatar-height); width: var(--td-avatar-width); object-fit: contain;"></td-button>
 	</td-navigation-bar>
 	<td-game-board class="ui" style="box-sizing: content-box;"></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-game" class="ui ui-text"><p id="exit-game"></p></td-button>
-		<td-button class="ui" aria-haspopup="true" aria-labelledby="tree-btn-txt" onclick="openPopup('tournament-tree-popup')"><img id="tree-btn-txt" src="../static/cup.png"></td-button>
+		<td-button class="ui" id="tree-btn-txt" aria-haspopup="true" aria-label="" onclick="openPopup('tournament-tree-popup')"><img src="../static/cup.png" alt="" style="height: var(--td-avatar-height); width: var(--td-avatar-width); object-fit: contain;"></td-button>
 	</td-navigation-bar>
 	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
 </template>
@@ -144,7 +144,7 @@
 			<td-id-card id="player1-info" style="width: 50%;" class="ui"></td-id-card>
 		</div>
 		<td-room-setting-mode id="room-mode-buttons" class="ui" aria-live="polite"></td-room-setting-mode>
-		<td-button id="start-game-button" class="ui" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button>
+		<td-button id="start-game-button" class="ui" style="width: fit-content; padding: 0 1em;" aria-labelledby="local-btn-start"><p id="local-btn-start"></p></td-button>
 	</div>
 	<div id="game-container" class="hide">
 		<td-local-game-board class="ui" style="width: 100%; display: block; box-sizing: content-box;"></td-local-game-board>
@@ -263,8 +263,8 @@
 		}
 	</style>
 	<div style="display: flex; flex-direction: row;" >
-		<td-button class="ui" id="dec-button" aria-label="Decrease the number of players"><p style="user-select: none;">-</p></td-button>
-		<td-button class="ui" id="inc-button" aria-label="Increase the number of players"><p style="user-select: none;">+</p></td-button>
+		<td-button class="ui" id="dec-button" aria-label="Decrease the maximum number of players"><p style="user-select: none;">-</p></td-button>
+		<td-button class="ui" id="inc-button" aria-label="Increase the maximum number of players"><p style="user-select: none;">+</p></td-button>
 	</div>
 	<p style="margin-right: 0.4em; user-select: none;" id="label"></p>
 </template>

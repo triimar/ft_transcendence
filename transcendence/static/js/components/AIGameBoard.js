@@ -87,6 +87,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 					this.paddleLeft.height += BALANCE_FACTOR;
 			}
 		}
+		let gameStatusLive = this.shadow.getElementById('game-status-live');
+		gameStatusLive.textContent = (`Score: ${this.score.player}, ${this.score.ai}`)
 	}
 
 	updateBall(message) {
@@ -115,10 +117,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		document.addEventListener("keydown", this.keydownEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
 		let gameStatusLive = this.shadow.getElementById('game-status-live');
-		if (this.side == 0)
-			gameStatusLive.textContent = "Using paddle on the left. Use the arrow keys to move the paddle up and down."
-		else
-			gameStatusLive.textContent = "Using paddle on the right. Use the arrow keys to move the paddle up and down."
+		gameStatusLive.textContent = "Using paddle on the right. Use the arrow keys to move the paddle up and down."
 	}
 
 	connectedCallback() {

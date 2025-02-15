@@ -70,7 +70,6 @@ export function updateGlobalTranslations() {
         { id: "add-room", key: "add-room" },
         { id: "add-local-game", key: "add-local-game" },
         { id: "exit-room", key: "exit-room" },
-        { id: "tree-btn-txt", key: "tree-btn-txt" },
         { id: "exit-game", key: "exit-game" },
         { id: "page-error-txt", key: "error.page-not-found" },
         { id: "login-guest", key: "login.guest" },
@@ -78,6 +77,7 @@ export function updateGlobalTranslations() {
         { id: "prepare-btn-txt", key: "lobby-room.prepare-btn-txt" },
 		{ id: "prepare-btn-wait", key: "lobby-room.prepare-btn-wait" },
 		{ id: "prepare-btn-start", key: "lobby-room.prepare-btn-start" },
+		{ id: "local-btn-start", key: "lobby-room.prepare-btn-start" },	
         { id: "logout", key: "popups.logout" },
         { id: "confirm-logout-txt", key: "popups.confirm-logout-txt" },
         { id: "agree-txt", key: "popups.agree-txt"},
@@ -87,6 +87,12 @@ export function updateGlobalTranslations() {
 		{ id: "id-card-background-text", key: "popups.id-card-background-text" },
 		{ id: "avatar-apply-change-text", key: "popups.avatar-apply-change-text"},
 		{ id: "start-game-text", key: "game.start-txt"},
+		{ id: "id-card-name-text", key: "popups.id-card-name-text" },
+		{ id: "id-card-background-text", key: "popups.id-card-background-text" },
     ];
     translations.forEach(({ id, key }) => assignTranslation(id, key));
+	
+	const treeButton = document.getElementById("tree-btn-txt");
+	if (treeButton)
+		treeButton.setAttribute('aria-label', i18next.t("tree-btn-txt"));
 }
