@@ -234,16 +234,16 @@
 			margin: 0 0.4em;
 			text-align: center;
 			font-size: 1.5em;
-            cursor: pointer;
-            transition: all .2s ease-in-out;
-            background: var(--td-ui-background-color);
-            color: var(--td-ui-font-color);
+			cursor: pointer;
+			transition: all .2s ease-in-out;
+			background: var(--td-ui-background-color);
+			color: var(--td-ui-font-color);
 		}
 
 		#lobby-room-id:hover {
-            background: var(--td-ui-font-color);
-            color: var(--td-ui-background-color);
-        }
+			background: var(--td-ui-font-color);
+			color: var(--td-ui-background-color);
+		}
 
 		#lobby-room-info {
 			display: flex;
@@ -259,6 +259,11 @@
 
 			#lobby-room-participants {
 				width: 100%;
+			}
+		}
+		@media screen and (max-width: 600px) {
+			#lobby-room-id {
+				font-size: 1em;
 			}
 		}
 
