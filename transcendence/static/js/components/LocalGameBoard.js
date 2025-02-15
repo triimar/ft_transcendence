@@ -1,11 +1,8 @@
 import { myself, sleep } from "../myself.js";
 
 const GameMode = {
-	Default: "",
+	Default: "classic",
 	Balance: "balance",
-	Shoot: "shoot",
-	Bomb: "bomb",
-	Remix: "remix"
 };
 
 const BALANCE_FACTOR = 10;
@@ -84,6 +81,7 @@ export default class ComponentGameBoard extends HTMLElement {
 	}
 
 	startMatch(message) {
+		// example input: {ball: {position: {x: 150, y: 150}, velocity: {vx: 1, vy: 1}}, side: 0, game_mode: "classic", players: [{player_emoji: "wtf", player_bg_color: "3dff32"}, {player_emoji: "h^h", player_bg_color: "ff00ff"}]}
 		let ball = message["ball"];
 		let side = message["side"];
 		let playerLeft = message["players"][0];
