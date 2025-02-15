@@ -216,3 +216,45 @@ footer {
 		flex-direction: column;
 	}
 }
+
+.form-container {
+	display: flex;
+	flex-direction: row;
+}
+
+.form-row {
+	display: flex;
+	flex-direction: row;
+
+	:nth-child(1) {
+		width: 40%;
+	}
+
+	:nth-child(2) {
+		width: 60%;
+	}
+}
+
+@media screen and (max-width: 600px) {
+	.form-container {
+		flex-direction: column;
+		gap: 1em;
+	}
+
+	.form-row {
+		flex-direction: column;
+
+		:nth-child(n) {
+			width: 100%;
+		}
+	}
+
+	#color-selection-container {
+		justify-content: center;
+	}
+
+	#avatar-apply-change-btn {
+		align-self: flex-end;
+		width: 60%;
+	}
+}

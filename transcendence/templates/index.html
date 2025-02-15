@@ -27,35 +27,41 @@
 		</div>
 		<div id="avatar-info-popup" class="fullscreen-popup" aria-hidden="true" role="dialog" aria-modal="true" >
 			<div id="avatar-info" aria-describedby="id-card-text" class="ui" style="width: 24em; max-width: 100%; height: fit-content; position: relative">
-				<div style="width: 100%; height: fit-content; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
+				<div style="width: 100%; height: fit-content; display: flex; flex-direction: column; gap: 1em;">
 					<h2 id="id-card-text" style="grid-column: 1 / 4; grid-row: 1;"></h2>
-					<div role="none" style="grid-column: 1; grid-row: 2; display: flex; justify-content: center; align-items: start;">
-						<td-avatar class="dummy-avatar"></td-avatar>
-					</div>
-					<form action="" style="grid-column: 2; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: space-between; padding-left: 0.2em;">
-						<div style="display: grid; grid-template-columns: minmax(13ch, auto) 1fr; grid-template-rows: 1fr minmax(auto, 3fr); gap: 0.2em; padding-right: 0.2em;">
-								<label for="id-card-name" id="id-card-name-text"></label>
-								<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" aria-label="Insert new name" style="outline: none; border: 0.1em solid var(--td-ui-font-color)" autocomplete="none">
-								<div id="id-card-background-text" ></div>
-								<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
-									<button type="button" style="background: #ff4d6d" color="#ff4d6d" aria-label="Set Avatar Background Red"></button>
-									<button type="button" style="background: #045d75" color="#045d75" aria-label="Set Avatar Background Teal"></button>
-									<button type="button" style="background: #4ba3c7" color="#4ba3c7" aria-label="Set Avatar Background Blue"></button>
-									<button type="button" style="background: #007f5f" color="#007f5f" aria-label="Set Avatar Background Green"></button>
-									<button type="button" style="background: #ffe156" color="#ffe156" aria-label="Set Avatar Background Yellow"></button>
-									<button type="button" style="background: #a01a58" color="#a01a58" aria-label="Set Avatar Background Magenta"></button>
-									<button type="button" style="background: #ff5da2" color="#ff5da2" aria-label="Set Avatar Background Pink"></button>
-									<button type="button" style="background: #001f54" color="#001f54" aria-label="Set Avatar Background Dark Blue"></button>
-								</div>
+					<div class="form-container">
+						<div role="none" style="display: flex; justify-content: center; align-items: start;">
+							<td-avatar class="dummy-avatar"></td-avatar>
 						</div>
-						<td-button id="avatar-apply-change-btn" aria-labelledby="avatar-apply-change-text" class="ui">
-							<p id="avatar-apply-change-text" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
-						</td-button>
-					</form>
-					<td-button id="logout-btn" class="ui" style="grid-column: 1; grid-row: 3;" aria-labelledby="logout" onclick="closePopup('avatar-info-popup')">
-						<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
-					</td-button>
+						<form action="" style="padding-left: 0.2em; display: flex; flex-direction: column; gap: 1em; min-width: 5em;">
+							<div style="display: flex; flex-direction: column; justify-content: space-between; padding-right: 0.2em; gap: 0.2em">
+									<div class="form-row">
+										<label for="id-card-name" id="id-card-name-text"></label>
+										<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" aria-label="Insert new name" style="outline: none; border: 0.1em solid var(--td-ui-font-color);" autocomplete="none">
+									</div>
+									<div class="form-row">
+										<div id="id-card-background-text" ></div>
+										<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
+											<button type="button" style="background: #ff4d6d" color="#ff4d6d" aria-label="Set Avatar Background Red"></button>
+											<button type="button" style="background: #045d75" color="#045d75" aria-label="Set Avatar Background Teal"></button>
+											<button type="button" style="background: #4ba3c7" color="#4ba3c7" aria-label="Set Avatar Background Blue"></button>
+											<button type="button" style="background: #007f5f" color="#007f5f" aria-label="Set Avatar Background Green"></button>
+											<button type="button" style="background: #ffe156" color="#ffe156" aria-label="Set Avatar Background Yellow"></button>
+											<button type="button" style="background: #a01a58" color="#a01a58" aria-label="Set Avatar Background Magenta"></button>
+											<button type="button" style="background: #ff5da2" color="#ff5da2" aria-label="Set Avatar Background Pink"></button>
+											<button type="button" style="background: #001f54" color="#001f54" aria-label="Set Avatar Background Dark Blue"></button>
+										</div>
+									</div>
+							</div>
+							<td-button id="avatar-apply-change-btn" aria-labelledby="avatar-apply-change-text" class="ui">
+								<p id="avatar-apply-change-text" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
+							</td-button>
+						</form>
+					</div>
 				</div>
+				<td-button id="logout-btn" class="ui" style="position: absolute; bottom: 0;" aria-labelledby="logout" onclick="closePopup('avatar-info-popup')">
+					<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
+				</td-button>
 				<td-button class="ui close-btn" style="position: absolute;" aria-label="Close the popup" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
 			</div>
 		</div>
