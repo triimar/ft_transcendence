@@ -10,9 +10,11 @@ export default class ComponentIdCard extends HTMLElement {
 		let avatarChangeButton = this.shadow.getElementById("avatar-apply-change-btn");
 		let colorSelectionContainer = this.shadow.getElementById("color-selection-container");
 		let avatarNameTextInput = this.shadow.getElementById("id-card-name");
+		let avatarElement = this.shadow.querySelector("td-avatar");
+		avatarNameTextInput.value = "^;^";
+		avatarElement.setAttribute("avatar-name", "^;^");
 
 		avatarNameTextInput.addEventListener("input", (e) => {
-			let avatarElement = this.shadow.querySelector("#avatar-info td-avatar");
 			avatarElement.setAttribute("avatar-name", e.target.value);
 		}, true);
 		let colorSelectionFunc = (e) => {
