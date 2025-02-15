@@ -483,36 +483,15 @@ export default class ComponentGameBoard extends HTMLElement {
 			}
 			this.keysPressed[e.key.toLowerCase()] = false;
 		}).bind(this)
-
+		
 		this.keydownEventListener = ((e) => {
 			if (!this.isRunning)
 				return;
-			// switch (e.key) {
-			// 	case "s":
-			// 		this.paddleLeft.y += this.paddleLeft.vy;
-			// 		if (this.paddleLeft.y > canvas.height - this.paddleLeft.height)
-			// 			this.paddleLeft.y = canvas.height - this.paddleLeft.height;
-			// 		break;
-			// 	case "ArrowDown":
-			// 		this.paddleRight.y += this.paddleRight.vy;
-			// 		if (this.paddleRight.y > canvas.height - this.paddleRight.height)
-			// 			this.paddleRight.y = canvas.height - this.paddleRight.height;
-			// 		break;
-			// 	case "w":
-			// 		this.paddleLeft.y -= this.paddleLeft.vy;
-			// 		if (this.paddleLeft.y < 0)
-			// 			this.paddleLeft.y = 0;
-			// 		break;
-			// 	case "ArrowUp":
-			// 		this.paddleRight.y -= this.paddleRight.vy;
-			// 		if (this.paddleRight.y < 0)
-			// 			this.paddleRight.y = 0;
-			// 		break;
-			// 	default:
-			// 		return;
-			// }
+			if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
+				// Prevent the default action (scrolling)
+				e.preventDefault();
+			}
 			this.keysPressed[e.key.toLowerCase()] = true;
-			e.preventDefault();
 		}).bind(this)
 	}
 
