@@ -489,7 +489,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             ball = await data.reset_ball(self.room_group_name, self.match_id)
             event = {"type": "broadcast.scored.point", "player_side": player_side, "ball": ball}
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
-            if (player_data['score'] == 3):
+            if (player_data['score'] == 11):
                 await data.set_match_winner(self.room_group_name, self.match_id, self.player_id)
                 winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
                 is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
@@ -643,7 +643,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             score = player['score'] + 1
             await data.increase_ai_score(self.room_group_name)
             # event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winner": "ai"}
-        if score == 3:
+        if score == 11:
             await data.set_match_winner(self.room_group_name, self.match_id, id)
             winner_id_list = await data.get_winners_list(self.room_group_name, self.first_layer_player_id)
             is_last_game = await data.is_last_game(self.match_id, self.room_group_name)
