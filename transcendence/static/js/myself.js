@@ -483,7 +483,13 @@ class Visitor {
 			case "b_paddle_move": {
 				if ((this.pageName == "game") || (this.pageName == "ai-game")) {
 					let gameboard = this.page.container.querySelector("td-game-board");
-					gameboard.oponentPaddleMoved(message["paddle"], message["position"])
+					gameboard.opponentKeyPress(message["paddle"], message["position"], message["key"])
+				}
+			} break;
+			case "b_key_unpress": {
+				if ((this.pageName == "game") || (this.pageName == "ai-game")) {
+					let gameboard = this.page.container.querySelector("td-game-board");
+					gameboard.opponentKeyUnpress(message["paddle"], message["position"], message["key"])
 				}
 			} break;
 			case "b_bounce_ball": {

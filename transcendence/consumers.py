@@ -209,6 +209,10 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                 await self.bounce_ball(ball)
             case {"type": "paddle_move", "position": position}:
                 await self.paddle_move(position)
+            case {"type": "key_press", "position": position, "key": key}:
+                await self.key_press(position, key)
+            case {"type": "key_unpress", "position": position, "key": key}:
+                await self.key_unpress(position, key)
             case {"type": "scored_point"}:
                 await self.score_point()
             case {"type": "ai_score_player"}:
@@ -417,13 +421,53 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             player_side = 1
         player_data['position'] = position
         await data.update_player(player_data)
-        event = {"type": "broadcast.paddle.move", "position": position, "player_side": player_side}
+        event = {"type": "broadcast.paddle.move", "position": position, "player_side": player_side, "key": " "}
+        await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
+    
+    async def key_press(self, position, key):
+        # if self.match_id is None or self.room_group_name is None:
+        #     return
+        if (await data.is_match_end(self.room_group_name, self.match_id)):
+            return
+        room = await data.get_one_room_data(self.room_group_name)
+        match_data = room['matches'][self.match_id]
+        player_data = await data.get_one_player(self.player_id)
+        player_side = 0
+        if match_data['players'][1] == self.player_id:
+            player_side = 1
+        player_data['position'] = position
+        await data.update_player(player_data)
+        event = {"type": "broadcast.paddle.move", "position": position, "player_side": player_side, "key": key}
+        await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
+    
+    async def key_unpress(self, position, key):
+        # if self.match_id is None or self.room_group_name is None:
+        #     return
+        if (await data.is_match_end(self.room_group_name, self.match_id)):
+            return
+        room = await data.get_one_room_data(self.room_group_name)
+        match_data = room['matches'][self.match_id]
+        player_data = await data.get_one_player(self.player_id)
+        player_side = 0
+        if match_data['players'][1] == self.player_id:
+            player_side = 1
+        player_data['position'] = position
+        await data.update_player(player_data)
+        event = {"type": "broadcast.key.unpress", "position": position, "player_side": player_side, "key": key}
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
 
     async def broadcast_paddle_move(self, event):
         position = event["position"]
         player_side = event["player_side"]
-        text_data = json.dumps({"type": "b_paddle_move", "position": position, "paddle": player_side})
+        key = event["key"]
+        text_data = json.dumps({"type": "b_paddle_move", "position": position, "paddle": player_side, "key": key})
+        await self.send(text_data=text_data)
+    
+    async def broadcast_key_unpress(self, event):
+        position = event["position"]
+        player_side = event["player_side"]
+        key = event["key"]
+        text_data = json.dumps({"type": "b_key_unpress", "position": position, "paddle": player_side, "key": key})
         await self.send(text_data=text_data)
 
     async def score_point(self):

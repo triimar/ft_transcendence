@@ -25,6 +25,13 @@ export default class ComponentGameBoard extends HTMLElement {
 		else
 			return this.paddleRight;
 	}
+	
+	getOpponentPaddle() {
+		if (this.side == 0)
+			return this.paddleRight;
+		else
+			return this.paddleLeft;
+	}
 
 	countdown() {
 		let winnerContainer = this.shadow.querySelector("#winner-container");
@@ -73,6 +80,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		countdownText.textContent = this.score.left + " : " + this.score.right;
 		blocker.classList.add("show");
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		document.removeEventListener("keyup", this.keyupEventListener, true);
 		canvas.removeEventListener("touchstart", this.touchStartFunc);
 		canvas.removeEventListener("touchmove", this.touchMoveFunc);
 		window.cancelAnimationFrame(this.raf);
@@ -104,6 +112,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleLeft.draw();
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
+		document.addEventListener("keyup", this.keyupEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
 		this.lastTime = 0;
 		let gameStatusLive = this.shadow.getElementById('game-status-live');
@@ -120,6 +129,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.raf = null;
 			window.cancelAnimationFrame(raf);
 			document.removeEventListener("keydown", this.keydownEventListener, true);
+			document.removeEventListener("keyup", this.keyupEventListener, true);
 		}
 	}
 
@@ -141,6 +151,28 @@ export default class ComponentGameBoard extends HTMLElement {
 		else
 			this.paddleRight.y = position;
 		// TODO: maybe need to change more than just y, maybe the velocity as well?
+	}
+	
+	opponentKeyPress(side, position, key) {
+		if (side == this.side)
+			return;
+		if (side == 0) {
+			this.paddleLeft.y = position;
+		} else {
+			this.paddleRight.y = position;
+		}
+		this.keysPressed[key] = true;
+	}
+	
+	opponentKeyUnpress(side, position, key) {
+		if (side == this.side)
+			return;
+		if (side == 0) {
+			this.paddleLeft.y = position;
+		} else {
+			this.paddleRight.y = position;
+		}
+		this.keysPressed[key] = false;
 	}
 
 	pointScored(side) {
@@ -181,7 +213,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		const MAXBOUNCEANGLE = Math.PI/4;
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
-		const PADDLE_SPEED = 15;
+		const PADDLE_SPEED = 3;
 		this.MAX_PADDLE_SIZE = canvas.height/2;
 		this.MIN_PADDLE_SIZE = canvas.height/10;
 		this.gameMode = GameMode.Default;
@@ -189,6 +221,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.isRunning = true;
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
+		this.keysPressed = {}
 
 		this.score = {
 			left: 0,
@@ -382,6 +415,29 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.paddleRight.draw();
 			this.ball.draw();
 		}).bind(this);
+		
+		this.updatePaddles = (function() {
+			if (this.keysPressed['down']) {
+				this.getMyPaddle().y += this.getMyPaddle().vy;
+				if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height)
+					this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
+			}
+			if (this.keysPressed['up']) {
+				this.getMyPaddle().y -= this.getMyPaddle().vy;
+				if (this.getMyPaddle().y < 0)
+					this.getMyPaddle().y = 0;
+			}
+			if (this.keysPressed['op_down']) {
+				this.getOpponentPaddle().y += this.getOpponentPaddle().vy;
+				if (this.getOpponentPaddle().y > canvas.height - this.getOpponentPaddle().height)
+					this.getOpponentPaddle().y = canvas.height - this.getOpponentPaddle().height;
+			}
+			if (this.keysPressed['op_up']) {
+				this.getOpponentPaddle().y -= this.getOpponentPaddle().vy;
+				if (this.getOpponentPaddle().y < 0)
+					this.getOpponentPaddle().y = 0;
+			}
+		}).bind(this);
 
 		this.gameLoop = (timeStamp) => {
 			if (!this.isRunning)
@@ -395,6 +451,7 @@ export default class ComponentGameBoard extends HTMLElement {
 			if (accumulatedTime < 0) accumulatedTime = 0;
 			while (accumulatedTime >= updateInterval) {
 				moving.bind(this)();
+				this.updatePaddles();
 				accumulatedTime -= updateInterval;
 			}
 
@@ -420,55 +477,70 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.movePaddleTo(touchY);
 		};
 		canvas.addEventListener("touchmove", this.touchMoveFunc);
+		canvas.addEventListener("touchend", (e) => {
+			if (!this.isRunning)
+				return;
+			e.preventDefault(); // Prevent scrolling while playing
+			this.keysPressed["down"] = false;
+			this.keysPressed["up"] = false;
+			this.keyUnpress("op_down");
+			this.keyUnpress("op_up");
+		});
 
 		// Helper function to move the paddle to a specific y-coordinate
 		this.movePaddleTo = (touchY) => {
 			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
 			const relativeY = touchY - canvasRect.top; // Adjust touchY to the canvas coordinate system
 
-			// Set the paddle's y position, ensuring it stays within bounds
-			this.getMyPaddle().y = relativeY - this.getMyPaddle().height / 2;
-			if (this.getMyPaddle().y < 0) {
-				this.getMyPaddle().y = 0;
+			if (this.getMyPaddle().y < relativeY) {
+				this.keysPressed["down"] = true;
+				this.keysPressed["up"] = false;
+				this.keyPress("op_down");
+			} else {
+				this.keysPressed["up"] = true;
+				this.keysPressed["down"] = false;
+				this.keyPress("op_up");
 			}
-			if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height) {
-				this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
-			}
-
-			// Trigger the paddle move action
-			this.paddleMove();
 		};
 
-		this.keydownEventListener = ((e) => {
-			if (!this.isRunning)
-				return;
-			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
+		this.keyupEventListener = ((e) => {
+			if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
 				// Prevent the default action (scrolling)
 				e.preventDefault();
 			}
-			switch (e.key) {
-				case "s":
-				case "ArrowDown":
-					this.getMyPaddle().y += this.getMyPaddle().vy;
-					if (this.getMyPaddle().y > canvas.height - this.getMyPaddle().height)
-						this.getMyPaddle().y = canvas.height - this.getMyPaddle().height;
-					this.paddleMove();
-					break;
-				case "w":
-				case "ArrowUp":
-					this.getMyPaddle().y -= this.getMyPaddle().vy;
-					if (this.getMyPaddle().y < 0)
-						this.getMyPaddle().y = 0;
-					this.paddleMove();
-					break;
-				default:
-					return;
+			if (["ArrowUp", "w"].includes(e.key)) {
+				this.keysPressed["up"] = false;
+				this.keyUnpress("op_up");
+				// send message
+			} else if (["ArrowDown", "s"].includes(e.key)) {
+				this.keysPressed["down"] = false;
+				this.keyUnpress("op_down");
+				// send message
 			}
-		}).bind(this);
+		}).bind(this)
+		
+		this.keydownEventListener = ((e) => {
+			if (!this.isRunning)
+				return;
+			if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
+				// Prevent the default action (scrolling)
+				e.preventDefault();
+			}
+			if (["ArrowUp", "w"].includes(e.key)) {
+				this.keysPressed["up"] = true;
+				this.keyPress("op_up");
+				// send message
+			} else if (["ArrowDown", "s"].includes(e.key)) {
+				this.keysPressed["down"] = true;
+				this.keyPress("op_down");
+				// send message
+			}
+		}).bind(this)
 	}
 
 	disconnectedCallback() {
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		document.removeEventListener("keyup", this.keyupEventListener, true);
 		window.cancelAnimationFrame(this.raf);
 		this.raf = null;
 	}
@@ -493,6 +565,26 @@ export default class ComponentGameBoard extends HTMLElement {
 		myself.sendMessage(JSON.stringify({
 			'type': 'paddle_move',
 			'position': this.getMyPaddle().y
+		}))
+	}
+	
+	keyPress(key) {
+		if (!this.isRunning)
+			return;
+		myself.sendMessage(JSON.stringify({
+			'type': 'key_press',
+			'position': this.getMyPaddle().y,
+			'key': key
+		}))
+	}
+	
+	keyUnpress(key) {
+		if (!this.isRunning)
+			return;
+		myself.sendMessage(JSON.stringify({
+			'type': 'key_unpress',
+			'position': this.getMyPaddle().y,
+			'key': key
 		}))
 	}
 

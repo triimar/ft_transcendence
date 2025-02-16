@@ -66,6 +66,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		blocker.classList.add("show");
 		window.cancelAnimationFrame(this.raf);
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		document.removeEventListener("keyup", this.keyupEventListener, true);
 		this.raf = null;
 	}
 
@@ -116,6 +117,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		this.lastTime = Date.now();
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
+		document.addEventListener("keyup", this.keyupEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
 		let gameStatusLive = this.shadow.getElementById('game-status-live');
 		gameStatusLive.textContent = "Using paddle on the right. Use the arrow keys to move the paddle up and down."
@@ -128,7 +130,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		const MAXBOUNCEANGLE = Math.PI/4;
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
-		const PADDLE_SPEED = 10;
+		const PADDLE_SPEED = 3;
 		const AI_SPEED = 5;
 		const ERROR_MARGIN = 15;
 		this.MAX_PADDLE_SIZE = canvas.height/2;
@@ -143,6 +145,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		const aiMoveInterval = 3;
 		this.gameMode = GameMode.Default;
 		this.isRunning = true;
+		this.keysPressed = {}
 
 		this.score = {
 			player: 0,
@@ -359,6 +362,19 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			this.ai.draw();
 			this.ball.draw();
 		}).bind(this);
+		
+		this.updatePaddle = (function() {
+			if (this.keysPressed['down']) {
+				this.paddleLeft.y += this.paddleLeft.vy;
+				if (this.paddleLeft.y > canvas.height - this.paddleLeft.height)
+					this.paddleLeft.y = canvas.height - this.paddleLeft.height;
+			}
+			if (this.keysPressed['up']) {
+				this.paddleLeft.y -= this.paddleLeft.vy;
+				if (this.paddleLeft.y < 0)
+					this.paddleLeft.y = 0;
+			}
+		}).bind(this);
 
 		this.gameLoop = (function(timeStamp) {
 			if (!this.isRunning)
@@ -384,6 +400,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				} else {
 					aiMoveTimes++;
 				}
+				this.updatePaddle();
 				accumulatedTime -= updateInterval;
 			}
 			while (accumulatedAiTime >= aiUpdateInterval) {
@@ -430,36 +447,39 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			}
 		};
 
-		this.keydownEventListener = ((e) => {
-			if (!this.isRunning)
-				return;
-			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
+		this.keyupEventListener = ((e) => {
+			if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
 				// Prevent the default action (scrolling)
 				e.preventDefault();
 			}
-			switch (e.key) {
-				case "ArrowDown":
-				case "s":
-					this.paddleLeft.y += this.paddleLeft.vy;
-					if (this.paddleLeft.y > canvas.height - this.paddleLeft.height)
-					this.paddleLeft.y = canvas.height - this.paddleLeft.height;
-				break;
-				case "ArrowUp":
-				case "w":
-					this.paddleLeft.y -= this.paddleLeft.vy;
-					if (this.paddleLeft.y < 0)
-						this.paddleLeft.y = 0;
-					break;
-				default:
-					return;
+			if (["ArrowUp", "w"].includes(e.key)) {
+				this.keysPressed["up"] = false;
+			} else if (["ArrowDown", "s"].includes(e.key)) {
+				this.keysPressed["down"] = false;
 			}
-		}).bind(this);
+		}).bind(this)
+		
+		this.keydownEventListener = ((e) => {
+			if (!this.isRunning)
+				return;
+			if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
+				// Prevent the default action (scrolling)
+				e.preventDefault();
+			}
+			if (["ArrowUp", "w"].includes(e.key)) {
+				this.keysPressed["up"] = true;
+			} else if (["ArrowDown", "s"].includes(e.key)) {
+				this.keysPressed["down"] = true;
+			}
+		}).bind(this)
 
 		document.addEventListener("keydown", this.keydownEventListener, true);
+		document.addEventListener("keyup", this.keyupEventListener, true);
 	}
 
 	disconnectedCallback() {
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		document.removeEventListener("keyup", this.keyupEventListener, true);
 		window.cancelAnimationFrame(this.raf);
 		this.raf = null;
 	}
