@@ -455,10 +455,10 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		};
 
 		this.keyupEventListener = ((e) => {
-			if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
-				// Prevent the default action (scrolling)
-				e.preventDefault();
-			}
+			// if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
+			// 	// Prevent the default action (scrolling)
+			// 	e.preventDefault();
+			// }
 			if (["ArrowUp", "w"].includes(e.key)) {
 				this.keysPressed["up"] = false;
 			} else if (["ArrowDown", "s"].includes(e.key)) {

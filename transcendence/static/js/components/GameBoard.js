@@ -504,10 +504,10 @@ export default class ComponentGameBoard extends HTMLElement {
 		};
 
 		this.keyupEventListener = ((e) => {
-			if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
-				// Prevent the default action (scrolling)
-				e.preventDefault();
-			}
+			// if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
+			// 	// Prevent the default action (scrolling)
+			// 	e.preventDefault();
+			// }
 			if (["ArrowUp", "w"].includes(e.key)) {
 				this.keysPressed["up"] = false;
 				this.keyUnpress("op_up");
