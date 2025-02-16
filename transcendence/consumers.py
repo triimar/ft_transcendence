@@ -12,6 +12,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         self.room_group_name = None
         self.match_id = None
         self.first_layer_player_id = None
+        self.player_id = None
 
         # Join the lobby group
         await self.channel_layer.group_add(
@@ -115,6 +116,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
                     await self.send(text_data=json.dumps({"type": "ack_init", "rooms": room_list}))
             case {"type": "join_room",  "room_id": room_id, "player_id": player_id}:
                 self.room_group_name = room_id
+                self.player_id = player_id
 
                 match (await data.add_player_to_room(room_id=room_id, player_id=player_id)):
                     case data.RedisError.NONE:
@@ -423,7 +425,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await data.update_player(player_data)
         event = {"type": "broadcast.paddle.move", "position": position, "player_side": player_side, "key": " "}
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
-    
+
     async def key_press(self, position, key):
         # if self.match_id is None or self.room_group_name is None:
         #     return
@@ -439,7 +441,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         await data.update_player(player_data)
         event = {"type": "broadcast.paddle.move", "position": position, "player_side": player_side, "key": key}
         await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
-    
+
     async def key_unpress(self, position, key):
         # if self.match_id is None or self.room_group_name is None:
         #     return
@@ -462,7 +464,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         key = event["key"]
         text_data = json.dumps({"type": "b_paddle_move", "position": position, "paddle": player_side, "key": key})
         await self.send(text_data=text_data)
-    
+
     async def broadcast_key_unpress(self, event):
         position = event["position"]
         player_side = event["player_side"]
