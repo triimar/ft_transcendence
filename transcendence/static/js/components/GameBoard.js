@@ -490,19 +490,19 @@ export default class ComponentGameBoard extends HTMLElement {
 			// Check if movement exceeds the dead zone
 			if (deltaY < -5) {
 				// Moved upward
-				// if (this.keysPressed["down"]) {
-				// }
-				this.keyUnpress("op_down");
-				this.keyPress("op_up");
+				if (!this.keysPressed["up"]) {
+					this.keyUnpress("op_down");
+					this.keyPress("op_up");
+				}
 				this.keysPressed["up"] = true;
 				this.keysPressed["down"] = false;
 				
 			} else if (deltaY > 5) {
 				// Moved downward
-				// if (this.keysPressed["up"]) {
-				// }
-				this.keyUnpress("op_up");
-				this.keyPress("op_down");
+				if (!this.keysPressed["down"]) {
+					this.keyUnpress("op_up");
+					this.keyPress("op_down");
+				}
 				this.keysPressed["down"] = true;
 				this.keysPressed["up"] = false;
 			} else {
@@ -520,10 +520,12 @@ export default class ComponentGameBoard extends HTMLElement {
 			if (!this.isRunning)
 				return;
 			e.preventDefault(); // Prevent scrolling while playing
+			if (this.keysPressed["down"])
+				this.keyUnpress("op_down");
+			if (this.keysPressed["up"])
+				this.keyUnpress("op_up");
 			this.keysPressed["down"] = false;
 			this.keysPressed["up"] = false;
-			this.keyUnpress("op_down");
-			this.keyUnpress("op_up");
 		});
 
 		this.keyupEventListener = ((e) => {
@@ -579,15 +581,6 @@ export default class ComponentGameBoard extends HTMLElement {
 				'velocity': {'vx': this.ball.vx, 'vy': this.ball.vy},
 				'size': 15
 			}
-		}))
-	}
-
-	paddleMove() {
-		if (!this.isRunning)
-			return;
-		myself.sendMessage(JSON.stringify({
-			'type': 'paddle_move',
-			'position': this.getMyPaddle().y
 		}))
 	}
 	
