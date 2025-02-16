@@ -162,7 +162,7 @@ export default class ComponentGameBoard extends HTMLElement {
 					this.paddleLeft.height += BALANCE_FACTOR;
 			}
 		}
-		if (this.score.left >= 5 || this.score.right >= 5)
+		if (this.score.left >= 11 || this.score.right >= 11)
 			this.displayMatchResult(side);
 	//NOT WORKING FOR UNKNOWN REASON
 		let gameStatusLive = this.shadow.getElementById('game-status-live');
