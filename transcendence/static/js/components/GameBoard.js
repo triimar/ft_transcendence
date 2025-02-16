@@ -222,7 +222,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.isRunning = true;
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
-		this.keysPressed = {}
+		this.keysPressed = {};
+		this.joystickCenter = null;
 
 		this.score = {
 			left: 0,
@@ -466,17 +467,54 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.touchStartFunc = (e) => {
 			if (!this.isRunning)
 				return;
-			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
-			this.movePaddleTo(touchY);
+			const touch = e.touches[0]; // Get the y-coordinate of the touch
+			const canvasRect = canvas.getBoundingClientRect();
+			this.joystickCenter = {
+				x: touch.clientX - canvasRect.left,
+				y: touch.clientY - canvasRect.top,
+			}
 		};
 		canvas.addEventListener("touchstart", this.touchStartFunc);
 		this.touchMoveFunc = (e) => {
-			if (!this.isRunning)
-				return;
-			e.preventDefault(); // Prevent scrolling while playing
-			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
-			this.movePaddleTo(touchY);
-		};
+			if (!this.isRunning || !this.joystickCenter) return;
+			e.preventDefault();
+			const touch = e.touches[0];
+			const canvasRect = canvas.getBoundingClientRect();
+			const currentPos = {
+				x: touch.clientX - canvasRect.left,
+				y: touch.clientY - canvasRect.top,
+			};
+
+			// Calculate vertical offset
+			const deltaY = currentPos.y - this.joystickCenter.y;
+			// Check if movement exceeds the dead zone
+			if (deltaY < -5) {
+				// Moved upward
+				// if (this.keysPressed["down"]) {
+				// }
+				this.keyUnpress("op_down");
+				this.keyPress("op_up");
+				this.keysPressed["up"] = true;
+				this.keysPressed["down"] = false;
+				
+			} else if (deltaY > 5) {
+				// Moved downward
+				// if (this.keysPressed["up"]) {
+				// }
+				this.keyUnpress("op_up");
+				this.keyPress("op_down");
+				this.keysPressed["down"] = true;
+				this.keysPressed["up"] = false;
+			} else {
+				// Within dead zone; no key should be active
+				if (this.keysPressed["down"])
+					this.keyUnpress("op_down");
+				if (this.keysPressed["up"])
+					this.keyUnpress("op_up");
+				this.keysPressed["up"] = false;
+				this.keysPressed["down"] = false;
+			};
+		}
 		canvas.addEventListener("touchmove", this.touchMoveFunc);
 		canvas.addEventListener("touchend", (e) => {
 			if (!this.isRunning)
@@ -487,22 +525,6 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.keyUnpress("op_down");
 			this.keyUnpress("op_up");
 		});
-
-		// Helper function to move the paddle to a specific y-coordinate
-		this.movePaddleTo = (touchY) => {
-			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
-			const relativeY = touchY - canvasRect.top; // Adjust touchY to the canvas coordinate system
-
-			if (this.getMyPaddle().y < relativeY) {
-				this.keysPressed["down"] = true;
-				this.keysPressed["up"] = false;
-				this.keyPress("op_down");
-			} else {
-				this.keysPressed["up"] = true;
-				this.keysPressed["down"] = false;
-				this.keyPress("op_up");
-			}
-		};
 
 		this.keyupEventListener = ((e) => {
 			// if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {

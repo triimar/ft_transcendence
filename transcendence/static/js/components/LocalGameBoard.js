@@ -193,7 +193,11 @@ export default class ComponentGameBoard extends HTMLElement {
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		const updateInterval = 1000 / 60; // Fixed update interval (16.67 ms for 60 FPS)
 
-		this.keysPressed = {}
+		this.keysPressed = {};
+		this.joysticks = {
+			left: { id: null, center: null },
+			right: { id: null, center: null },
+		};
 		
 		this.score = {
 			left: 0,
@@ -419,25 +423,85 @@ export default class ComponentGameBoard extends HTMLElement {
 				this.raf = window.requestAnimationFrame(this.gameLoop);
 			}
 		};
+		
+		const assignTouchToPlayer = (touch) => {
+			const canvasRect = canvas.getBoundingClientRect();
+			const x = touch.clientX - canvasRect.left;
+			return (x < canvas.width / 2) ? "left" : "right";
+		};
 
 		// Add touch event listeners to the canvas
 		// let recordedTouchY = [];
 		this.touchStartFunc = (e) => {
-			if (!this.isRunning)
-				return;
-			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
-			const touchX = e.touches[0].clientX; // Get the x-coordinate of the touch
+			if (!this.isRunning) return;
+			e.preventDefault();
+			const canvasRect = canvas.getBoundingClientRect();
 
-			this.movePaddleTo(touchY, touchX);
+			// Loop through all new touches
+			for (let i = 0; i < e.changedTouches.length; i++) {
+				const touch = e.changedTouches[i];
+				const player = assignTouchToPlayer(touch);
+				// Only assign if this player doesn't have an active touch
+				if (this.joysticks[player].id === null) {
+				this.joysticks[player].id = touch.identifier;
+				this.joysticks[player].center = {
+					x: touch.clientX - canvasRect.left,
+					y: touch.clientY - canvasRect.top,
+				};
+				}
+			}
 		};
 		canvas.addEventListener("touchstart", this.touchStartFunc);
 		this.touchMoveFunc = (e) => {
-			if (!this.isRunning)
-				return;
-			e.preventDefault(); // Prevent scrolling while playing
-			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
-			const touchX = e.touches[0].clientX; // Get the x-coordinate of the touch
-			this.movePaddleTo(touchY, touchX);
+			if (!this.isRunning) return;
+			e.preventDefault();
+			const canvasRect = canvas.getBoundingClientRect();
+
+			// Process every active touch
+			for (let i = 0; i < e.touches.length; i++) {
+				const touch = e.touches[i];
+				// Check if this touch is controlling either paddle
+				for (let player in this.joysticks) {
+					if (this.joysticks[player].id === touch.identifier) {
+						// Calculate current position relative to the canvas
+						const currentPos = {
+							x: touch.clientX - canvasRect.left,
+							y: touch.clientY - canvasRect.top,
+						};
+
+						// Calculate the vertical offset from the original touch (joystick center)
+						const deltaY = currentPos.y - this.joysticks[player].center.y;
+
+						// Update key states based on how far the finger has moved
+						if (deltaY < -this.deadZone) {
+							// Moved upward
+							if (player === "left") {
+								this.keysPressed["w"] = true;
+								this.keysPressed["s"] = false;
+							} else {
+								this.keysPressed["ArrowUp"] = true;
+								this.keysPressed["ArrowDown"] = false;
+							}
+						} else if (deltaY > this.deadZone) {
+							if (player === "left") {
+								this.keysPressed["w"] = false;
+								this.keysPressed["s"] = true;
+							} else {
+								this.keysPressed["ArrowUp"] = false;
+								this.keysPressed["ArrowDown"] = true;
+							}
+						} else {
+							if (player === "left") {
+								this.keysPressed["w"] = false;
+								this.keysPressed["s"] = false;
+							} else {
+								this.keysPressed["ArrowUp"] = false;
+								this.keysPressed["ArrowDown"] = false;
+							}
+						}
+					}
+				}
+			}
 		};
 		canvas.addEventListener("touchmove", this.touchMoveFunc);
 		canvas.addEventListener("touchend", (e) => {
@@ -456,31 +520,6 @@ export default class ComponentGameBoard extends HTMLElement {
 			}
 		});
 
-		// Helper function to move the paddle to a specific y-coordinate
-		this.movePaddleTo = (touchY, touchX) => {
-			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
-			const relativeY = touchY - canvasRect.top; // Adjust touchY to the canvas coordinate system
-			const screenMiddle = canvasRect.left + canvasRect.width / 2; // Midpoint of the canvas
-
-			if (touchX < screenMiddle) {
-				if (this.paddleLeft.y < relativeY) {
-					this.keysPressed["s"] = true;
-					this.keysPressed["w"] = false;
-				} else if (this.paddleLeft.y > relativeY) {
-					this.keysPressed["w"] = true;
-					this.keysPressed["s"] = false;
-				}
-			} else {
-				if (this.paddleLeft.y < relativeY) {
-					this.keysPressed["arrowdown"] = true;
-					this.keysPressed["arrowup"] = false;
-				} else if (this.paddleLeft.y > relativeY) {
-					this.keysPressed["arrowup"] = true;
-					this.keysPressed["arrowdown"] = false;
-				}
-			}
-		};
-		
 		this.keyupEventListener = ((e) => {
 			// if (["ArrowUp", "ArrowDown", "w", "s", " "].includes(e.key)) {
 			// 	// Prevent the default action (scrolling)
