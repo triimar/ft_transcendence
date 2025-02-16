@@ -417,19 +417,27 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 
 		// Add touch event listeners to the canvas
-		canvas.addEventListener("touchstart", (e) => {
+		this.touchStartFunc = (e) => {
 			if (!this.isRunning)
 				return;
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
 			this.movePaddleTo(touchY);
-		});
-		
-		canvas.addEventListener("touchmove", (e) => {
+		};
+		canvas.addEventListener("touchstart", this.touchStartFunc);
+		this.touchMoveFunc = (e) => {
 			if (!this.isRunning)
 				return;
 			e.preventDefault(); // Prevent scrolling while playing
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
 			this.movePaddleTo(touchY);
+		};
+		canvas.addEventListener("touchmove", this.touchMoveFunc);
+		canvas.addEventListener("touchend", (e) => {
+			if (!this.isRunning)
+				return;
+			e.preventDefault(); // Prevent scrolling while playing
+			this.keysPressed["down"] = false;
+			this.keysPressed["up"] = false;
 		});
 
 		// Helper function to move the paddle to a specific y-coordinate
@@ -437,13 +445,12 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
 			const relativeY = touchY - canvasRect.top; // Adjust touchY to the canvas coordinate system
 
-			// Set the paddle's y position, ensuring it stays within bounds
-			this.paddleLeft.y = relativeY - this.paddleLeft.height / 2;
-			if (this.paddleLeft.y < 0) {
-				this.paddleLeft.y = 0;
-			}
-			if (this.paddleLeft.y > canvas.height - this.paddleLeft.height) {
-				this.paddleLeft.y = canvas.height - this.paddleLeft.height;
+			if (this.paddleLeft.y < relativeY) {
+				this.keysPressed["down"] = true;
+				this.keysPressed["up"] = false;
+			} else {
+				this.keysPressed["up"] = true;
+				this.keysPressed["down"] = false;
 			}
 		};
 
