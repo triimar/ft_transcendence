@@ -430,9 +430,6 @@ export default class ComponentGameBoard extends HTMLElement {
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
 			const touchX = e.touches[0].clientX; // Get the x-coordinate of the touch
 
-			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
-			const screenMiddle = canvasRect.left + canvasRect.width / 2; // Midpoint of the canvas
-			
 			this.movePaddleTo(touchY, touchX);
 		};
 		canvas.addEventListener("touchstart", this.touchStartFunc);
