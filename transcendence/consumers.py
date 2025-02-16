@@ -363,7 +363,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
             if not is_last_game:
                 next_match_id = (len(self.first_layer_player_id) // 2) + (self.match_id // 2)
                 await data.set_player_in_next_match(self.room_group_name, next_match_id, self.player_id)
-            match = await data.get_one_match(self.room_group_name, self.match_id);
+            match = await data.get_one_match(self.room_group_name, self.match_id)
             event = {"type": "broadcast.match.win", "room_id": self.room_group_name, "winners": winner_id_list, "match_players": match["players"]}
             await self.channel_layer.group_send(self.room_group_name, event)
         elif (game_match['ready'] == 2):
