@@ -120,7 +120,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		document.addEventListener("keyup", this.keyupEventListener, true);
 		this.raf = window.requestAnimationFrame(this.gameLoop);
 		let gameStatusLive = this.shadow.getElementById('game-status-live');
-		gameStatusLive.textContent = "Using paddle on the right. Use the arrow keys to move the paddle up and down."
+		gameStatusLive.textContent = "Using paddle on the left. Use the arrow keys to move the paddle up and down."
 	}
 
 	connectedCallback() {
