@@ -427,7 +427,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		const assignTouchToPlayer = (touch) => {
 			const canvasRect = canvas.getBoundingClientRect();
 			const x = touch.clientX - canvasRect.left;
-			return (x < canvas.width / 2) ? "left" : "right";
+			return (x < canvasRect.width / 2) ? "left" : "right";
 		};
 
 		// Add touch event listeners to the canvas
@@ -443,11 +443,11 @@ export default class ComponentGameBoard extends HTMLElement {
 				const player = assignTouchToPlayer(touch);
 				// Only assign if this player doesn't have an active touch
 				if (this.joysticks[player].id === null) {
-				this.joysticks[player].id = touch.identifier;
-				this.joysticks[player].center = {
-					x: touch.clientX - canvasRect.left,
-					y: touch.clientY - canvasRect.top,
-				};
+					this.joysticks[player].id = touch.identifier;
+					this.joysticks[player].center = {
+						x: touch.clientX - canvasRect.left,
+						y: touch.clientY - canvasRect.top,
+					};
 				}
 			}
 		};
@@ -473,30 +473,30 @@ export default class ComponentGameBoard extends HTMLElement {
 						const deltaY = currentPos.y - this.joysticks[player].center.y;
 
 						// Update key states based on how far the finger has moved
-						if (deltaY < -this.deadZone) {
+						if (deltaY < -5) {
 							// Moved upward
 							if (player === "left") {
 								this.keysPressed["w"] = true;
 								this.keysPressed["s"] = false;
 							} else {
-								this.keysPressed["ArrowUp"] = true;
-								this.keysPressed["ArrowDown"] = false;
+								this.keysPressed["arrowup"] = true;
+								this.keysPressed["arrowdown"] = false;
 							}
-						} else if (deltaY > this.deadZone) {
+						} else if (deltaY > 5) {
 							if (player === "left") {
 								this.keysPressed["w"] = false;
 								this.keysPressed["s"] = true;
 							} else {
-								this.keysPressed["ArrowUp"] = false;
-								this.keysPressed["ArrowDown"] = true;
+								this.keysPressed["arrowup"] = false;
+								this.keysPressed["arrowdown"] = true;
 							}
 						} else {
 							if (player === "left") {
 								this.keysPressed["w"] = false;
 								this.keysPressed["s"] = false;
 							} else {
-								this.keysPressed["ArrowUp"] = false;
-								this.keysPressed["ArrowDown"] = false;
+								this.keysPressed["arrowup"] = false;
+								this.keysPressed["arrowdown"] = false;
 							}
 						}
 					}
@@ -508,15 +508,22 @@ export default class ComponentGameBoard extends HTMLElement {
 			if (!this.isRunning)
 				return;
 			e.preventDefault(); // Prevent scrolling while playing
-			const touchX = e.changedTouches[0].clientX; // Get the x-coordinate of the touch
-			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
-			const screenMiddle = canvasRect.left + canvasRect.width / 2; // Midpoint of the canvas
-			if (touchX < screenMiddle) {
-				this.keysPressed["s"] = false;
-				this.keysPressed["w"] = false;
-			} else {
-				this.keysPressed["arrowdown"] = false;
-				this.keysPressed["arrowup"] = false;
+			for (let i = 0; i < e.changedTouches.length; i++) {
+				const touch = e.changedTouches[i];
+				for (let player in this.joysticks) {
+					if (this.joysticks[player].id === touch.identifier) {
+						// Clear the joystick and reset the key states for this player
+						this.joysticks[player].id = null;
+						this.joysticks[player].center = null;
+						if (player === "left") {
+							this.keysPressed["w"] = false;
+							this.keysPressed["s"] = false;
+						} else {
+							this.keysPressed["arrowup"] = false;
+							this.keysPressed["arrowdown"] = false;
+						}
+				  	}
+				}
 			}
 		});
 
