@@ -458,6 +458,9 @@ async def is_last_game(match_id, room_id):
 async def set_player_in_next_match(room_id, match_id, winner_id):
     redis_instance = get_redis_client()
 
+    match = await get_one_match(room_id, match_id)
+    if winner_id in match["players"]:
+        return
     await redis_instance.json().arrappend(
         "room_data", f"$.{room_id}.matches[{match_id}].players", winner_id
     )
