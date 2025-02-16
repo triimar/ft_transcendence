@@ -240,6 +240,9 @@ async function authenticateVisitor(pageHash) {
 			if (pageHash && pageHash != "login") localStorage.setItem("last_page_hash", pageHash);
 			pageHash = "login";
 		} else {
+			if (pageHash == "login") {
+				pageHash = "main";
+			}
 			let lastPageHash = localStorage.getItem("last_page_hash");
 			if (lastPageHash) {
 				pageHash = lastPageHash;
