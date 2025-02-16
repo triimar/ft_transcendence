@@ -291,7 +291,8 @@ class Visitor {
 								prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-start")
 								prepareButton.removeAttribute("disabled");
 								prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
-								prepareButton.addEventListener("click", () => {
+								prepareButton.addEventListener("click", (e) => {
+									e.stopImmediatePropagation();
 									this.sendMessageStartGame(this.roomId);
 								}, {once: true});
 							} else {
@@ -299,7 +300,8 @@ class Visitor {
 								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
 								prepareButton.children[0].setAttribute("aria-hidden", "false")
 								prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-wait")
-								prepareButton.addEventListener("click", () => {
+								prepareButton.addEventListener("click", (e) => {
+									e.stopImmediatePropagation();
 									this.sendMessageStartGame(this.roomId);
 								}, {once: true});
 								prepareButton.setAttribute("disabled", "");
