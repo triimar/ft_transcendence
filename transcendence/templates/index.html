@@ -631,18 +631,24 @@
 			align-items: center;
 			margin-top: 0.5em;
 			margin-bottom: 0.5em;
-			}
+		}
 		.round {
 			padding: 0.5em 0px 0.5em 0px;
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
 			justify-content: center;
-			}
+		}
 		.match {
 			display: flex;
 			flex-direction: row;
 			padding: 0.5em;
+		}
+
+		@media screen and (max-height: 500px) and (orientation: landscape) {
+			.tournament {
+				font-size: 0.35em;
+			}
 		}
 	</style>
 	<div class="tournament"></div>
