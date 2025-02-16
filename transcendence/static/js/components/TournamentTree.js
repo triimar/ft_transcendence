@@ -28,7 +28,6 @@ export default class ComponentTournamentTree extends HTMLElement {
 			}
 
 		});
-		console.log(this.players)
 		this.tournamentData = {
 			player_count: this.players.length,
 			rounds: [], //array of rounds, that contain an array of matches

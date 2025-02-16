@@ -186,7 +186,6 @@ class Visitor {
 							roomSizeButtons.changeMinSize(avatars.length > 1 ? avatars.length : 1);
 							// need to wait until new player is prepared
 							if (!prepareButton.hasAttribute("disabled")) {
-								console.log("disable now")
 								prepareButton.children[0].setAttribute("id", "prepare-btn-wait")
 								prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
 								prepareButton.children[0].setAttribute("aria-hidden", "false")
@@ -268,7 +267,6 @@ class Visitor {
 				if (message["player_id"] != this.id) {
 					let roomId = message["room_id"];
 					if (this.pageName == "main") {
-						console.log("page name: " + this.pageName)
 						let rooms = this.page.container.querySelectorAll("td-lobby-room");
 						for (let room of rooms) {
 							if (room.getAttribute("room-id") == roomId) {
@@ -337,7 +335,6 @@ class Visitor {
 						this.sendMessagePrepareGame(roomId)
 					if (prev_max == 1) {
 						let prepareButton = this.page.container.querySelector("#prepare-btn");
-						console.log("disable now")
 						prepareButton.children[0].setAttribute("id", "prepare-btn-wait")
 						prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
 						prepareButton.children[0].setAttribute("aria-hidden", "false")
@@ -382,7 +379,6 @@ class Visitor {
 					prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 					// Triin: not adding EventListener here to avoid adding the same EventListener one many times
 					prepareButton.addEventListener("click", (e) => {
-						console.log("BUTTON PRESSED");
 						e.stopImmediatePropagation();
 						this.sendMessageStartGame(this.roomId);
 					}, {once: true});

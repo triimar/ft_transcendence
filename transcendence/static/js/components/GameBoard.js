@@ -127,7 +127,6 @@ export default class ComponentGameBoard extends HTMLElement {
 
 	freezeMatch() {
 		if (this.raf !== null) {
-			console.log("Freeze");
 			let raf = this.raf;
 			this.raf = null;
 			window.cancelAnimationFrame(raf);
@@ -138,7 +137,6 @@ export default class ComponentGameBoard extends HTMLElement {
 
 	// unfreezeMatch() {
 	// 	if (this.raf === null) {
-	// 		console.log("Unfreeze");
 	// 		document.addEventListener("keydown", this.keydownEventListener.bind(this), true);
 	// 		this.raf = window.requestAnimationFrame(this.gameLoop);
 	// 		this.lastTime = 0;
