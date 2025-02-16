@@ -6,7 +6,7 @@ from random import random
 from django.conf import settings
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, JsonResponse
-from .user import assign_random_avatar, assign_random_background_color, create_new_user 
+from .user import assign_random_avatar, assign_random_background_color, create_new_user
 from .db_async_queries import user_exists_by_login, get_uuid
 from .redis_data import add_one_player, get_one_player
 
@@ -31,12 +31,12 @@ async def guest_login(request):
     guest_id = shortuuid.ShortUUID().random(length=22)
 
     now = int(time.time())
-    
+
     payload = {
         'id': guest_id,
         'guest': True,
         'iat': now,
-        'exp': now + 3600,
+        'exp': now + 7200,
     }
 
     jwt_token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
@@ -48,8 +48,8 @@ async def guest_login(request):
     # return json response while setting jwt token as cookie
     response = JsonResponse(payload)
     response.set_cookie(
-        key='jwt', 
-        value=jwt_token, 
+        key='jwt',
+        value=jwt_token,
         httponly=False,  # make the cookie inaccessible to js
         secure=False,  # TODO: make it True in production to ensure the cookie is sent over HTTPS
         samesite='Lax'  # define when to allow the cookie to be sent
@@ -85,7 +85,7 @@ async def oauth_callback(request):
 
     # post request to get the access token
     access_token_response = requests.post(access_token_url, data=data)
-    
+
     if access_token_response.status_code != 200:
         return JsonResponse({'error': 'Failed to obtain access token from OAuth'}, status=400)
 
@@ -122,8 +122,8 @@ async def oauth_callback(request):
     # redirect to the main page with jwt token as cookie set
     response = HttpResponseRedirect('/')  # Redirect to the dashboard or desired URL
     response.set_cookie(
-        key='jwt', 
-        value=jwt_token, 
+        key='jwt',
+        value=jwt_token,
         httponly=False,  # make the cookie inaccessible to js
         secure=False, # TODO: make it True in production to ensure the cookie is sent over HTTPS
         samesite='Lax'  # define when to allow the cookie to be sent
