@@ -423,11 +423,16 @@ export default class ComponentGameBoard extends HTMLElement {
 		};
 
 		// Add touch event listeners to the canvas
+		// let recordedTouchY = [];
 		this.touchStartFunc = (e) => {
 			if (!this.isRunning)
 				return;
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
 			const touchX = e.touches[0].clientX; // Get the x-coordinate of the touch
+
+			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
+			const screenMiddle = canvasRect.left + canvasRect.width / 2; // Midpoint of the canvas
+			
 			this.movePaddleTo(touchY, touchX);
 		};
 		canvas.addEventListener("touchstart", this.touchStartFunc);
@@ -440,34 +445,45 @@ export default class ComponentGameBoard extends HTMLElement {
 			this.movePaddleTo(touchY, touchX);
 		};
 		canvas.addEventListener("touchmove", this.touchMoveFunc);
+		canvas.addEventListener("touchend", (e) => {
+			if (!this.isRunning)
+				return;
+			e.preventDefault(); // Prevent scrolling while playing
+			const touchX = e.changedTouches[0].clientX; // Get the x-coordinate of the touch
+			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
+			const screenMiddle = canvasRect.left + canvasRect.width / 2; // Midpoint of the canvas
+			if (touchX < screenMiddle) {
+				this.keysPressed["s"] = false;
+				this.keysPressed["w"] = false;
+			} else {
+				this.keysPressed["arrowdown"] = false;
+				this.keysPressed["arrowup"] = false;
+			}
+		});
 
 		// Helper function to move the paddle to a specific y-coordinate
 		this.movePaddleTo = (touchY, touchX) => {
 			const canvasRect = canvas.getBoundingClientRect(); // Get canvas position
 			const relativeY = touchY - canvasRect.top; // Adjust touchY to the canvas coordinate system
-			const screenMiddle = canvasRect.left + canvas.width / 2; // Midpoint of the canvas
+			const screenMiddle = canvasRect.left + canvasRect.width / 2; // Midpoint of the canvas
 
 			if (touchX < screenMiddle) {
-				this.paddleLeft.y = relativeY - this.paddleLeft.height / 2;
-				if (this.paddleLeft.y < 0) {
-					this.paddleLeft.y = 0;
+				if (this.paddleLeft.y < relativeY) {
+					this.keysPressed["s"] = true;
+					this.keysPressed["w"] = false;
+				} else if (this.paddleLeft.y > relativeY) {
+					this.keysPressed["w"] = true;
+					this.keysPressed["s"] = false;
 				}
-				if (this.paddleLeft.y > canvas.height - this.paddleLeft.height) {
-					this.paddleLeft.y = canvas.height - this.paddleLeft.height;
+			} else {
+				if (this.paddleLeft.y < relativeY) {
+					this.keysPressed["arrowdown"] = true;
+					this.keysPressed["arrowup"] = false;
+				} else if (this.paddleLeft.y > relativeY) {
+					this.keysPressed["arrowup"] = true;
+					this.keysPressed["arrowdown"] = false;
 				}
 			}
-			else {
-				this.paddleRight.y = relativeY - this.paddleRight.height / 2;
-				if (this.paddleRight.y < 0) {
-					this.paddleRight.y = 0;
-				}
-				if (this.paddleRight.y > canvas.height - this.paddleRight.height) {
-					this.paddleRight.y = canvas.height - this.paddleRight.height;
-				}	
-			}
-
-			// Trigger the paddle move action
-			this.paddleMove();
 		};
 		
 		this.keyupEventListener = ((e) => {
