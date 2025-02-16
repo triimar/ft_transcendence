@@ -110,6 +110,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		this.paddleLeft.name = myself["avatar_emoji"];
 		this.paddleLeft.color = myself["avatar_bg_color"];
 		this.tempBall = this.ball;
+		this.gameMode = message["mode"];
 
 		this.ball.draw();
 		this.paddleLeft.draw();

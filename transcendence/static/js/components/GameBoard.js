@@ -92,9 +92,7 @@ export default class ComponentGameBoard extends HTMLElement {
 		let side = message["side"];
 		let playerLeft = message["players"][0];
 		let playerRight = message["players"][1];
-		let gameMode = message["game_mode"];
-		if (gameMode !== null)
-			this.gameMode = gameMode;
+		this.gameMode = message["mode"];
 		this.score.left = playerLeft["score"];
 		this.score.right = playerRight["score"];
 		this.side = side;

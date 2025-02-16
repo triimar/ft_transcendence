@@ -418,9 +418,11 @@ class Visitor {
 						closePopup("tournament-tree-popup")
 						// Note(HeiYiu): show leaderboard with 5 seconds loading animation
 						let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board,td-local-game-board");
-						await gameboard.countdown();
-						if ((this.roomId == joinedRoomId) && (this.gameIndex == joinedGameIndex))
-							this.sendMessagePlayerMatchReady();
+						if (gameboard) {
+							await gameboard.countdown();
+							if ((this.roomId == joinedRoomId) && (this.gameIndex == joinedGameIndex))
+								this.sendMessagePlayerMatchReady();
+						}
 						break;
 					}
 				}
