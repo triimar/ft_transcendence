@@ -99,6 +99,9 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleRight.name = playerRight["player_emoji"];
 		this.paddleRight.color = '#' + playerRight["player_bg_color"];
 
+		let blocker = this.shadow.querySelector("#blocker");
+		blocker.classList.remove("show");
+
 		this.ball.draw();
 		this.paddleRight.draw();
 		this.paddleLeft.draw();
