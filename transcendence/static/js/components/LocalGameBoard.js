@@ -5,6 +5,12 @@ const GameMode = {
 	Balance: "balance",
 };
 
+function getRandomNumber() {
+    let positiveRange = Math.floor(Math.random() * (9 - 5 + 1)) + 5;  // Random between 5 and 9
+    let negativeRange = Math.floor(Math.random() * (9 - 5 + 1)) * -1 - 5; // Random between -9 and -5
+    return Math.random() < 0.5 ? positiveRange : negativeRange;
+}
+
 const BALANCE_FACTOR = 10;
 
 export default class ComponentGameBoard extends HTMLElement {
@@ -94,8 +100,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.side = side;
 		this.ball.x = ball["position"]["x"];
 		this.ball.y = ball["position"]["y"];
-		this.ball.vx = ball["velocity"]["vx"];
-		this.ball.vy = ball["velocity"]["vy"];
+		this.ball.vx = ball["velocity"]["vx"] * 2;
+		this.ball.vy = ball["velocity"]["vy"] * 2;
 		this.paddleLeft.name = playerLeft["player_emoji"];
 		this.paddleLeft.color = '#' + playerLeft["player_bg_color"];
 		this.paddleRight.name = playerRight["player_emoji"];
@@ -178,7 +184,7 @@ export default class ComponentGameBoard extends HTMLElement {
 	connectedCallback() {
 		const canvas = this.shadow.querySelector("canvas");
 		const ctx = canvas.getContext("2d");
-		const BALL_SPEED = 6;
+		const BALL_SPEED = 9;
 		const MAXBOUNCEANGLE = Math.PI/4;
 		const PADDLE_H = canvas.width/10;
 		const PADDLE_W = canvas.width/10;
@@ -223,20 +229,10 @@ export default class ComponentGameBoard extends HTMLElement {
 			},
 			reset()
 			{
+				this.vx = getRandomNumber();
 				this.x = canvas.width / 2;
 				this.y = canvas.height / 2;
-				let randomVx = Math.floor(Math.random() * 13) - 6;
-				if (randomVx === 0)
-					randomVx = 2
-				if (randomVx === -1 || randomVx === 1)
-					randomVx *= 2
-				let randomVy = Math.floor(Math.random() * 13) - 6;
-				if (randomVy === 0)
-					randomVy = 2
-				if (randomVy === -1 || randomVy === 1)
-					randomVy *= 2
-				this.vx = randomVx;
-				this.vy = randomVy;
+				this.vy = getRandomNumber();
 			}
 		};
 

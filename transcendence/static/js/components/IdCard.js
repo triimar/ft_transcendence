@@ -7,6 +7,7 @@ export default class ComponentIdCard extends HTMLElement {
 	}
 
 	connectedCallback() {
+		let avatarChangeButton = this.shadow.getElementById("avatar-apply-change-btn");
 		let colorSelectionContainer = this.shadow.getElementById("color-selection-container");
 		let avatarNameTextInput = this.shadow.getElementById("id-card-name");
 		let avatarElement = this.shadow.querySelector("td-avatar");

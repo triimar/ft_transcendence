@@ -3,10 +3,11 @@
 <html lang="en">
 <head>
 	<title>Transcendence!</title>
+	<meta content="width=device-width, height=device-height, initial-scale=1.0" name="viewport">
 	<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 	<script src="https://cdn.jsdelivr.net/npm/i18next/i18next.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend/i18nextHttpBackend.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/i18next-http-backend/i18nextHttpBackend.min.js"></script>
 	<script type="module" src="{% static 'js/index.js' %}"></script>
 </head>
 <body>
@@ -25,36 +26,42 @@
 			</div>
 		</div>
 		<div id="avatar-info-popup" class="fullscreen-popup" aria-hidden="true" role="dialog" aria-modal="true" >
-			<div id="avatar-info" aria-describedby="id-card-text" class="ui" style="width: 24em; height: fit-content; position: relative">
-				<div style="width: 100%; height: fit-content; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 2.4em 1fr minmax(1.4em, 2em);">
+			<div id="avatar-info" aria-describedby="id-card-text" class="ui" style="width: 24em; max-width: 100%; height: fit-content; position: relative">
+				<div style="width: 100%; height: fit-content; display: flex; flex-direction: column; gap: 1em;">
 					<h2 id="id-card-text" style="grid-column: 1 / 4; grid-row: 1;"></h2>
-					<div role="none" style="grid-column: 1; grid-row: 2; display: flex; justify-content: center; align-items: start;">
-						<td-avatar class="dummy-avatar"></td-avatar>
-					</div>
-					<form action="" style="grid-column: 2; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: space-between; padding-left: 0.2em;">
-						<div style="display: grid; grid-template-columns: minmax(13ch, auto) 1fr; grid-template-rows: 1fr minmax(auto, 3fr); gap: 0.2em; padding-right: 0.2em;">
-								<label for="id-card-name" id="id-card-name-text"></label>
-								<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" aria-label="Insert new name" style="outline: none; border: 0.1em solid var(--td-ui-font-color)" autocomplete="none">
-								<div id="id-card-background-text" ></div>
-								<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
-									<button type="button" style="background: #ff4d6d" color="#ff4d6d" aria-label="Set Avatar Background Red"></button>
-									<button type="button" style="background: #045d75" color="#045d75" aria-label="Set Avatar Background Teal"></button>
-									<button type="button" style="background: #4ba3c7" color="#4ba3c7" aria-label="Set Avatar Background Blue"></button>
-									<button type="button" style="background: #007f5f" color="#007f5f" aria-label="Set Avatar Background Green"></button>
-									<button type="button" style="background: #ffe156" color="#ffe156" aria-label="Set Avatar Background Yellow"></button>
-									<button type="button" style="background: #a01a58" color="#a01a58" aria-label="Set Avatar Background Magenta"></button>
-									<button type="button" style="background: #ff5da2" color="#ff5da2" aria-label="Set Avatar Background Pink"></button>
-									<button type="button" style="background: #001f54" color="#001f54" aria-label="Set Avatar Background Dark Blue"></button>
-								</div>
+					<div class="form-container">
+						<div role="none" style="display: flex; justify-content: center; align-items: start;">
+							<td-avatar class="dummy-avatar"></td-avatar>
 						</div>
-						<td-button id="avatar-apply-change-btn" aria-labelledby="avatar-apply-change-text" class="ui">
-							<p id="avatar-apply-change-text" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
-						</td-button>
-					</form>
-					<td-button id="logout-btn" class="ui" style="grid-column: 1; grid-row: 3;" aria-labelledby="logout" onclick="closePopup('avatar-info-popup')">
-						<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
-					</td-button>
+						<form action="" style="padding-left: 0.2em; display: flex; flex-direction: column; gap: 1em; min-width: 5em;">
+							<div style="display: flex; flex-direction: column; justify-content: space-between; padding-right: 0.2em; gap: 0.2em">
+									<div class="form-row">
+										<label for="id-card-name" id="id-card-name-text"></label>
+										<input type="text" minlength="3" maxlength="3" name="name" id="id-card-name" aria-label="Insert new name" style="outline: none; border: 0.1em solid var(--td-ui-font-color);" autocomplete="none">
+									</div>
+									<div class="form-row">
+										<div id="id-card-background-text" ></div>
+										<div id="color-selection-container" style="display: flex; flex-wrap: wrap; gap: 0.2em;">
+											<button type="button" style="background: #ff4d6d" color="#ff4d6d" aria-label="Set Avatar Background Red"></button>
+											<button type="button" style="background: #045d75" color="#045d75" aria-label="Set Avatar Background Teal"></button>
+											<button type="button" style="background: #4ba3c7" color="#4ba3c7" aria-label="Set Avatar Background Blue"></button>
+											<button type="button" style="background: #007f5f" color="#007f5f" aria-label="Set Avatar Background Green"></button>
+											<button type="button" style="background: #ffe156" color="#ffe156" aria-label="Set Avatar Background Yellow"></button>
+											<button type="button" style="background: #a01a58" color="#a01a58" aria-label="Set Avatar Background Magenta"></button>
+											<button type="button" style="background: #ff5da2" color="#ff5da2" aria-label="Set Avatar Background Pink"></button>
+											<button type="button" style="background: #001f54" color="#001f54" aria-label="Set Avatar Background Dark Blue"></button>
+										</div>
+									</div>
+							</div>
+							<td-button id="avatar-apply-change-btn" aria-labelledby="avatar-apply-change-text" class="ui">
+								<p id="avatar-apply-change-text" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
+							</td-button>
+						</form>
+					</div>
 				</div>
+				<td-button id="logout-btn" class="ui" style="position: absolute; bottom: 0;" aria-labelledby="logout" onclick="closePopup('avatar-info-popup')">
+					<p id="logout" style="text-align: center; line-height: 1rem; padding: 0.2rem; margin: 0;"></p>
+				</td-button>
 				<td-button class="ui close-btn" style="position: absolute;" aria-label="Close the popup" onclick="closePopup('avatar-info-popup')"><p>X</p></td-button>
 			</div>
 		</div>
@@ -70,7 +77,7 @@
 		<div id="notification-popup" class="ui notification-popup" aria-live="assertive" aria-hidden="true" >
 			<p id="notification-popup-text"></p>
 		</div>
-		<footer role="contentinfo" style="width: 70%; margin-top: auto; display: flex;align-items: center; justify-content: space-between" class="ui">
+		<footer role="contentinfo" class="ui">
 			<div style="display: flex; flex-direction: column; align-items: center; flex-grow: 1;">
 				<p aria-hidden="true">:PONG © 2024</p>
 				<p id="footer-authors" style="font-size: 0.5em;"></p>
@@ -80,7 +87,7 @@
 					<p class="ui-text" style="padding: 0.2em;" id="text-size"></p>
 				</td-button>
 				<td-language-selector class="ui" style="height: 100%;"></td-language-selector>
-				<td-lever class="ui" style="height: 100%; min-height: 1.85em; max-height: 3em; aspect-ratio: 0.5;" aria-label="Switch between dark mode and light mode" onclick="let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');document.documentElement.style.setProperty('--td-ui-background-color', fgColor);document.documentElement.style.setProperty('--td-ui-font-color', bgColor);"></td-lever>
+				<td-lever class="ui" style="min-height: 1.85em; max-height: 3em; aspect-ratio: 0.5;" aria-label="Switch between dark mode and light mode" onclick="let bgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-background-color');let fgColor = getComputedStyle(document.documentElement).getPropertyValue('--td-ui-font-color');document.documentElement.style.setProperty('--td-ui-background-color', fgColor);document.documentElement.style.setProperty('--td-ui-font-color', bgColor);"></td-lever>
 			</div>
 		</footer>
 	</main>
@@ -95,9 +102,9 @@
 			height: 100vh;
 		}
 	</style>
-	<div id="login-box" style="display: flex; flex-direction: column;" class="ui">
-		<td-logo style="margin-left: 1em;"></td-logo>
-		<div style="display: flex; flex-direction: row;">
+	<div id="login-box" style="display: flex; flex-direction: column; width: fit-content; min-width: 100%;" class="ui">
+		<td-logo style="margin: 1em;"></td-logo>
+		<div style="display: flex; flex-direction: row; width: fit-content;">
 			<td-button id="btn-login-guest" class="ui" aria-labelledby="login-guest"><p id="login-guest" class="ui-text"></p></td-button>
 			<td-button id="btn-login-intra" class="ui" aria-labelledby="login-intra"><p id="login-intra" class="ui-text"></p></td-button>
 		</div>
@@ -130,23 +137,45 @@
 			width: 100%;
 		}
 
+		.id-card-container {
+			display: flex;
+			flex-direction: row;
+		}
+
+		.id-card-container > * {
+			width: 50%;
+		}
+
+		.game-container {
+			display: flex;
+		}
+
 		.hide {
 			display: none;
 		}
 
+		@media screen and (max-width: 600px) {
+			.id-card-container {
+				flex-direction: column;
+			}
+
+			.id-card-container > * {
+				width: 100%;
+			}
+		}
 	</style>
 	<td-navigation-bar>
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-room" class="ui" onclick="window.location.hash = '#main'"><p id="exit-room" class="ui-text"></p></td-button>
 	</td-navigation-bar>
 	<div class="registration-container">
-		<div style="display: flex; flex-direction: row;">
-			<td-id-card id="player0-info" style="width: 50%;" class="ui"></td-id-card>
-			<td-id-card id="player1-info" style="width: 50%;" class="ui"></td-id-card>
+		<div class="id-card-container">
+			<td-id-card id="player0-info" class="ui"></td-id-card>
+			<td-id-card id="player1-info" class="ui"></td-id-card>
 		</div>
 		<td-room-setting-mode id="room-mode-buttons" class="ui" aria-live="polite"></td-room-setting-mode>
 		<td-button id="start-game-button" class="ui" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button>
 	</div>
-	<div id="game-container" class="hide">
+	<div class="game-container hide">
 		<td-local-game-board class="ui" style="width: 100%; display: block; box-sizing: content-box;"></td-local-game-board>
 		<!-- <td-button id="restart-game-button" class="ui hide" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button> -->
 	</div>
@@ -171,7 +200,6 @@
 		td-navigation-bar {
 			position: sticky;
 			top: 0;
-			margin-bottom: 1em;
 			z-index: 10;
 		}
 	</style>
@@ -202,16 +230,16 @@
 			margin: 0 0.4em;
 			text-align: center;
 			font-size: 1.5em;
-            cursor: pointer;
-            transition: all .2s ease-in-out;
-            background: var(--td-ui-background-color);
-            color: var(--td-ui-font-color);
+			cursor: pointer;
+			transition: all .2s ease-in-out;
+			background: var(--td-ui-background-color);
+			color: var(--td-ui-font-color);
 		}
 
 		#lobby-room-id:hover {
-            background: var(--td-ui-font-color);
-            color: var(--td-ui-background-color);
-        }
+			background: var(--td-ui-font-color);
+			color: var(--td-ui-background-color);
+		}
 
 		#lobby-room-info {
 			display: flex;
@@ -227,6 +255,11 @@
 
 			#lobby-room-participants {
 				width: 100%;
+			}
+		}
+		@media screen and (max-width: 600px) {
+			#lobby-room-id {
+				font-size: 1em;
 			}
 		}
 
@@ -260,6 +293,11 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
+		}
+		@media screen and (max-width: 600px) {
+			:host {
+				flex-direction: column;
+			}
 		}
 	</style>
 	<div style="display: flex; flex-direction: row;" >
@@ -370,7 +408,7 @@
 			background: var(--td-ui-background-color);
 			display: flex;
 			flex-direction: row;
-			justify-content: space-between;
+			justify-content: center;
 			align-items: center;
 			gap: 1em;
 		}
@@ -389,6 +427,10 @@
 			justify-content: flex-end;
 			align-items: center;
 			gap: 1em;
+		}
+
+		#buttons-container > *, ::slotted(*) {
+			min-height: calc(var(--td-avatar-height) + (2 * var(--td-border-size)));
 		}
 
 		.ui {
@@ -414,6 +456,19 @@
 			75% {transform: rotate(-3deg);}
 			100% {transform: rotate(0deg);}
 		}
+
+		@media screen and (max-width: 500px) {
+			#buttons-container {
+				gap: 0.5em;
+			}
+		}
+
+		@media screen and (max-width: 700px) {
+			nav {
+				flex-direction: column;
+				gap: 0;
+			}
+		}
 	</style>
 	<nav>
 		<td-logo></td-logo>
@@ -426,7 +481,7 @@
 	</nav>
 </template>
 <template id="component-logo">
-	<h1>:PONG</h1>
+	<h1 style="margin: 0;">:PONG</h1>
 </template>
 <template id="component-game-board">
 	<style>
@@ -448,16 +503,26 @@
 		}
 		
 		.visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			white-space: nowrap;
+			border: 0;
+		}
+
+		@media screen and (max-width: 600px) {
+			#countdown {
+				margin: 0;
+			}
+
+			td-avatar {
+				font-size: 0.4em;
+			}
+		}
 	</style>
 	<div id="blocker" class="show" style="width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; justify-content: center; align-items: center;">
 		<p aria-live="assertive" id="countdown" style="color: white;"></p>
@@ -612,6 +677,7 @@
 			border: 0;
 			width: 2em;
 			height: 2em;
+			cursor: pointer;
 		}
 
 		#color-selection-container > *.chosen {

@@ -12,7 +12,9 @@ class Visitor {
 		this.avatar_bg_color = null;
 		this.ws = null;
 		this.jwt = null; // TODO(HeiYiu): We can decide using session cookies or JWT
+		this.retryWhenDisconnected = true; // NOTE(HeiYiu): revert back to true when consumed
 		this.reconnectCount = 0;
+		this.timeoutId = null;
 	}
 
 	#getCookie(name) {
@@ -43,8 +45,8 @@ class Visitor {
 			}
 		}
 		catch (error) {
-			console.error(error);	
-			this.displayPopupMessage(i18next.t("error.failed-to-verify"));	
+			console.error(error);
+			this.displayPopupMessage(i18next.t("error.failed-to-verify"));
 		}
 		return false;
 	}
@@ -112,6 +114,9 @@ class Visitor {
 		this.avatar_bg_color = null;
 		localStorage.removeItem("login_method");
 		document.cookie = 'jwt=; Max-Age=-99999999;';
+		this.retryWhenDisconnected = false;
+		this.ws.close();
+		this.ws = null;
 	}
 
 	connectWs() {
@@ -125,23 +130,25 @@ class Visitor {
 			switch (message.type) {
 			case "ack_init": {
 				await this.waitForPageToRender();
-				// Note(HeiYiu): get list of rooms and render them
-				let fragment = document.createDocumentFragment();
-				for (let room of message.rooms) {
-					let roomElement = document.createElement("td-lobby-room");
-					for (let avatar of room.avatars) {
-						let avatarElement = document.createElement("td-avatar");
-						avatarElement.setAttribute("avatar-name", avatar["player_emoji"]);
-						avatarElement.setAttribute("avatar-background", '#' + avatar["player_bg_color"]);
-						avatarElement.setAttribute("avatar-id", avatar["player_id"]);
-						roomElement.appendChild(avatarElement);
+				if (this.pageName == "main") {
+					// Note(HeiYiu): get list of rooms and render them
+					let fragment = document.createDocumentFragment();
+					for (let room of message.rooms) {
+						let roomElement = document.createElement("td-lobby-room");
+						for (let avatar of room.avatars) {
+							let avatarElement = document.createElement("td-avatar");
+							avatarElement.setAttribute("avatar-name", avatar["player_emoji"]);
+							avatarElement.setAttribute("avatar-background", '#' + avatar["player_bg_color"]);
+							avatarElement.setAttribute("avatar-id", avatar["player_id"]);
+							roomElement.appendChild(avatarElement);
+						}
+						roomElement.setAttribute("room-max", room["max_player"]);
+						roomElement.setAttribute("room-id", room["room_id"]);
+						roomElement.classList.add("ui");
+						fragment.appendChild(roomElement);
 					}
-					roomElement.setAttribute("room-max", room["max_player"]);
-					roomElement.setAttribute("room-id", room["room_id"]);
-					roomElement.classList.add("ui");
-					fragment.appendChild(roomElement);
+					this.page.container.appendChild(fragment);
 				}
-				this.page.container.appendChild(fragment);
 			} break;
 			case "b_join_room": {
 				let avatar = message["avatar"];
@@ -192,55 +199,52 @@ class Visitor {
 			} break;
 			case "ack_join_room": {
 				await this.waitForPageToRender();
-				let roomElement = this.page.container.querySelector("td-lobby-room");
-				let room = message["single_room_data"];
-				roomElement.setAttribute("room-id", room["room_id"]);
-				for (let avatar of room.avatars) {
-					let avatarElement = document.createElement("td-avatar");
-					avatarElement.setAttribute("avatar-name", avatar["player_emoji"]);
-					avatarElement.setAttribute("avatar-background", '#' + avatar["player_bg_color"]);
-					avatarElement.setAttribute("avatar-id", avatar["player_id"]);
-					if (avatar["prepared"])
-					{
-						let readySpeechBubble = document.createElement("div");
-						readySpeechBubble.classList.add("speech-bubble");
-						readySpeechBubble.style.background = "var(--td-ui-background-color)";
-						readySpeechBubble.style.position = "absolute";
-						readySpeechBubble.style.bottom = "84%";
-						readySpeechBubble.style.left = "50%";
-						readySpeechBubble.style.width = "fit-content";
-						readySpeechBubble.style.height = "fit-content";
+				if (this.pageName == "room") {
+					let roomElement = this.page.container.querySelector("td-lobby-room");
+					let room = message["single_room_data"];
+					roomElement.setAttribute("room-id", room["room_id"]);
+					for (let avatar of room.avatars) {
+						let avatarElement = document.createElement("td-avatar");
+						avatarElement.setAttribute("avatar-name", avatar["player_emoji"]);
+						avatarElement.setAttribute("avatar-background", '#' + avatar["player_bg_color"]);
+						avatarElement.setAttribute("avatar-id", avatar["player_id"]);
+						if (avatar["prepared"])
 						{
-							let text = document.createElement("p");
-							text.style.width = "max-content";
-							text.style.padding = "0 0.5em";
-							text.textContent = i18next.t("lobby-room.ready-bubble-txt");
-							readySpeechBubble.appendChild(text);
+							let readySpeechBubble = document.createElement("div");
+							readySpeechBubble.classList.add("speech-bubble");
+							readySpeechBubble.style.background = "var(--td-ui-background-color)";
+							readySpeechBubble.style.position = "absolute";
+							readySpeechBubble.style.bottom = "84%";
+							readySpeechBubble.style.left = "50%";
+							readySpeechBubble.style.width = "fit-content";
+							readySpeechBubble.style.height = "fit-content";
+							{
+								let text = document.createElement("p");
+								text.style.width = "max-content";
+								text.style.padding = "0 0.5em";
+								text.textContent = i18next.t("lobby-room.ready-bubble-txt");
+								readySpeechBubble.appendChild(text);
+							}
+							avatarElement.appendChild(readySpeechBubble);
 						}
-						avatarElement.appendChild(readySpeechBubble);
+						roomElement.appendChild(avatarElement);
 					}
-					roomElement.appendChild(avatarElement);
-				}
-				roomElement.setAttribute("room-max", room["max_player"]);
-				if (this.id == room["room_owner"]) {
-					this.roomOwnerIsMyself = true;
-					let prepareButton = this.page.container.querySelector("#prepare-btn");
-					prepareButton.children[0].setAttribute("id", "prepare-btn-wait")
-					prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
-					prepareButton.children[0].setAttribute("aria-hidden", "false")
-					prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-wait")
-					prepareButton.addEventListener("click", (e) => {
-						console.log("BUTTON PRESSED");
-						e.stopImmediatePropagation();
-						this.sendMessageStartGame(this.roomId);
-					}, {once: true});
-					prepareButton.setAttribute("disabled", "");
-					let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
-					roomSizeButtons.style.display = "flex";
-					roomSizeButtons.changeSize(room["max_player"]);
-					let settingModeElement = this.page.container.querySelector("td-room-setting-mode");
-					settingModeElement.style.display = "flex";
-					settingModeElement.setAttribute("room-mode", room["mode"]);
+					roomElement.setAttribute("room-max", room["max_player"]);
+					if (this.id == room["room_owner"]) {
+						this.roomOwnerIsMyself = true;
+						let prepareButton = this.page.container.querySelector("#prepare-btn");
+						prepareButton.children[0].textContent = i18next.t("lobby-room.prepare-btn-wait");
+						prepareButton.children[0].setAttribute("id", "prepare-btn-wait")
+						prepareButton.children[0].setAttribute("aria-hidden", "false")
+						prepareButton.children[0].setAttribute("aria-labelledby", "prepare-btn-wait")
+						prepareButton.setAttribute("disabled", "");
+						let roomSizeButtons = this.page.container.querySelector("#room-size-buttons");
+						roomSizeButtons.style.display = "flex";
+						roomSizeButtons.changeSize(room["max_player"]);
+						let settingModeElement = this.page.container.querySelector("td-room-setting-mode");
+						settingModeElement.style.display = "flex";
+						settingModeElement.setAttribute("room-mode", room["mode"]);
+					}
 				}
 			} break;
 			case "ack_add_room": {
@@ -264,6 +268,7 @@ class Visitor {
 				if (message["player_id"] != this.id) {
 					let roomId = message["room_id"];
 					if (this.pageName == "main") {
+						console.log("page name: " + this.pageName)
 						let rooms = this.page.container.querySelectorAll("td-lobby-room");
 						for (let room of rooms) {
 							if (room.getAttribute("room-id") == roomId) {
@@ -376,11 +381,11 @@ class Visitor {
 					prepareButton.removeAttribute("disabled");
 					prepareButton.removeEventListener("click", this.page.prepareButtonFunc, {once: true});
 					// Triin: not adding EventListener here to avoid adding the same EventListener one many times
-					// prepareButton.addEventListener("click", (e) => {
-					// 	console.log("BUTTON PRESSED");
-					// 	e.stopImmediatePropagation();
-					// 	this.sendMessageStartGame(this.roomId);
-					// }, {once: true});
+					prepareButton.addEventListener("click", (e) => {
+						console.log("BUTTON PRESSED");
+						e.stopImmediatePropagation();
+						this.sendMessageStartGame(this.roomId);
+					}, {once: true});
 				}
 			} break;
 			case "b_start_game": {
@@ -407,6 +412,8 @@ class Visitor {
 							}
 						}
 						document.querySelector("#tournament-tree-popup td-tournament-tree").initiateTournament(players);
+						let joinedGameIndex = this.gameIndex;
+						let joinedRoomId = this.roomId;
 						await this.waitForPageToRender();
 						openPopup("tournament-tree-popup")
 						await sleep(5000);
@@ -414,7 +421,8 @@ class Visitor {
 						// Note(HeiYiu): show leaderboard with 5 seconds loading animation
 						let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board,td-local-game-board");
 						await gameboard.countdown();
-						this.sendMessagePlayerMatchReady();
+						if ((this.roomId == joinedRoomId) && (this.gameIndex == joinedGameIndex))
+							this.sendMessagePlayerMatchReady();
 						break;
 					}
 				}
@@ -422,29 +430,45 @@ class Visitor {
 			case "ack_join_match": {
 				this.firstLayerPlayers = message["players"];
 				await this.waitForPageToRender();
-				openPopup("tournament-tree-popup")
-				await sleep(5000);
-				closePopup("tournament-tree-popup")
-				// Note(HeiYiu): show leaderboard with 5 seconds loading animation
 				let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
-				await gameboard.countdown();
+				// await gameboard.setGameState(message["game_state"]);
 				this.sendMessagePlayerMatchReady();
 			} break;
 			case "b_join_match": {
 				let id = message["player_id"];
 				if (id == this.id) {
 					await this.waitForPageToRender();
+					let joinedGameIndex = this.gameIndex;
+					let joinedRoomId = this.roomId;
 					openPopup("tournament-tree-popup")
 					await sleep(5000);
 					// Note(HeiYiu): show leaderboard with 5 seconds loading animation
 					closePopup("tournament-tree-popup")
 					let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
 					await gameboard.countdown();
+					if ((this.timeoutId == null) && (this.roomId == joinedRoomId) && (this.gameIndex == joinedGameIndex))
+						this.sendMessagePlayerMatchReady();
+				} else if (this.timeoutId != null) {
+					clearTimeout(this.timeoutId);
+					this.timeoutId = null;
 					this.sendMessagePlayerMatchReady();
 				}
 			} break;
 			case "b_leave_match": {
-				
+				if ((this.pageName == "game") || (this.pageName == "ai-game")) {
+					let opponentId = message["left_opponent"];
+					if (opponentId != this.id) {
+						let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
+						gameboard.freezeMatch();
+						let joinedGameIndex = this.gameIndex;
+						let joinedRoomId = this.roomId;
+						this.timeoutId = setTimeout(() => {
+							if ((this.roomId == joinedRoomId) && (this.gameIndex == joinedGameIndex))
+							this.sendMessageWin();
+							this.timeoutId = null;
+						}, 10000);
+					}
+				}
 			} break;
 			case "b_start_match": {
 				await this.waitForPageToRender();
@@ -457,70 +481,78 @@ class Visitor {
 				gameboard.startMatch(message);
 			} break;
 			case "b_paddle_move": {
-				let gameboard = this.page.container.querySelector("td-game-board");
-				gameboard.oponentPaddleMoved(message["paddle"], message["position"])
+				if ((this.pageName == "game") || (this.pageName == "ai-game")) {
+					let gameboard = this.page.container.querySelector("td-game-board");
+					gameboard.oponentPaddleMoved(message["paddle"], message["position"])
+				}
 			} break;
 			case "b_bounce_ball": {
-				let gameboard = this.page.container.querySelector("td-game-board");
-				gameboard.ballBounced(message);
+				if ((this.pageName == "game") || (this.pageName == "ai-game")) {
+					let gameboard = this.page.container.querySelector("td-game-board");
+					gameboard.ballBounced(message);
+				}
 			} break;
 			case "b_scored_point": {
-				let gameboard = this.page.container.querySelector("td-game-board");
-				gameboard.pointScored(message["player"]);
-				gameboard.ballBounced(message);
+				if ((this.pageName == "game") || (this.pageName == "ai-game")) {
+					let gameboard = this.page.container.querySelector("td-game-board");
+					gameboard.pointScored(message["player"]);
+					gameboard.ballBounced(message);
+				}
 			} break;
 			case "b_match_win": {
-				let winners = message["winners"];
-				let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
-				let winnerIndex = winners[this.gameIndex];
-				// NOTE(HeiYiu): update tournament tree
-				let tree = document.querySelector("td-tournament-tree");
-				tree.addWinners(winners);
-				if (winnerIndex != -1) {
-					gameboard.displayMatchResult(this.firstLayerPlayers[winnerIndex]);
-				}
-				if (winners[winners.length - 1] != -1) {
-					let tournamentWinner = this.firstLayerPlayers[winners[winners.length - 1]];
-					if (tournamentWinner["player_id"] == this.id) {
-						this.displayPopupMessage(i18next.t("game.you-win"));
-					} else if (tournamentWinner["player_id"] == "ai") {
-						this.displayPopupMessage(i18next.t("game.ai-wins"));
-					} else {
-						this.displayPopupMessage(i18next.t("game.player-wins", { winner: tournamentWinner["player_emoji"] }))
+				if ((this.pageName == "game") || (this.pageName == "ai-game")) {
+					let winners = message["winners"];
+					let gameboard = this.page.container.querySelector("td-game-board, td-ai-game-board");
+					let winnerIndex = winners[this.gameIndex];
+					// NOTE(HeiYiu): update tournament tree
+					let tree = document.querySelector("td-tournament-tree");
+					tree.addWinners(winners);
+					if (winnerIndex != -1) {
+						gameboard?.displayMatchResult(this.firstLayerPlayers[winnerIndex]);
 					}
-				} else if (winnerIndex != -1) {
-					if (this.firstLayerPlayers[winnerIndex]["player_id"] == this.id) {
-						if (winners.length != 1) {
-							let opponentGameIndex = this.gameIndex;
-							if ((this.gameIndex % 2) == 0) {
-								opponentGameIndex += 1;
-							} else {
-								opponentGameIndex -= 1;
-							}
-							let opponentIndex = winners[opponentGameIndex];
-							if (opponentIndex != -1) {
-								// display teleport you to the next match in 3 seconds
-								this.displayPopupMessage(i18next.t("game.teleporting"));
-								await sleep(3000);
-								// NOTE(HeiYiu): if the opponent of the next match is ready
-								// [0 1, 2]          0, 1 -> 2
-								// [0 1 2, 3 4, 5]   0, 1 -> 3   2, 3 -> 4
-								// [0 1 2 3 ,4 5, 6] 0, 1 -> 4   2, 3 -> 5   4, 5 -> 6
-								let playersCount = this.firstLayerPlayers.length;
-								let nextGameIndex = Math.floor(this.gameIndex / 2) + (playersCount / 2);
-								if (this.firstLayerPlayers[opponentIndex]["player_id"] == "ai") {
-									window.location.href = `#room${this.roomId}-ai-game${nextGameIndex}`;
-								} else {
-									window.location.href = `#room${this.roomId}-game${nextGameIndex}`;
-								}
-							} else {
-								// display waiting for the next opponent
-								this.displayPopupMessage(i18next.t("game.waiting"));
-							}
+					if (winners[winners.length - 1] != -1) {
+						let tournamentWinner = this.firstLayerPlayers[winners[winners.length - 1]];
+						if (tournamentWinner["player_id"] == this.id) {
+							this.displayPopupMessage(i18next.t("game.you-win"));
+						} else if (tournamentWinner["player_id"] == "ai") {
+							this.displayPopupMessage(i18next.t("game.ai-wins"));
+						} else {
+							this.displayPopupMessage(i18next.t("game.player-wins", { winner: tournamentWinner["player_emoji"] }))
 						}
-					} else {
-						// display you lost
-						this.displayPopupMessage(i18next.t("game.you-lost"));
+					} else if (winnerIndex != -1) {
+						if (this.firstLayerPlayers[winnerIndex]["player_id"] == this.id) {
+							if (winners.length != 1) {
+								let opponentGameIndex = this.gameIndex;
+								if ((this.gameIndex % 2) == 0) {
+									opponentGameIndex += 1;
+								} else {
+									opponentGameIndex -= 1;
+								}
+								let opponentIndex = winners[opponentGameIndex];
+								if (opponentIndex != -1) {
+									// display teleport you to the next match in 3 seconds
+									this.displayPopupMessage(i18next.t("game.teleporting"));
+									await sleep(3000);
+									// NOTE(HeiYiu): if the opponent of the next match is ready
+									// [0 1, 2]          0, 1 -> 2
+									// [0 1 2, 3 4, 5]   0, 1 -> 3   2, 3 -> 4
+									// [0 1 2 3 ,4 5, 6] 0, 1 -> 4   2, 3 -> 5   4, 5 -> 6
+									let playersCount = this.firstLayerPlayers.length;
+									let nextGameIndex = Math.floor(this.gameIndex / 2) + (playersCount / 2);
+									if (this.firstLayerPlayers[opponentIndex]["player_id"] == "ai") {
+										window.location.href = `#room${this.roomId}-ai-game${nextGameIndex}`;
+									} else {
+										window.location.href = `#room${this.roomId}-game${nextGameIndex}`;
+									}
+								} else {
+									// display waiting for the next opponent
+									this.displayPopupMessage(i18next.t("game.waiting"));
+								}
+							}
+						} else {
+							// display you lost
+							this.displayPopupMessage(i18next.t("game.you-lost"));
+						}
 					}
 				}
 			} break;
@@ -564,16 +596,22 @@ class Visitor {
 			}
 		});
 		this.ws.addEventListener("close", (event) => {
-			if (this.reconnectCount >= 3) {
-				console.log("Websocket connection is closed");
-				this.displayPopupMessage(i18next.t("error.connection-lost-3-times"));
-				this.reconnectCount = 0;
-				window.location.hash = "#login";
+			if (this.retryWhenDisconnected) {
+				this.ws = null;
+				if (this.reconnectCount >= 3) {
+					console.log("Websocket connection is closed");
+					this.displayPopupMessage(i18next.t("error.connection-lost-3-times"));
+					this.displayPopupMessage("Connection lost");
+					this.reconnectCount = 0;
+					window.location.hash = "#login";
+				} else {
+					console.log("Websocket connection is being restarted");
+					this.displayPopupMessage(i18next.t("error.connection-lost"));
+					this.reconnectCount++;
+					setTimeout(this.connectWs.bind(this), 1000);
+				}
 			} else {
-				console.log("Websocket connection is being restarted");
-				this.displayPopupMessage(i18next.t("error.connection-lost"));
-				this.reconnectCount++;
-				setTimeout(this.connectWs.bind(this), 1000);
+				this.retryWhenDisconnected = true;
 			}
 		});
 	}
@@ -668,6 +706,20 @@ class Visitor {
 		};
 		this.sendMessage(JSON.stringify(message));
 	}
+	
+	sendMessageLeaveMatch() {
+		let message = {
+			type: "leave_match"
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageLeaveMatch() {
+		let message = {
+			type: "leave_match"
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
 
 	sendMessageChangeMaxPlayer(roomId, maxPlayer) {
 		let message = {
@@ -733,6 +785,13 @@ class Visitor {
 			type: "update_mode",
 			room_id: roomId,
 			mode: modeName
+		};
+		this.sendMessage(JSON.stringify(message));
+	}
+
+	sendMessageWin() {
+		let message = {
+			type: "you_win"
 		};
 		this.sendMessage(JSON.stringify(message));
 	}

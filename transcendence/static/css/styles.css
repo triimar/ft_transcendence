@@ -56,6 +56,26 @@ main {
 	flex-direction: column;
 	align-items: center;
 	gap: 1em;
+	overflow-x: hidden;
+}
+
+td-navigation-bar {
+	margin: 1em 0;
+}
+
+@media screen and (max-width: 500px) {
+	td-navigation-bar {
+		margin-top: 0;
+	}
+
+	td-navigation-bar td-button p {
+		font-size: 0.5em;
+		font-weight: bold;
+	}
+
+	td-navigation-bar td-button img {
+		width: calc(var(--td-avatar-width) / 2);
+	}
 }
 
 .ui {
@@ -76,7 +96,7 @@ main {
 }
 
 .content-container > * {
-	width: 100%;
+	min-width: 100%;
 }
 
 #notification-popup {
@@ -185,6 +205,7 @@ main {
 	border: 0;
 	width: 2em;
 	height: 2em;
+	cursor: pointer;
 }
 
 #color-selection-container > *.chosen {
@@ -195,3 +216,61 @@ main {
 	opacity: 0.5;
 	pointer-events: none;
 }
+
+footer {
+	min-width: 70%;
+	width: fit-content;
+	margin-top: auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+@media screen and (max-width: 600px) {
+	footer {
+		flex-direction: column;
+	}
+}
+
+.form-container {
+	display: flex;
+	flex-direction: row;
+}
+
+.form-row {
+	display: flex;
+	flex-direction: row;
+
+	:nth-child(1) {
+		width: 40%;
+	}
+
+	:nth-child(2) {
+		width: 60%;
+	}
+}
+
+@media screen and (max-width: 600px) {
+	.form-container {
+		flex-direction: column;
+		gap: 1em;
+	}
+
+	.form-row {
+		flex-direction: column;
+
+		:nth-child(n) {
+			width: 100%;
+		}
+	}
+
+	#color-selection-container {
+		justify-content: center;
+	}
+
+	#avatar-apply-change-btn {
+		align-self: flex-end;
+		width: 60%;
+	}
+}
+

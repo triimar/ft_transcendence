@@ -45,7 +45,52 @@ class PageConfirmLeave {
 	}
 }
 
-export class PageAiGame extends PageConfirmLeave {
+class PageConfirmLeaveMatch {
+	constructor() {
+		this.previousHref = null;
+		this.displayConfirmPopup = true;
+		this.confirmPopupRedirectPageHash = null;
+	}
+
+	attachEvents() {
+		// Note(HeiYiu): Events for leaving room confirmation
+		this.previousHref = location.href;
+		let roomId = myself.roomId;
+		this.logoutYesButtonFunc = () => {
+			this.displayConfirmPopup = false;
+			myself.sendMessageLeaveMatch();
+		};
+		document.querySelector("#logout-yes-btn").addEventListener("click", this.logoutYesButtonFunc, {once: true});
+		this.beforeUnloadFunc = ((e) => {
+			e.preventDefault();
+			e.returnValue = true;
+		});
+		window.addEventListener("beforeunload", this.beforeUnloadFunc);
+	}
+
+	removeEvents() {
+		document.querySelector("#logout-yes-btn").removeEventListener("click", this.logoutYesButtonFunc, {once: true});
+		window.removeEventListener("beforeunload", this.beforeUnloadFunc);
+	}
+
+	beforeOnHashChange(newPageName, newRoomId, newGameIndex) {
+		let userNotLoggedOut = myself.id != null;
+		if (this.displayConfirmPopup && userNotLoggedOut) {
+			if (newRoomId == myself.roomId) {
+				this.confirmPopupRedirectPageHash = "#main";
+			} else {
+				// Note(HeiYiu): So that one can leave a room and join another room directly
+				this.confirmPopupRedirectPageHash = window.location.hash;
+			}
+			history.replaceState(null, document.title, this.previousHref);
+			openPopup("confirm-to-logout-popup")
+			return false;
+		}
+		return true;
+	}
+}
+
+export class PageAiGame extends PageConfirmLeaveMatch {
 	constructor(container) {
 		super();
 		this.templateId = "page-ai-game";
@@ -95,7 +140,7 @@ export class PageError {
 	}
 }
 
-export class PageGame extends PageConfirmLeave {
+export class PageGame extends PageConfirmLeaveMatch {
 	constructor(container) {
 		super();
 		this.templateId = "page-game";
@@ -106,6 +151,7 @@ export class PageGame extends PageConfirmLeave {
 		super.attachEvents();
 		// Note(HeiYiu): Other events
 		this.container.querySelector("#leave-room-btn").addEventListener("click", () => {
+			console.log("Leave Match")
 			location.hash = "#main";
 		});
 		let avatarCustomizationForm = document.querySelector("#avatar-info-popup form");
@@ -280,7 +326,7 @@ export class PageLocalGame {
 
 	attachEvents() {
 		let registrationContainer = this.container.querySelector(".registration-container");
-		let gameContainer = this.container.querySelector("#game-container");
+		let gameContainer = this.container.querySelector(".game-container");
 		let startButton = this.container.querySelector("#start-game-button");
 		startButton.addEventListener("click", async () => {
 			let gameBoard = this.container.querySelector("td-local-game-board");

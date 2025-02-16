@@ -39,6 +39,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 	}
 
 	displayMatchResult(winner) {
+		this.isRunning = false;
 		let gameStatusLive = this.shadow.getElementById('game-status-live');
 		gameStatusLive.textContent = ""
 		const canvas = this.shadow.querySelector("canvas");
@@ -58,7 +59,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 			avatarElement.setAttribute("avatar-name", winner["player_emoji"]);
 			avatarElement.setAttribute("avatar-background", '#' + winner["player_bg_color"]);
 			avatarElement.setAttribute("avatar-id", winner["player_id"]);
-			countdownText.textContent = this.score.left + " : " + this.score.right;
+			countdownText.textContent = this.score.player + " : " + this.score.ai;
 		}
 		let winnerText = this.shadow.querySelector("#winner-txt");
 		winnerText.textContent =  i18next.t("game.winner-txt");
@@ -134,6 +135,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		this.MAX_PADDLE_SIZE = canvas.height/2;
 		this.MIN_PADDLE_SIZE = canvas.height/10;
 		this.lastLoop = 0; // The timestamp of the last frame
+		this.isRunning = true;
 		let accumulatedTime = 0; // Accumulated time for fixed updates
 		let accumulatedAiTime = 0;
 		let aiMoveTimes = 0;
@@ -141,7 +143,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		const aiUpdateInterval = 1000;
 		const aiMoveInterval = 3;
 		this.gameMode = GameMode.Default;
-		let raf;
+		this.isRunning = true;
 
 		this.score = {
 			player: 0,
@@ -204,7 +206,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.width, this.height);
 				ctx.font="60px Monomaniac One";
-				ctx.textAlign="center"; 
+				ctx.textAlign="center";
 				ctx.textBaseline = "middle";
 				ctx.fillStyle = "#FFFFFF";
 				ctx.fillText(this.name, this.x + this.width/2, this.y + this.height/2);
@@ -228,7 +230,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				ctx.fillStyle = this.color;
 				ctx.fillRect(this.x, this.y, this.width, this.height);
 				ctx.font="60px Monomaniac One";
-				ctx.textAlign="center"; 
+				ctx.textAlign="center";
 				ctx.textBaseline = "middle";
 				ctx.fillStyle = "#FFFFFF";
 				ctx.fillText("🤖", this.x + this.width/2, this.y + this.height/2);
@@ -318,7 +320,7 @@ export default class ComponentAIGameBoard extends HTMLElement {
 						this.ball.vy = -this.ball.vy;
 				}
 			}
-			
+
 			//AI paddle collisions
 			if (this.ball.x + this.ball.vx + this.ball.size > this.ai.x &&
 				this.ball.y + this.ball.vy < this.ai.y + this.ai.height &&
@@ -360,6 +362,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		}).bind(this);
 
 		this.gameLoop = (function(timeStamp) {
+			if (!this.isRunning)
+				return;
 			if (!this.lastLoop) this.lastLoop = Date.now();
 
 			const deltaTime = timeStamp - this.lastLoop;
@@ -389,18 +393,24 @@ export default class ComponentAIGameBoard extends HTMLElement {
 				this.ai.moveFactor = 0;
 			}
 
-			this.draw();
-			this.raf = window.requestAnimationFrame(this.gameLoop);
+			if (this.isRunning) {
+				this.draw();
+				this.raf = window.requestAnimationFrame(this.gameLoop);
+			}
 		}).bind(this);
 
-		
+
 		// Add touch event listeners to the canvas
 		canvas.addEventListener("touchstart", (e) => {
+			if (!this.isRunning)
+				return;
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
 			this.movePaddleTo(touchY);
 		});
-
+		
 		canvas.addEventListener("touchmove", (e) => {
+			if (!this.isRunning)
+				return;
 			e.preventDefault(); // Prevent scrolling while playing
 			const touchY = e.touches[0].clientY; // Get the y-coordinate of the touch
 			this.movePaddleTo(touchY);
@@ -422,6 +432,8 @@ export default class ComponentAIGameBoard extends HTMLElement {
 		};
 
 		this.keydownEventListener = ((e) => {
+			if (!this.isRunning)
+				return;
 			if (["ArrowUp", "ArrowDown", " "].includes(e.key)) {
 				// Prevent the default action (scrolling)
 				e.preventDefault();
@@ -449,15 +461,21 @@ export default class ComponentAIGameBoard extends HTMLElement {
 
 	disconnectedCallback() {
 		document.removeEventListener("keydown", this.keydownEventListener, true);
+		window.cancelAnimationFrame(this.raf);
+		this.raf = null;
 	}
 
 	scorePointPlayer() {
+		if (!this.isRunning)
+			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'ai_score_player'
 		}))
 	}
 
 	scorePointAI() {
+		if (!this.isRunning)
+			return;
 		myself.sendMessage(JSON.stringify({
 			'type': 'ai_score_ai'
 		}))
