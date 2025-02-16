@@ -431,6 +431,9 @@ class Visitor {
 				this.firstLayerPlayers = message["players"];
 				await this.waitForPageToRender();
 				let gameboard = this.page.container.querySelector("td-game-board,td-ai-game-board");
+				let tree = document.querySelector("#tournament-tree-popup td-tournament-tree");
+				tree.initiateTournament(message["players"]);
+				tree.addWinners(message["winners"]);
 				// await gameboard.setGameState(message["game_state"]);
 				this.sendMessagePlayerMatchReady();
 			} break;
