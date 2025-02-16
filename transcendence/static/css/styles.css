@@ -274,3 +274,11 @@ footer {
 	}
 }
 
+@media screen and (min-width: 1500px) {
+	.gameboard {
+		width: auto;
+		min-width: auto;
+		aspect-ratio: 2;
+		height: 60vh;
+	}
+}

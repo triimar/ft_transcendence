@@ -115,14 +115,14 @@
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-game" class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui" id="tree-btn-txt" aria-haspopup="true" aria-label="" onclick="openPopup('tournament-tree-popup')"><img src="../static/cup.png" alt="" style="height: var(--td-avatar-height); width: var(--td-avatar-width); object-fit: contain;"></td-button>
 	</td-navigation-bar>
-	<td-game-board class="ui" style="box-sizing: content-box;"></td-game-board>
+	<td-game-board class="ui gameboard" style="box-sizing: content-box;"></td-game-board>
 </template>
 <template id="page-ai-game">
 	<td-navigation-bar>
 		<td-button id="leave-room-btn" aria-haspopup="dialog" aria-labelledby="exit-game" class="ui ui-text"><p id="exit-game"></p></td-button>
 		<td-button class="ui" id="tree-btn-txt" aria-haspopup="true" aria-label="" onclick="openPopup('tournament-tree-popup')"><img src="../static/cup.png" alt="" style="height: var(--td-avatar-height); width: var(--td-avatar-width); object-fit: contain;"></td-button>
 	</td-navigation-bar>
-	<td-ai-game-board class="ui" style="box-sizing: content-box;"></td-ai-game-board>
+	<td-ai-game-board class="ui gameboard" style="box-sizing: content-box;"></td-ai-game-board>
 </template>
 <template id="page-local-game">
 	<style>
@@ -154,6 +154,10 @@
 			display: none;
 		}
 
+		td-local-game-board {
+			width: 100%;
+		}
+
 		@media screen and (max-width: 600px) {
 			.id-card-container {
 				flex-direction: column;
@@ -161,6 +165,17 @@
 
 			.id-card-container > * {
 				width: 100%;
+			}
+		}
+
+		@media screen and (min-width: 1500px) {
+			.game-container {
+				height: 60vh;
+				justify-content: center;
+			}
+			td-local-game-board {
+				width: auto;
+				height: 100%;
 			}
 		}
 	</style>
@@ -176,7 +191,7 @@
 		<td-button id="start-game-button" class="ui" style="width: fit-content; padding: 0 1em;" aria-labelledby="local-btn-start"><p id="local-btn-start"></p></td-button>
 	</div>
 	<div class="game-container hide">
-		<td-local-game-board class="ui" style="width: 100%; display: block; box-sizing: content-box;"></td-local-game-board>
+		<td-local-game-board class="ui" style="display: block; box-sizing: content-box;"></td-local-game-board>
 		<!-- <td-button id="restart-game-button" class="ui hide" style="width: fit-content; padding: 0 1em;"><p id="start-game-text"></p></td-button> -->
 	</div>
 </template>
