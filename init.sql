@@ -1,4 +1,4 @@
-CREATE TABLE transcendence_users (
+CREATE TABLE IF NOT EXISTS transcendence_users (
     id SERIAL PRIMARY KEY,
     uuid VARCHAR(22) NOT NULL UNIQUE,
     login VARCHAR(10) NOT NULL UNIQUE,
