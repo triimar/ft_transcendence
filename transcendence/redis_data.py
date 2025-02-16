@@ -356,13 +356,16 @@ async def generate_matches(room_id, self_player_id) -> list[str]:
 async def set_player_ready_for_match(room_id, match_index, player_id):
     redis_instance = get_redis_client()
 
+    match_status = check_match_status(room_id, match_id=match_index)
+    if match_status == MatchStatus.BEFORE_START:
+        await redis_instance.json().set("player_data", f"$.{player_id}.score", 0)
+
     await redis_instance.json().set(
         "room_data", f"$.{room_id}.matches[{match_index}].started", True)
 
     await redis_instance.json().numincrby(
         "room_data", f"$.{room_id}.matches[{match_index}].ready", 1
     )
-    await redis_instance.json().set("player_data", f"$.{player_id}.score", 0)
 
 async def set_match_ready_to_zero(room_id, match_index):
     redis_instance = get_redis_client()
@@ -455,6 +458,9 @@ async def is_last_game(match_id, room_id):
 async def set_player_in_next_match(room_id, match_id, winner_id):
     redis_instance = get_redis_client()
 
+    match = await get_one_match(room_id, match_id)
+    if winner_id in match["players"]:
+        return
     await redis_instance.json().arrappend(
         "room_data", f"$.{room_id}.matches[{match_id}].players", winner_id
     )

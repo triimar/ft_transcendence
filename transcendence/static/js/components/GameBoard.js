@@ -95,8 +95,8 @@ export default class ComponentGameBoard extends HTMLElement {
 		let gameMode = message["game_mode"];
 		if (gameMode !== null)
 			this.gameMode = gameMode;
-		this.score.left = 0;
-		this.score.right = 0;
+		this.score.left = playerLeft["score"];
+		this.score.right = playerRight["score"];
 		this.side = side;
 		this.ball.x = ball["position"]["x"];
 		this.ball.y = ball["position"]["y"];
@@ -106,6 +106,9 @@ export default class ComponentGameBoard extends HTMLElement {
 		this.paddleLeft.color = '#' + playerLeft["player_bg_color"];
 		this.paddleRight.name = playerRight["player_emoji"];
 		this.paddleRight.color = '#' + playerRight["player_bg_color"];
+
+		let blocker = this.shadow.querySelector("#blocker");
+		blocker.classList.remove("show");
 
 		this.ball.draw();
 		this.paddleRight.draw();

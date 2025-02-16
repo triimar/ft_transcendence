@@ -144,7 +144,6 @@ async function main() {
 	window.closePopup = closePopup;
 
 	await initializeI18n(); // Ensure translations are initialized
-	document.myself = myself; // only for debugging
 	const contentContainer = document.getElementsByClassName("content-container")[0];
 	let currentPage = null;
 	window.addEventListener("hashchange", async (event) => {
