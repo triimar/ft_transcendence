@@ -344,7 +344,7 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
         game_match = room['matches'][self.match_id]
 
         if opponent_id and opponent_id == "ai":
-            event = {"type": "broadcast.start.ai.match", 'ball': game_match['ball']}
+            event = {"type": "broadcast.start.ai.match", 'ball': game_match['ball'], 'mode': room["mode"]}
             await self.channel_layer.group_send(self.room_group_name + "_" + str(self.match_id), event)
             return
 
@@ -382,7 +382,8 @@ class WebsiteConsumer(AsyncWebsocketConsumer):
 
     async def broadcast_start_ai_match(self, event):
         ball = event["ball"]
-        text_data = json.dumps({"type": "b_start_ai_match", "ball": ball})
+        mode = event["mode"]
+        text_data = json.dumps({"type": "b_start_ai_match", "ball": ball, "mode": mode})
         await self.send(text_data=text_data)
 
     async def broadcast_start_match(self, event):
