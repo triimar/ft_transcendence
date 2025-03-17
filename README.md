@@ -11,7 +11,7 @@
 
 4. Your Pong awaits (Only playable as guests)
 
-![Our ft_transcendence](https://github.com/triimar/ft_transcendence.png)
+![Our ft_transcendence](./ft_transcendence.png)
 
 ## If you are a 42 member and want to play with intra login
 
