@@ -37,4 +37,4 @@ pgadmin
 tests
 
 #env
-.env
+#.env
