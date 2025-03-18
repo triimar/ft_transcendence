@@ -27,14 +27,14 @@
 
 ## If you are a 42 member and want to play with intra login
 
-Have your own up-to-date 42 API with the redirect URI set to https://[localhost or current domain]/api/request and change the followings in the .env with the corresponding UID and SECRET
+Have your own, up-to-date UID and SECRET for 42 API. Register a new application with redirect URI set to https://[localhost or current domain]/api/request and change the followings in the .env with the corresponding UID and SECRET
 ```
 OAUTH_CLIENT_ID=''
 OAUTH_CLIENT_SECRET=''
 ```
 
 ## If you want to enjoy remote play
-Change the DOMAIN in the .env to the IP address of a shared network and let users connect to it. If you use 42 API, the redirect URI of the API should change accordingly to https://[new_domain]/api/request. Hover over the sprocket-wheel icon and click 'Edit' to add a new redirect URI on the 42 API setting page.
+Change the DOMAIN in the .env to the IP address of a shared network and let users connect to it. If you use 42 API, the redirect URI of the API should change accordingly to https://[new_domain]/api/request. Hover over the sprocket-wheel icon and click 'Edit' to add a new redirect URI on your 42 application setting page.
 
 ## When virtual environment is used (defunct)
 2. Create and activate a virtual environment:
