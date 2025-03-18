@@ -1,8 +1,19 @@
+# ft_transcendence
+
 ![Our ft_transcendence](./ft_transcendence.png)
 
-Our ft_transcendence offers a dynamic gaming experience with support for local/remote play, tournament, AI opponents, and classic/balance modes. Its user-friendly features includes Voice Over, multi-language support, a scalable design, and compatibility with multiple devices and browsers.
+## Key Features:
+- **Local & Remote Play**: Play solo or team up with friends, whether locally or remotely
+- **Tournament Mode**: Compete in exciting tournaments
+- **AI Opponents**: Challenge intelligent AI opponents
+- **Classic & Balance Modes**: Choose between classic and balance mode for a customizable experience
 
-## Setup
+## User-Friendly Features:
+- **Voice Over Support**: Navigate the game effortlessly with voice-over assistance
+- **Multi-Language Support**: Play in your preferred language with built-in language options
+- **Cross-Device & Multi-Browser Compatibility**: Seamlessly play across different devices and browsers for a consistent experience
+
+# Setup
 
 1. Clone the repository
 
