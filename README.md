@@ -7,8 +7,6 @@
 - **Tournament Mode**: Compete in exciting tournaments
 - **AI Opponents**: Challenge intelligent AI opponents
 - **Classic & Balance Modes**: Choose between classic and balance mode for a customizable experience
-
-## User-Friendly Features:
 - **Voice Over Support**: Navigate the game effortlessly with voice-over assistance
 - **Multi-Language Support**: Play in your preferred language with built-in language options
 - **Cross-Device & Multi-Browser Compatibility**: Seamlessly play across different devices and browsers for a consistent experience
