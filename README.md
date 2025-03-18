@@ -27,7 +27,7 @@
 
 ## If you are a 42 member and want to play with intra login
 
-Have your own 42 API with the redirect URI set to https://[localhost or current domain]/api/request and change the followings in the .env with the corresponding UID and SECRET
+Have your own up-to-date 42 API with the redirect URI set to https://[localhost or current domain]/api/request and change the followings in the .env with the corresponding UID and SECRET
 ```
 OAUTH_CLIENT_ID=''
 OAUTH_CLIENT_SECRET=''
